@@ -11,15 +11,38 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('roles', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name')->unique();
+            $table->string('description')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('permissions', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('action'); //create ,edit ,delete
+            $table->string('resource'); //tables 
+            $table->unique(['action', 'resource']);
+            $table->timestamps();
+        });
+
+        Schema::create('role_permission', function (Blueprint $table) {
+            $table->foreignId('role_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('permission_id')->constrained()->cascadeOnDelete();
+            $table->primary(['role_id', "permission_id"]);
+            $table->timestamps();
+        });
+
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('full_name');
             $table->string('email')->unique();
             $table->string('password');
             $table->rememberToken();
             $table->foreignId('role_id')->constrained();
             $table->timestamp('email_verified_at')->nullable();
-            $table->boolean('isActive')->default(true);
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('last_login_at')->nullable();
             $table->timestamps();
         });
 
@@ -44,7 +67,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists("role_permission");
+        Schema::dropIfExists("permissions");
         Schema::dropIfExists('users');
+        Schema::dropIfExists("roles");
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
