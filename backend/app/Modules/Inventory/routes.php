@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Inventory\Controllers\CategoryController;
+use App\Modules\Inventory\Controllers\ProductController;
 use App\Modules\Inventory\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,5 +18,10 @@ Route::middleware('auth:sanctum')->group(function () {
     /**
      * UNIT ROUTES
      */
-    Route::apiResource('units', UnitController::class);
+    Route::apiResource('units', UnitController::class)->only(['store', 'index', 'show', 'update', 'destroy']);
+
+    /**
+     * PRODUCT ROUTES
+     */
+    Route::apiResource('products', ProductController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 });
