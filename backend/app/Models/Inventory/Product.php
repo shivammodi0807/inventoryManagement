@@ -2,14 +2,17 @@
 
 namespace App\Models\Inventory;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Auth\User;
-use App\Models\Supplier\Supplier;
-use App\Models\Purchase\PurchaseOrderItem;
 use App\Models\Analytics\Prediction;
+use App\Models\Auth\User;
+use App\Models\Purchase\PurchaseOrderItem;
+use App\Models\Supplier\Supplier;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'sku',
         'name',
