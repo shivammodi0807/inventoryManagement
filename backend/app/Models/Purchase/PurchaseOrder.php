@@ -2,12 +2,15 @@
 
 namespace App\Models\Purchase;
 
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Supplier\Supplier;
 use App\Models\Auth\User;
+use App\Models\Supplier\Supplier;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PurchaseOrder extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'purchase_orders';
 
     protected $fillable = [

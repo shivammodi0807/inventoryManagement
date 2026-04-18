@@ -3,9 +3,12 @@
 namespace App\Models\Inventory;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Warehouse extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = ['name', 'location', 'is_active'];
 
     protected $casts = [

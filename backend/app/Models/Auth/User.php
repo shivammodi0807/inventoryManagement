@@ -2,17 +2,18 @@
 
 namespace App\Models\Auth;
 
+use App\Models\Inventory\InventoryLog;
+use App\Models\Inventory\Product;
+use App\Models\Purchase\PurchaseOrder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\Inventory\Product;
-use App\Models\Inventory\InventoryLog;
-use App\Models\Purchase\PurchaseOrder;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
