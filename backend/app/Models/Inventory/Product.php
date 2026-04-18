@@ -6,6 +6,7 @@ use App\Models\Analytics\Prediction;
 use App\Models\Auth\User;
 use App\Models\Purchase\PurchaseOrderItem;
 use App\Models\Supplier\Supplier;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -77,5 +78,62 @@ class Product extends Model
     public function predictions()
     {
         return $this->hasMany(Prediction::class);
+    }
+
+    /**
+     * Scope: only active products.
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope: products whose current stock is at or below their reorder point.
+     */
+    public function scopeLowStock(Builder $query): Builder
+    {
+        return $query->whereHas('stockLevels', function (Builder $q) {
+            $q->whereRaw('stock_levels.current_stock <= products.reorder_point');
+        });
+    }
+
+    /**
+     * Scope: search by name or SKU (case-insensitive LIKE).
+     */
+    public function scopeSearch(Builder $query, ?string $term): Builder
+    {
+        if (empty($term)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('sku', 'like', "%{$term}%");
+        });
+    }
+
+    /**
+     * Accessor: total available stock across all warehouses.
+     */
+    public function getTotalStockAttribute(): int
+    {
+        return (int) $this->stockLevels->sum('current_stock');
+    }
+
+    /**
+     * Accessor: derived stock status label.
+     */
+    public function getStockStatusAttribute(): string
+    {
+        $available = $this->total_stock;
+        $reorder = (int) $this->reorder_point;
+
+        return match (true) {
+            $available <= $reorder * 0.5 => 'critical',
+            $available <= $reorder => 'low',
+            $available > $reorder * 3 => 'overstock',
+            default => 'normal',
+        };
     }
 }

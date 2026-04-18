@@ -10,7 +10,7 @@ class ProductService
     /**
      * Get all products with optional filtering and sorting.
      *
-     * @param  array  $filters  Optional filters (name, sku, category_id, unit_id, is_active)
+     * @param  array  $filters  Optional filters (search, name, sku, category_id, unit_id, is_active)
      * @param  string  $sortBy  Column to sort by (default: name)
      * @param  string  $sortOrder  Sort order (asc, desc)
      * @param  int  $perPage  Number of items per page
@@ -22,6 +22,10 @@ class ProductService
         int $perPage = 15
     ): LengthAwarePaginator {
         $query = Product::with(['category', 'unit']);
+
+        if (! empty($filters['search'])) {
+            $query->search($filters['search']);
+        }
 
         if (! empty($filters['name'])) {
             $query->where('name', 'like', "%{$filters['name']}%");
@@ -40,7 +44,9 @@ class ProductService
         }
 
         if (isset($filters['is_active'])) {
-            $query->where('is_active', (bool) $filters['is_active']);
+            (bool) $filters['is_active']
+                ? $query->active()
+                : $query->where('is_active', false);
         }
 
         $validColumns = ['id', 'sku', 'name', 'unit_price', 'cost_price', 'created_at', 'updated_at'];
@@ -133,5 +139,19 @@ class ProductService
         }
 
         return (bool) $product->delete();
+    }
+
+    /**
+     * Get products at or below their reorder point.
+     *
+     * @param  int  $perPage  Number of items per page
+     */
+    public function getLowStockProducts(int $perPage = 15): LengthAwarePaginator
+    {
+        return Product::with(['category', 'unit', 'stockLevels'])
+            ->active()
+            ->lowStock()
+            ->orderBy('name')
+            ->paginate($perPage);
     }
 }

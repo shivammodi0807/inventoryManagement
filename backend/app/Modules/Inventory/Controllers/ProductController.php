@@ -20,11 +20,24 @@ class ProductController extends Controller
     public function __construct(private ProductService $productService) {}
 
     /**
+     * Display products at or below reorder point (paginated).
+     */
+    public function lowStock(Request $request): AnonymousResourceCollection
+    {
+        $perPage = max(1, min(100, (int) $request->query('per_page', 15)));
+
+        $products = $this->productService->getLowStockProducts($perPage);
+
+        return ProductResource::collection($products);
+    }
+
+    /**
      * Display a listing of products (paginated).
      */
     public function index(Request $request): AnonymousResourceCollection
     {
         $filters = [
+            'search' => $request->query('search'),
             'name' => $request->query('name'),
             'sku' => $request->query('sku'),
             'category_id' => $request->query('category_id'),

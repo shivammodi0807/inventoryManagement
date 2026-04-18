@@ -23,5 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     /**
      * PRODUCT ROUTES
      */
+    // Low-stock endpoint MUST be defined before apiResource to avoid collision with /products/{product}
+    Route::get('/products/low-stock', [ProductController::class, 'lowStock'])->name('products.low-stock');
     Route::apiResource('products', ProductController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 });

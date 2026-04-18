@@ -32,6 +32,8 @@ class ProductResource extends JsonResource
             'image_url' => $this->image_url,
             'is_active' => $this->is_active,
             'user_id' => $this->user_id,
+            'total_stock' => $this->when($this->relationLoaded('stockLevels'), fn () => $this->total_stock),
+            'stock_status' => $this->when($this->relationLoaded('stockLevels'), fn () => $this->stock_status),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
