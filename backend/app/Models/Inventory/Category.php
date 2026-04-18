@@ -2,12 +2,15 @@
 
 namespace App\Models\Inventory;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
+    use HasFactory;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -31,8 +34,6 @@ class Category extends Model
 
     /**
      * Get the parent category relationship.
-     *
-     * @return BelongsTo
      */
     public function parent(): BelongsTo
     {
@@ -41,8 +42,6 @@ class Category extends Model
 
     /**
      * Get child categories.
-     *
-     * @return HasMany
      */
     public function children(): HasMany
     {
@@ -51,8 +50,6 @@ class Category extends Model
 
     /**
      * Get products in this category.
-     *
-     * @return HasMany
      */
     public function products(): HasMany
     {

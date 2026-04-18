@@ -7,12 +7,13 @@ use App\Models\Auth\User;
 use App\Models\Purchase\PurchaseOrderItem;
 use App\Models\Supplier\Supplier;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'sku',

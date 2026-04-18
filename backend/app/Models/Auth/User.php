@@ -73,4 +73,27 @@ class User extends Authenticatable
     {
         return $this->hasMany(PurchaseOrder::class, 'user_id');
     }
+
+    /**
+     * Check whether the user has a permission.
+     *
+     * Supports two call styles:
+     *  - hasPermission('manage-inventory')  // legacy slug (Admin/Manager only)
+     *  - hasPermission($action, $resource)  // action/resource pair against permissions table
+     */
+    public function hasPermission(string $action, ?string $resource = null): bool
+    {
+        if ($resource === null) {
+            if ($action === 'manage-inventory') {
+                return in_array($this->role?->name, ['Admin', 'Manager'], true);
+            }
+
+            return false;
+        }
+
+        return $this->role?->permissions()
+            ->where('action', $action)
+            ->where('resource', $resource)
+            ->exists() ?? false;
+    }
 }

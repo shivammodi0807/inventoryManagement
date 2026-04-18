@@ -2,10 +2,13 @@
 
 namespace App\Models\Inventory;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class StockLevel extends Model
 {
+    use HasFactory;
+
     protected $table = 'stock_levels';
 
     protected $fillable = [
