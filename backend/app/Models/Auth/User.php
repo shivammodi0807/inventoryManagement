@@ -84,11 +84,14 @@ class User extends Authenticatable
     public function hasPermission(string $action, ?string $resource = null): bool
     {
         if ($resource === null) {
-            if ($action === 'manage-inventory') {
-                return in_array($this->role?->name, ['Admin', 'Manager'], true);
-            }
-
-            return false;
+            return match ($action) {
+                'manage-inventory',
+                'manage-suppliers',
+                'manage-purchase-orders' => in_array($this->role?->name, ['Admin', 'Manager'], true),
+                'receive-stock' => in_array($this->role?->name, ['Admin', 'Manager', 'Staff'], true),
+                'admin' => $this->role?->name === 'Admin',
+                default => false,
+            };
         }
 
         return $this->role?->permissions()

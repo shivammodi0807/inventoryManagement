@@ -3,8 +3,10 @@
 namespace App\Modules\Inventory\Providers;
 
 use App\Modules\Inventory\Events\StockChanged;
+use App\Modules\Inventory\Listeners\ApplyPurchaseOrderStock;
 use App\Modules\Inventory\Listeners\CheckStockLevels;
 use App\Modules\Inventory\Listeners\InvalidateStockCache;
+use App\Modules\PurchaseOrder\Events\PurchaseOrderReceived;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -28,5 +30,6 @@ class InventoryProvider extends ServiceProvider
 
         Event::listen(StockChanged::class, CheckStockLevels::class);
         Event::listen(StockChanged::class, InvalidateStockCache::class);
+        Event::listen(PurchaseOrderReceived::class, ApplyPurchaseOrderStock::class);
     }
 }

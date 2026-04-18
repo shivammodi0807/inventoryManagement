@@ -1,0 +1,51 @@
+<?php
+
+namespace App\Modules\Supplier\Requests;
+
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+
+class LinkProductRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return $this->user()->hasPermission('manage-suppliers');
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'product_id' => 'required|integer|exists:products,id',
+            'supplier_sku' => 'nullable|string|max:255',
+            'cost_price' => 'required|numeric|min:0',
+            'est_delivery_days' => 'required|integer|min:1',
+            'is_preferred' => 'nullable|boolean',
+            'min_order_qty' => 'nullable|integer|min:1',
+        ];
+    }
+
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'product_id.required' => 'Product is required.',
+            'product_id.exists' => 'The selected product does not exist.',
+            'cost_price.required' => 'Cost price is required.',
+            'cost_price.min' => 'Cost price cannot be negative.',
+            'est_delivery_days.required' => 'Estimated delivery days is required.',
+            'est_delivery_days.min' => 'Estimated delivery days must be at least 1.',
+        ];
+    }
+}

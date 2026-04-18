@@ -6,6 +6,7 @@ use App\Models\Inventory\InventoryLog;
 use App\Models\Inventory\Product;
 use App\Models\Inventory\StockLevel;
 use App\Models\Inventory\Warehouse;
+use App\Modules\Inventory\Events\LowStockDetected;
 use App\Modules\Inventory\Events\StockChanged;
 use App\Modules\Inventory\Services\StockService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
