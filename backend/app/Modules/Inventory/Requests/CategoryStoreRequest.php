@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Requests;
 
+use App\Models\Inventory\Category;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CategoryStoreRequest extends FormRequest
@@ -11,7 +12,7 @@ class CategoryStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasPermission('manage-inventory');
+        return $this->user()?->can('create', Category::class) ?? false;
     }
 
     /**

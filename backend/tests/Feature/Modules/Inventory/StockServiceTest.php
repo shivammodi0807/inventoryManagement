@@ -7,6 +7,7 @@ use App\Models\Inventory\Product;
 use App\Models\Inventory\StockLevel;
 use App\Models\Inventory\Warehouse;
 use App\Modules\Inventory\Events\LowStockDetected;
+use App\Modules\Inventory\Events\OverstockDetected;
 use App\Modules\Inventory\Events\StockChanged;
 use App\Modules\Inventory\Services\StockService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -180,7 +181,48 @@ test('LowStockDetected does not fire when stock is above reorder point', functio
         $captured[] = $e;
     });
 
-    $this->service->adjustStock($this->product->id, $this->warehouse->id, 50, 'receipt');
+    // reorder_point = 10; 15 is above but does not exceed 3x (30).
+    $this->service->adjustStock($this->product->id, $this->warehouse->id, 15, 'receipt');
+
+    expect($captured)->toBeEmpty();
+});
+
+test('OverstockDetected fires when stock exceeds reorder_point * 3', function () {
+    $captured = [];
+    Event::listen(OverstockDetected::class, function (OverstockDetected $e) use (&$captured) {
+        $captured[] = $e;
+    });
+
+    // reorder_point = 10; threshold = 30. Stock at 31 should trigger.
+    $this->service->adjustStock($this->product->id, $this->warehouse->id, 31, 'receipt');
+
+    expect($captured)->toHaveCount(1)
+        ->and($captured[0]->productId)->toBe($this->product->id)
+        ->and($captured[0]->currentStock)->toBe(31)
+        ->and($captured[0]->threshold)->toBe(30);
+});
+
+test('OverstockDetected does not fire at or below the 3x threshold', function () {
+    $captured = [];
+    Event::listen(OverstockDetected::class, function (OverstockDetected $e) use (&$captured) {
+        $captured[] = $e;
+    });
+
+    // Stock at exactly 30 (the threshold) should NOT trigger.
+    $this->service->adjustStock($this->product->id, $this->warehouse->id, 30, 'receipt');
+
+    expect($captured)->toBeEmpty();
+});
+
+test('OverstockDetected does not fire when reorder_point is zero', function () {
+    $product = Product::factory()->create(['reorder_point' => 0]);
+
+    $captured = [];
+    Event::listen(OverstockDetected::class, function (OverstockDetected $e) use (&$captured) {
+        $captured[] = $e;
+    });
+
+    $this->service->adjustStock($product->id, $this->warehouse->id, 100, 'receipt');
 
     expect($captured)->toBeEmpty();
 });

@@ -2,6 +2,7 @@
 
 namespace App\Modules\PurchaseOrder\Requests;
 
+use App\Models\Purchase\PurchaseOrder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -9,7 +10,14 @@ class UpdatePurchaseOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasPermission('manage-purchase-orders');
+        $id = $this->route('id') ?? $this->route('purchase_order');
+        $order = PurchaseOrder::find($id);
+
+        if (! $order) {
+            return true;
+        }
+
+        return $this->user()?->can('update', $order) ?? false;
     }
 
     /**

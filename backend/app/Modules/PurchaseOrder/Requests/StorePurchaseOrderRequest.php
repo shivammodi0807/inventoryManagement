@@ -2,6 +2,7 @@
 
 namespace App\Modules\PurchaseOrder\Requests;
 
+use App\Models\Purchase\PurchaseOrder;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -9,7 +10,7 @@ class StorePurchaseOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->hasPermission('manage-purchase-orders');
+        return $this->user()?->can('create', PurchaseOrder::class) ?? false;
     }
 
     /**

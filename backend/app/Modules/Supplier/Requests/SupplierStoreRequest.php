@@ -2,6 +2,7 @@
 
 namespace App\Modules\Supplier\Requests;
 
+use App\Models\Supplier\Supplier;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,7 @@ class SupplierStoreRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasPermission('manage-suppliers');
+        return $this->user()?->can('create', Supplier::class) ?? false;
     }
 
     /**

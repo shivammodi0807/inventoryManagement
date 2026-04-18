@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Requests;
 
+use App\Models\Inventory\Category;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CategoryUpdateRequest extends FormRequest
@@ -11,7 +12,14 @@ class CategoryUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasPermission('manage-inventory');
+        $id = $this->route('id') ?? $this->route('category');
+        $category = Category::find($id);
+
+        if (! $category) {
+            return true;
+        }
+
+        return $this->user()?->can('update', $category) ?? false;
     }
 
     /**

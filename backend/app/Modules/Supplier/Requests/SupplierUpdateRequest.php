@@ -2,6 +2,7 @@
 
 namespace App\Modules\Supplier\Requests;
 
+use App\Models\Supplier\Supplier;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,14 @@ class SupplierUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasPermission('manage-suppliers');
+        $id = $this->route('id') ?? $this->route('supplier');
+        $supplier = Supplier::find($id);
+
+        if (! $supplier) {
+            return true;
+        }
+
+        return $this->user()?->can('update', $supplier) ?? false;
     }
 
     /**

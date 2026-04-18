@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Requests;
 
+use App\Models\Inventory\Product;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,14 @@ class ProductUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasPermission('manage-inventory');
+        $productId = $this->route('id') ?? $this->route('product');
+        $product = Product::find($productId);
+
+        if (! $product) {
+            return true;
+        }
+
+        return $this->user()?->can('update', $product) ?? false;
     }
 
     /**

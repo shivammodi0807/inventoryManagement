@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Requests;
 
+use App\Models\Inventory\Unit;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,14 @@ class UnitUpdateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasPermission('manage-inventory');
+        $id = $this->route('id') ?? $this->route('unit');
+        $unit = Unit::find($id);
+
+        if (! $unit) {
+            return true;
+        }
+
+        return $this->user()?->can('update', $unit) ?? false;
     }
 
     /**
@@ -23,10 +31,11 @@ class UnitUpdateRequest extends FormRequest
     public function rules(): array
     {
         $unitId = $this->route('id') ?? $this->route('unit');
+
         return [
-            'name' => "required|string|max:255",
+            'name' => 'required|string|max:255',
             'symbol' => 'required|string',
-            'type' => "nullable|string"
+            'type' => 'nullable|string',
         ];
     }
 
@@ -36,10 +45,10 @@ class UnitUpdateRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => "Unit Name is required",
-            'name.string' => "Unit Name must be of type string",
+            'name.required' => 'Unit Name is required',
+            'name.string' => 'Unit Name must be of type string',
             'name.max:255' => 'Unit Name is too large',
-            'symbol.required' => 'Symbol Name is required'
+            'symbol.required' => 'Symbol Name is required',
         ];
     }
 }

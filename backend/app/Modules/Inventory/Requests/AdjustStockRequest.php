@@ -2,6 +2,7 @@
 
 namespace App\Modules\Inventory\Requests;
 
+use App\Models\Inventory\Product;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -13,7 +14,14 @@ class AdjustStockRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasPermission('manage-inventory');
+        $id = $this->route('product') ?? $this->route('productId');
+        $product = Product::find($id);
+
+        if (! $product) {
+            return true;
+        }
+
+        return $this->user()?->can('adjustStock', $product) ?? false;
     }
 
     /**

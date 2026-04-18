@@ -70,15 +70,15 @@ class SupplierController extends Controller
      */
     public function destroy(Request $request, int $id): JsonResponse
     {
-        if (! $request->user()->hasPermission('admin')) {
-            return response()->json(['message' => 'Insufficient permissions.'], Response::HTTP_FORBIDDEN);
-        }
+        $supplier = Supplier::find($id);
 
-        $ok = $this->supplierService->deactivateSupplier($id);
-
-        if (! $ok) {
+        if (! $supplier) {
             return response()->json(['message' => 'Supplier not found'], Response::HTTP_NOT_FOUND);
         }
+
+        $this->authorize('delete', $supplier);
+
+        $this->supplierService->deactivateSupplier($id);
 
         return response()->json(['message' => 'Supplier deactivated'], Response::HTTP_NO_CONTENT);
     }
@@ -88,15 +88,13 @@ class SupplierController extends Controller
      */
     public function performance(Request $request, int $id): JsonResponse
     {
-        if (! $request->user()->hasPermission('manage-suppliers')) {
-            return response()->json(['message' => 'Insufficient permissions.'], Response::HTTP_FORBIDDEN);
-        }
-
         $supplier = Supplier::find($id);
 
         if (! $supplier) {
             return response()->json(['message' => 'Supplier not found'], Response::HTTP_NOT_FOUND);
         }
+
+        $this->authorize('viewPerformance', $supplier);
 
         return response()->json($this->supplierService->getPerformance($supplier));
     }

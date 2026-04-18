@@ -35,15 +35,13 @@ class ProductSupplierController extends Controller
      */
     public function destroy(Request $request, int $supplierId, int $productId): JsonResponse
     {
-        if (! $request->user()->hasPermission('manage-suppliers')) {
-            return response()->json(['message' => 'Insufficient permissions.'], Response::HTTP_FORBIDDEN);
-        }
-
         $supplier = Supplier::find($supplierId);
 
         if (! $supplier) {
             return response()->json(['message' => 'Supplier not found'], Response::HTTP_NOT_FOUND);
         }
+
+        $this->authorize('unlinkProduct', $supplier);
 
         $detached = $this->supplierService->unlinkProduct($supplier, $productId);
 
