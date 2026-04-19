@@ -2,10 +2,16 @@
 
 namespace App\Modules\Notification\Notifications;
 
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class PurchaseOrderStatusNotification extends Notification
+class PurchaseOrderStatusNotification extends Notification implements ShouldQueue
 {
+    use Queueable;
+
     public function __construct(
         public int $orderId,
         public string $orderNumber,
@@ -17,7 +23,7 @@ class PurchaseOrderStatusNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail', 'broadcast'];
     }
 
     /**
@@ -35,5 +41,19 @@ class PurchaseOrderStatusNotification extends Notification
             'priority' => 'info',
             'action_url' => "/dashboard/purchase-orders/{$this->orderId}",
         ];
+    }
+
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject("Purchase Order {$this->orderNumber} updated")
+            ->greeting("PO {$this->orderNumber}")
+            ->line("The status of this purchase order is now: {$this->status}.")
+            ->action('View Purchase Order', url("/dashboard/purchase-orders/{$this->orderId}"));
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return new BroadcastMessage($this->toArray($notifiable));
     }
 }
