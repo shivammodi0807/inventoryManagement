@@ -20,6 +20,6 @@ class LoginController extends Controller
 
         $user->update(['last_login_at' => now()]);
 
-        return response()->json(new UserResource($user));
+        return response()->json(new UserResource($user->load('role.permissions')));
     }
 }

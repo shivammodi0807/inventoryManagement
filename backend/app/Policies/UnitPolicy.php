@@ -9,26 +9,26 @@ class UnitPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasPermission('view', 'unit');
     }
 
     public function view(User $user, Unit $unit): bool
     {
-        return true;
+        return $user->hasPermission('view', 'unit');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasPermission('manage-inventory');
+        return $user->hasPermission('create', 'unit');
     }
 
     public function update(User $user, Unit $unit): bool
     {
-        return $user->hasPermission('manage-inventory');
+        return $user->hasPermission('edit', 'unit');
     }
 
     public function delete(User $user, Unit $unit): bool
     {
-        return $user->hasPermission('manage-inventory');
+        return $user->hasPermission('delete', 'unit');
     }
 }

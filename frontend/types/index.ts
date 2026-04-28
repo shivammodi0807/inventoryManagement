@@ -1,8 +1,26 @@
-export interface User {
+// Roles are dynamic (admins can create new ones from Settings → Roles), so
+// the name is just `string`. Only the two sealed roles are special: their
+// ids are stable (1 = Admin, 2 = Guest) and the SealedRoleGuard forbids
+// renaming them. Use `user.role.name === "Admin"` only for the sealed-admin
+// badge — every other gate should go through `can(action, resource)`.
+export interface Role {
   id: number;
   name: string;
+  description: string | null;
+}
+
+// Format: `"action:resource"`, e.g. `"create:product"`. Drives the SPA
+// `can()` helper. Backend: see App\Modules\Auth\Resources\UserResource.
+export type PermissionString = `${string}:${string}`;
+
+export interface User {
+  id: number;
   email: string;
-  role: string;
+  full_name: string;
+  is_active: boolean;
+  last_login_at: string | null;
+  role: Role;
+  permissions: PermissionString[];
   created_at?: string;
   updated_at?: string;
 }

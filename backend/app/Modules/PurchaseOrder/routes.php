@@ -4,26 +4,34 @@ use App\Modules\PurchaseOrder\Controllers\PurchaseOrderController;
 use App\Modules\PurchaseOrder\Controllers\ReceivePurchaseOrderController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     /**
      * PURCHASE ORDER CRUD
      */
-    Route::apiResource('purchase-orders', PurchaseOrderController::class)
-        ->only(['index', 'store', 'show', 'update']);
+    Route::get('/purchase-orders', [PurchaseOrderController::class, 'index'])
+        ->middleware('permission:view,purchase_order');
+    Route::post('/purchase-orders', [PurchaseOrderController::class, 'store'])
+        ->middleware('permission:create,purchase_order');
+    Route::get('/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'show'])
+        ->middleware('permission:view,purchase_order');
+    Route::match(['put', 'patch'], '/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'update'])
+        ->middleware('permission:edit,purchase_order');
 
     /**
-     * STATUS TRANSITIONS
+     * STATUS TRANSITIONS. confirm is mapped to delete,purchase_order so it's
+     * admin-only by default; admins can grant it elsewhere via the role UI.
      */
     Route::patch('/purchase-orders/{id}/submit', [PurchaseOrderController::class, 'submit'])
-        ->name('purchase-orders.submit');
+        ->middleware('permission:edit,purchase_order')->name('purchase-orders.submit');
     Route::patch('/purchase-orders/{id}/confirm', [PurchaseOrderController::class, 'confirm'])
-        ->name('purchase-orders.confirm');
+        ->middleware('permission:delete,purchase_order')->name('purchase-orders.confirm');
     Route::patch('/purchase-orders/{id}/cancel', [PurchaseOrderController::class, 'cancel'])
-        ->name('purchase-orders.cancel');
+        ->middleware('permission:edit,purchase_order')->name('purchase-orders.cancel');
 
     /**
-     * RECEIVE STOCK
+     * RECEIVE STOCK — dedicated receive,purchase_order permission so warehouse
+     * staff can fulfil POs without gaining create/edit on them.
      */
     Route::post('/purchase-orders/{id}/receive', ReceivePurchaseOrderController::class)
-        ->name('purchase-orders.receive');
+        ->middleware('permission:receive,purchase_order')->name('purchase-orders.receive');
 });

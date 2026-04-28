@@ -9,41 +9,41 @@ class ProductPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasPermission('view', 'product');
     }
 
     public function view(User $user, Product $product): bool
     {
-        return true;
+        return $user->hasPermission('view', 'product');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasPermission('manage-inventory');
+        return $user->hasPermission('create', 'product');
     }
 
     public function update(User $user, Product $product): bool
     {
-        return $user->hasPermission('manage-inventory');
+        return $user->hasPermission('edit', 'product');
     }
 
     public function delete(User $user, Product $product): bool
     {
-        return $user->hasPermission('manage-inventory');
+        return $user->hasPermission('delete', 'product');
     }
 
     public function adjustStock(User $user, Product $product): bool
     {
-        return $user->hasPermission('manage-inventory');
+        return $user->hasPermission('edit', 'product');
     }
 
     public function receiveStock(User $user, Product $product): bool
     {
-        return $user->hasPermission('manage-inventory');
+        return $user->hasPermission('edit', 'product');
     }
 
     public function viewStockHistory(User $user, Product $product): bool
     {
-        return true;
+        return $user->hasPermission('view', 'product');
     }
 }

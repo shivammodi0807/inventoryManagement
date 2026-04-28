@@ -32,6 +32,15 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'role_id' => 1,
             'is_active' => true,
+            'email_verified_at' => now(),
         ];
+    }
+
+    /**
+     * Indicate that the user's email is unverified.
+     */
+    public function unverified(): static
+    {
+        return $this->state(fn () => ['email_verified_at' => null]);
     }
 }

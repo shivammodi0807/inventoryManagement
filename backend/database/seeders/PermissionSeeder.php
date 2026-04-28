@@ -12,8 +12,21 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        $resources = ['product', 'category', 'user'];
-        $actions = ['create', 'edit', 'delete', 'view'];
+        // Fixed permission catalogue. New (action, resource) pairs are only added
+        // here in code because route middleware checks against this list.
+        $resources = [
+            'user',
+            'role',
+            'product',
+            'category',
+            'unit',
+            'supplier',
+            'purchase_order',
+            'warehouse',
+            'notification',
+            'report',
+        ];
+        $actions = ['view', 'create', 'edit', 'delete'];
 
         foreach ($resources as $resource) {
             foreach ($actions as $action) {
@@ -23,5 +36,10 @@ class PermissionSeeder extends Seeder
                 ]);
             }
         }
+
+        // Out-of-matrix permission: receiving stock against a confirmed PO is
+        // a distinct operation from generic edit (warehouse staff need it
+        // without being able to create/cancel POs).
+        Permission::firstOrCreate(['action' => 'receive', 'resource' => 'purchase_order']);
     }
 }

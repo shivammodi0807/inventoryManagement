@@ -3,7 +3,7 @@
 use App\Modules\Notification\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'verified', 'permission:view,notification'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index');
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])

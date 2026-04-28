@@ -1,44 +1,58 @@
-import axios from "axios";
+import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 const axiosApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   withCredentials: true,
+  withXSRFToken: true,
+  xsrfCookieName: "XSRF-TOKEN",
+  xsrfHeaderName: "X-XSRF-TOKEN",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
-// Attach CSRF token automatically
-axiosApi.interceptors.request.use((config) => {
-  if (
-    ["post", "put", "patch", "delete"].includes(
-      config.method?.toLowerCase() || "",
-    )
-  ) {
-    const token = getCookie("XSRF-TOKEN");
-    if (token) {
-      config.headers["X-XSRF-TOKEN"] = decodeURIComponent(token);
-    }
-  }
-  return config;
-});
+const PUBLIC_PATHS = ["/login", "/forgot-password", "/reset-password"];
 
-// Handle auth errors globally
+const isOnPublicPath = () => {
+  if (typeof window === "undefined") return false;
+  return PUBLIC_PATHS.some((p) => window.location.pathname.startsWith(p));
+};
+
+type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+
+// Handle auth + CSRF errors globally
 axiosApi.interceptors.response.use(
   (res) => res,
-  (error) => {
-    if (error.response?.status === 401) {
-      window.location.href = "/login";
+  async (error: AxiosError) => {
+    const status = error.response?.status;
+    const original = error.config as RetriableConfig | undefined;
+
+    // 419 = CSRF token mismatch. Refresh the cookie and retry once.
+    if (status === 419 && original && !original._retry) {
+      original._retry = true;
+      try {
+        await axiosApi.get("/sanctum/csrf-cookie");
+        return axiosApi.request(original);
+      } catch {
+        // fall through to reject
+      }
     }
+
+    // 401 = unauthenticated. Bounce to /login, but never from a public page
+    // (otherwise the /api/user probe on the login page causes a redirect loop).
+    if (status === 401 && typeof window !== "undefined" && !isOnPublicPath()) {
+      const originalUrl = original?.url || "";
+      // Don't redirect if this was a user profile fetch - let the caller handle it
+      // Return null instead of rejecting so React Query can resolve with null
+      if (originalUrl.includes("/api/user")) {
+        return Promise.resolve(null);
+      }
+      window.location.replace("/login");
+    }
+
     return Promise.reject(error);
   },
 );
-
-// Helper
-function getCookie(name: string) {
-  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-  return match ? match[2] : null;
-}
 
 export default axiosApi;

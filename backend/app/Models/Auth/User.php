@@ -5,13 +5,16 @@ namespace App\Models\Auth;
 use App\Models\Inventory\InventoryLog;
 use App\Models\Inventory\Product;
 use App\Models\Purchase\PurchaseOrder;
+use App\Notifications\Auth\ResetPasswordNotification;
+use App\Notifications\Auth\VerifyEmailNotification;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
@@ -75,28 +78,36 @@ class User extends Authenticatable
     }
 
     /**
-     * Check whether the user has a permission.
+     * Check whether the user's role grants ($action, $resource).
      *
-     * Supports two call styles:
-     *  - hasPermission('manage-inventory')  // legacy slug (Admin/Manager only)
-     *  - hasPermission($action, $resource)  // action/resource pair against permissions table
+     * Permissions are dynamic and managed by admins via /api/roles/{role}/permissions.
+     * Sealed roles (Admin/Guest) preserve identity invariants but Admin's
+     * permission set is also sealed at full coverage by SealedRoleGuard.
      */
-    public function hasPermission(string $action, ?string $resource = null): bool
+    public function hasPermission(string $action, string $resource): bool
     {
-        if ($resource === null) {
-            return match ($action) {
-                'manage-inventory',
-                'manage-suppliers',
-                'manage-purchase-orders' => in_array($this->role?->name, ['Admin', 'Manager'], true),
-                'receive-stock' => in_array($this->role?->name, ['Admin', 'Manager', 'Staff'], true),
-                'admin' => $this->role?->name === 'Admin',
-                default => false,
-            };
-        }
-
         return $this->role?->permissions()
             ->where('action', $action)
             ->where('resource', $resource)
             ->exists() ?? false;
+    }
+
+    /**
+     * Override the default Laravel reset-password notification so that the
+     * link points at the SPA reset page instead of a non-existent web route.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
+
+    /**
+     * Override the default verification notification so the link points at
+     * the SPA `/verify-email/{id}/{hash}` page (which then forwards the
+     * signed params to the backend verify endpoint).
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailNotification());
     }
 }

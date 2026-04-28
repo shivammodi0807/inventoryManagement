@@ -1,5 +1,6 @@
-import { User } from "@/types/user";
+import { User } from "@/types";
 
-export const isAdmin = (user?: User) => user?.role === "admin";
-export const isManager = (user?: User) => user?.role === "manager";
-export const isStaff = (user?: User) => user?.role === "staff";
+// Sealed-role identity check. Use this only for the Admin badge / sealed-
+// admin invariants. Every other gate should go through `can(action, resource)`
+// from `@/lib/permissions`.
+export const isAdmin = (user?: User) => user?.role?.name === "Admin";

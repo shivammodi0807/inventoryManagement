@@ -6,32 +6,54 @@ use App\Modules\Inventory\Controllers\StockController;
 use App\Modules\Inventory\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     /**
      * CATEGORY ROUTES
      */
-    Route::apiResource('categories', CategoryController::class);
-
-    // ROUTE TO GET THE CATEGORY HIERARCHY
-    Route::get('/categories/tree/hierarchy', [CategoryController::class, 'tree'])->name('categories.tree');
+    Route::get('/categories/tree/hierarchy', [CategoryController::class, 'tree'])
+        ->middleware('permission:view,category')->name('categories.tree');
+    Route::get('/categories', [CategoryController::class, 'index'])->middleware('permission:view,category');
+    Route::post('/categories', [CategoryController::class, 'store'])->middleware('permission:create,category');
+    Route::get('/categories/{category}', [CategoryController::class, 'show'])->middleware('permission:view,category');
+    Route::match(['put', 'patch'], '/categories/{category}', [CategoryController::class, 'update'])
+        ->middleware('permission:edit,category');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])
+        ->middleware('permission:delete,category');
 
     /**
      * UNIT ROUTES
      */
-    Route::apiResource('units', UnitController::class)->only(['store', 'index', 'show', 'update', 'destroy']);
+    Route::get('/units', [UnitController::class, 'index'])->middleware('permission:view,unit');
+    Route::post('/units', [UnitController::class, 'store'])->middleware('permission:create,unit');
+    Route::get('/units/{unit}', [UnitController::class, 'show'])->middleware('permission:view,unit');
+    Route::match(['put', 'patch'], '/units/{unit}', [UnitController::class, 'update'])
+        ->middleware('permission:edit,unit');
+    Route::delete('/units/{unit}', [UnitController::class, 'destroy'])
+        ->middleware('permission:delete,unit');
 
     /**
      * PRODUCT ROUTES
+     * Low-stock endpoint MUST be defined before /{product} to avoid collision.
      */
-    // Low-stock endpoint MUST be defined before apiResource to avoid collision with /products/{product}
-    Route::get('/products/low-stock', [ProductController::class, 'lowStock'])->name('products.low-stock');
-    Route::apiResource('products', ProductController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+    Route::get('/products/low-stock', [ProductController::class, 'lowStock'])
+        ->middleware('permission:view,product')->name('products.low-stock');
+    Route::get('/products', [ProductController::class, 'index'])->middleware('permission:view,product');
+    Route::post('/products', [ProductController::class, 'store'])->middleware('permission:create,product');
+    Route::get('/products/{product}', [ProductController::class, 'show'])->middleware('permission:view,product');
+    Route::match(['put', 'patch'], '/products/{product}', [ProductController::class, 'update'])
+        ->middleware('permission:edit,product');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])
+        ->middleware('permission:delete,product');
 
     /**
-     * STOCK ROUTES (nested under products)
+     * STOCK ROUTES (nested under products) — gated as edit,product since they
+     * mutate stock state. History is read-only.
      */
-    Route::post('/products/{product}/adjust', [StockController::class, 'adjust'])->name('products.stock.adjust');
-    Route::post('/products/{product}/receive', [StockController::class, 'receive'])->name('products.stock.receive');
-    Route::get('/products/{product}/history', [StockController::class, 'history'])->name('products.stock.history');
+    Route::post('/products/{product}/adjust', [StockController::class, 'adjust'])
+        ->middleware('permission:edit,product')->name('products.stock.adjust');
+    Route::post('/products/{product}/receive', [StockController::class, 'receive'])
+        ->middleware('permission:edit,product')->name('products.stock.receive');
+    Route::get('/products/{product}/history', [StockController::class, 'history'])
+        ->middleware('permission:view,product')->name('products.stock.history');
 });

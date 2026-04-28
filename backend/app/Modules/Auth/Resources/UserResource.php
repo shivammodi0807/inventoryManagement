@@ -14,6 +14,13 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        // Flat permission list ("action:resource") drives the SPA `can()`
+        // helper. Eager-load `role.permissions` upstream to avoid N+1.
+        $permissions = $this->role?->permissions
+            ->map(fn ($p) => "{$p->action}:{$p->resource}")
+            ->values()
+            ->all() ?? [];
+
         return [
             'id' => $this->id,
             'email' => $this->email,
@@ -25,6 +32,7 @@ class UserResource extends JsonResource
                 'name' => $this->role->name,
                 'description' => $this->role->description,
             ],
+            'permissions' => $permissions,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

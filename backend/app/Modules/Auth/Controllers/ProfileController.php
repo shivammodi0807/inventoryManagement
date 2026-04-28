@@ -11,8 +11,7 @@ class ProfileController extends Controller
 {
     public function show(Request $request): JsonResponse
     {
-        // $request->user()->load('role');  // Should already be available or lazy loaded
-        return response()->json(new UserResource($request->user()));
+        return response()->json(new UserResource($request->user()->load('role.permissions')));
     }
 
     public function update(Request $request): JsonResponse
@@ -24,6 +23,6 @@ class ProfileController extends Controller
 
         $request->user()->update($validated);
 
-        return response()->json(new UserResource($request->user()));
+        return response()->json(new UserResource($request->user()->load('role.permissions')));
     }
 }

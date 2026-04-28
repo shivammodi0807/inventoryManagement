@@ -5,6 +5,7 @@ namespace App\Modules\Auth\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Auth\User;
 use App\Modules\Auth\Resources\UserResource;
+use App\Shared\Services\SealedRoleGuard;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
@@ -14,8 +15,10 @@ class UserController extends Controller
 {
     public function index(): JsonResponse
     {
-        // Admin only can see this (covered by permission middleware in route)
-        $users = User::with('role')->paginate(15);
+        // Admin only can see this (covered by permission middleware in route).
+        // Eager-load role.permissions so UserResource can emit the flat
+        // permission list without firing N+1 queries per row.
+        $users = User::with('role.permissions')->paginate(15);
         return response()->json(UserResource::collection($users)->response()->getData(true));
     }
 
@@ -34,12 +37,12 @@ class UserController extends Controller
 
         $user = User::create($validated);
 
-        return response()->json(new UserResource($user), 201);
+        return response()->json(new UserResource($user->load('role.permissions')), 201);
     }
 
     public function show(User $user): JsonResponse
     {
-        return response()->json(new UserResource($user));
+        return response()->json(new UserResource($user->load('role.permissions')));
     }
 
     public function update(Request $request, User $user): JsonResponse
@@ -56,14 +59,24 @@ class UserController extends Controller
             $validated['password'] = Hash::make($validated['password']);
         }
 
+        // Sealed-role invariants: do not allow demoting or deactivating the
+        // last active Admin.
+        if (array_key_exists('role_id', $validated) && (int) $validated['role_id'] !== $user->role_id) {
+            SealedRoleGuard::assertCanChangeRole($user, (int) $validated['role_id']);
+        }
+        if (array_key_exists('is_active', $validated) && $validated['is_active'] === false) {
+            SealedRoleGuard::assertCanDeactivate($user);
+        }
+
         $user->update($validated);
 
-        return response()->json(new UserResource($user));
+        return response()->json(new UserResource($user->load('role.permissions')));
     }
 
     public function destroy(User $user): JsonResponse
     {
         // Typically we don't delete users, we deactivate them, but this is standard CRUD
+        SealedRoleGuard::assertCanDeleteUser($user);
         $user->delete();
         return response()->json(null, 204);
     }

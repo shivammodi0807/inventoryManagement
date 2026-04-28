@@ -13,10 +13,13 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
+        // Admin and Guest are sealed roles (see SealedRoleGuard).
+        // Manager and Staff are seeded as editable examples.
         $roles = [
-            ['name' => 'Admin', 'description' => 'Full access'],
-            ['name' => 'Manager', 'description' => 'Manage inventory'],
-            ['name' => 'Staff', 'description' => 'Limited access'],
+            ['name' => 'Admin', 'description' => 'Full access. Sealed role.'],
+            ['name' => 'Guest', 'description' => 'Default role for newly registered users. Permissions managed by admin.'],
+            ['name' => 'Manager', 'description' => 'Manage inventory, suppliers and purchase orders.'],
+            ['name' => 'Staff', 'description' => 'Read-only access to operational data.'],
         ];
 
         foreach ($roles as $role) {
