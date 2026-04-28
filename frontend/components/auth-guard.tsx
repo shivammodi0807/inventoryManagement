@@ -37,7 +37,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   // Don't show skeleton on public paths - let the page render normally
   if (isPublicPath) {
-    console.log("isPublicPath:", isPublicPath);
     return <>{children}</>;
   }
 

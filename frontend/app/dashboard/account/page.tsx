@@ -1,7 +1,7 @@
 "use client";
 
 import { ProfileForm } from "@/components/profile-form";
-import { ChangePasswordForm } from "@/components/change-password-form";
+import { ChangePasswordForm } from "@/components/auth/change-password-form";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function AccountPage() {

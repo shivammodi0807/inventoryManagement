@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import type { ApiError } from "@/types";
+import { PasswordInput } from "./password-input";
 
 const schema = z
   .object({
@@ -47,7 +48,10 @@ const schema = z
 
 type Values = z.infer<typeof schema>;
 
-export function SignupForm({ className, ...props }: React.ComponentProps<"div">) {
+export function SignupForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   const router = useRouter();
   const {
     register,
@@ -56,7 +60,12 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
     formState: { errors, isSubmitting },
   } = useForm<Values>({
     resolver: zodResolver(schema),
-    defaultValues: { full_name: "", email: "", password: "", password_confirmation: "" },
+    defaultValues: {
+      full_name: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
+    },
   });
 
   const formError = errors.root?.serverError?.message;
@@ -82,13 +91,18 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
         }
         setError("root.serverError", {
           type: "server",
-          message: data?.message ?? (status === 429
-            ? "Too many attempts. Please wait and try again."
-            : "Unable to sign up. Please try again."),
+          message:
+            data?.message ??
+            (status === 429
+              ? "Too many attempts. Please wait and try again."
+              : "Unable to sign up. Please try again."),
         });
         return;
       }
-      setError("root.serverError", { type: "server", message: "Unexpected error. Try again." });
+      setError("root.serverError", {
+        type: "server",
+        message: "Unexpected error. Try again.",
+      });
     }
   });
 
@@ -97,7 +111,9 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Create your account</CardTitle>
-          <CardDescription>Sign up for Qollab — it only takes a minute.</CardDescription>
+          <CardDescription>
+            Sign up for Qollab — it only takes a minute.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} noValidate>
@@ -117,7 +133,9 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
                   aria-invalid={!!errors.full_name}
                   {...register("full_name")}
                 />
-                <FieldError errors={errors.full_name ? [errors.full_name] : []} />
+                <FieldError
+                  errors={errors.full_name ? [errors.full_name] : []}
+                />
               </Field>
               <Field data-invalid={!!errors.email}>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -131,37 +149,29 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
                 />
                 <FieldError errors={errors.email ? [errors.email] : []} />
               </Field>
-              <Field data-invalid={!!errors.password}>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="Min 12 characters"
-                  aria-invalid={!!errors.password}
-                  {...register("password")}
-                />
-                <FieldError errors={errors.password ? [errors.password] : []} />
-              </Field>
-              <Field data-invalid={!!errors.password_confirmation}>
-                <FieldLabel htmlFor="password_confirmation">Confirm Password</FieldLabel>
-                <Input
-                  id="password_confirmation"
-                  type="password"
-                  autoComplete="new-password"
-                  placeholder="Re-enter password"
-                  aria-invalid={!!errors.password_confirmation}
-                  {...register("password_confirmation")}
-                />
-                <FieldError errors={errors.password_confirmation ? [errors.password_confirmation] : []} />
-              </Field>
+              <PasswordInput
+                label="Password"
+                autoComplete="new-password"
+                error={errors.password?.message}
+                {...register("password")}
+              />
+
+              <PasswordInput
+                label="Confirm Password"
+                autoComplete="new-password"
+                error={errors.password_confirmation?.message}
+                {...register("password_confirmation")}
+              />
               <Field>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Creating account..." : "Create account"}
                 </Button>
                 <FieldDescription className="text-center">
                   Already have an account?{" "}
-                  <Link href="/login" className="underline underline-offset-4 hover:no-underline">
+                  <Link
+                    href="/login"
+                    className="underline underline-offset-4 hover:no-underline"
+                  >
                     Sign in
                   </Link>
                 </FieldDescription>
