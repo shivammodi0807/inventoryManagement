@@ -13,5 +13,6 @@ return [
     SupplierProvider::class,
     PurchaseOrderProvider::class,
     NotificationProvider::class,
+    \App\Modules\Analytics\Providers\AnalyticsProvider::class,
     AppServiceProvider::class,
 ];

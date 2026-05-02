@@ -79,4 +79,5 @@ export interface ProductFilters {
   is_active?: boolean;
   sort_by?: string;
   sort_order?: 'asc' | 'desc';
+  stock_status?: string;
 }
