@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useAuth } from "@/hooks/use-auth";
-import { Skeleton } from "@/components/ui/skeleton";
+import { DashboardSkeleton, GlobalLoading } from "@/components/skeletons/app-loading";
 
 // Public paths that don't require authentication
 const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password"];
@@ -51,18 +51,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  // if (isLoading || !user) {
   if (isLoading) {
-    return (
-      <div className="flex h-svh w-full items-center justify-center">
-        <div className="flex w-full max-w-md flex-col gap-3 p-6">
-          <Skeleton className="h-6 w-1/2" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
-          <Skeleton className="h-32 w-full" />
-        </div>
-      </div>
-    );
+    if (pathname?.startsWith("/dashboard")) {
+      return <DashboardSkeleton />;
+    }
+    return <GlobalLoading />;
   }
 
   return <>{children}</>;
