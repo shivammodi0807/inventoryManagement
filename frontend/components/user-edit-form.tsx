@@ -8,7 +8,8 @@ import { z } from "zod";
 import { isAxiosError } from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { listRoles, updateUser, type UpdateUserPayload } from "@/lib/users";
+import { updateUser, type UpdateUserPayload } from "@/lib/users";
+import { listRoles } from "@/lib/roles";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -159,7 +160,7 @@ export function UserEditForm({ user }: { user: User }) {
           <CardTitle>Edit user</CardTitle>
           <CardDescription>Update {user.email}.</CardDescription>
         </div>
-        <Button variant="outline" onClick={() => router.push("/dashboard/users")}>
+        <Button variant="outline" onClick={() => router.push("/dashboard/settings/users")}>
           Back
         </Button>
       </CardHeader>

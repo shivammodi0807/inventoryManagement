@@ -26,10 +26,11 @@ class VerifyEmailNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $verifyUrl = $this->verificationUrl($notifiable);
+        $appName = config('app.name', 'Qollab');
 
         return (new MailMessage())
-            ->subject('Verify your Qollab email address')
-            ->line('Thanks for signing up for Qollab. Please confirm your email address by clicking the button below.')
+            ->subject("Verify your {$appName} email address")
+            ->line("Thanks for signing up for {$appName}. Please confirm your email address by clicking the button below.")
             ->action('Verify Email', $verifyUrl)
             ->line('If you did not create an account, no further action is required.');
     }

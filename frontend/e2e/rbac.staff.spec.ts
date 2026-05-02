@@ -4,7 +4,7 @@ test.describe("staff RBAC guards", () => {
   test("staff is blocked from /dashboard/users/new with an inline 403", async ({
     page,
   }) => {
-    await page.goto("/dashboard/users/new");
+    await page.goto("/dashboard/settings/users/new");
     await expect(page.getByText(/403\s*[—-]\s*forbidden/i)).toBeVisible();
     await expect(
       page.getByText(/administrator privileges/i),
@@ -14,7 +14,7 @@ test.describe("staff RBAC guards", () => {
   test("staff is blocked from the users list with an inline 403", async ({
     page,
   }) => {
-    await page.goto("/dashboard/users");
+    await page.goto("/dashboard/settings/users");
     await expect(page.getByText(/403\s*[—-]\s*forbidden/i)).toBeVisible();
   });
 

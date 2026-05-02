@@ -1,4 +1,5 @@
-import type { PermissionString, User } from "@/types";
+import axiosApi from "./axiosApi";
+import type { Permission, PermissionString, User } from "@/types";
 
 // All resources currently in the catalogue. Kept in sync with
 // backend/database/seeders/PermissionSeeder.php. Useful for autocomplete
@@ -61,4 +62,13 @@ export const canAll = (
   return perms.every(([action, resource]) =>
     user.permissions.includes(toKey(action, resource)),
   );
+};
+
+/**
+ * Fetch every (action, resource) pair the system knows about.
+ * Used by the Settings → Roles edit UI to render the permission matrix.
+ */
+export const listPermissions = async (): Promise<Permission[]> => {
+  const res = await axiosApi.get<{ data: Permission[] }>("/api/permissions");
+  return res.data.data;
 };

@@ -18,10 +18,6 @@ export type UpdateUserPayload = {
   password?: string;
 };
 
-export const listRoles = async (): Promise<Role[]> => {
-  const res = await axiosApi.get<{ data: Role[] }>("/api/roles");
-  return res.data.data;
-};
 
 export const createUser = async (payload: CreateUserPayload): Promise<User> => {
   const res = await axiosApi.post<User>("/api/register", payload);

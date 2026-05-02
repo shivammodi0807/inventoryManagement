@@ -1,4 +1,5 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { toast } from "sonner";
 
 const axiosApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
@@ -27,6 +28,7 @@ axiosApi.interceptors.response.use(
   async (error: AxiosError) => {
     const status = error.response?.status;
     const original = error.config as RetriableConfig | undefined;
+    const data = error.response?.data as any;
 
     // 419 = CSRF token mismatch. Refresh the cookie and retry once.
     if (status === 419 && original && !original._retry) {
@@ -40,15 +42,41 @@ axiosApi.interceptors.response.use(
     }
 
     // 401 = unauthenticated. Bounce to /login, but never from a public page
-    // (otherwise the /api/user probe on the login page causes a redirect loop).
     if (status === 401 && typeof window !== "undefined" && !isOnPublicPath()) {
       const originalUrl = original?.url || "";
-      // Don't redirect if this was a user profile fetch - let the caller handle it
-      // Return null instead of rejecting so React Query can resolve with null
       if (originalUrl.includes("/api/user")) {
         return Promise.resolve(null);
       }
       window.location.replace("/login");
+      return Promise.reject(error);
+    }
+
+    // Handle other common errors with toasts
+    if (typeof window !== "undefined") {
+      if (status === 403) {
+        toast.error("Permission Denied", {
+          description: data?.message || "You don't have permission to perform this action.",
+        });
+      } else if (status === 404) {
+        // Only toast if it's not a generic probe
+        if (original?.method !== "get") {
+          toast.error("Resource Not Found", {
+            description: "The requested resource could not be found.",
+          });
+        }
+      } else if (status === 429) {
+        toast.error("Too Many Requests", {
+          description: "Please slow down and try again later.",
+        });
+      } else if (status && status >= 500) {
+        toast.error("Server Error", {
+          description: "Something went wrong on our end. Please try again later.",
+        });
+      } else if (error.code === "ECONNABORTED" || !status) {
+        toast.error("Connection Error", {
+          description: "Could not reach the server. Check your internet connection.",
+        });
+      }
     }
 
     return Promise.reject(error);

@@ -58,7 +58,13 @@ export function LoginForm({
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      await login(values);
+      const user = await login(values);
+
+      if (!user.email_verified_at) {
+        router.replace("/verify-email");
+        return;
+      }
+
       const target = nextPath.startsWith("/") ? nextPath : "/dashboard";
       router.replace(target);
       router.refresh();

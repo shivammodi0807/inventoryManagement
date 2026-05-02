@@ -3,10 +3,21 @@
 // ids are stable (1 = Admin, 2 = Guest) and the SealedRoleGuard forbids
 // renaming them. Use `user.role.name === "Admin"` only for the sealed-admin
 // badge — every other gate should go through `can(action, resource)`.
+export interface Permission {
+  id: number;
+  action: string;
+  resource: string;
+}
+
 export interface Role {
   id: number;
   name: string;
   description: string | null;
+  is_sealed?: boolean;
+  is_admin?: boolean;
+  is_guest?: boolean;
+  user_count?: number;
+  permissions?: Permission[];
 }
 
 // Format: `"action:resource"`, e.g. `"create:product"`. Drives the SPA
@@ -18,6 +29,7 @@ export interface User {
   email: string;
   full_name: string;
   is_active: boolean;
+  email_verified_at: string | null;
   last_login_at: string | null;
   role: Role;
   permissions: PermissionString[];

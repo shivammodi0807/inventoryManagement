@@ -90,7 +90,7 @@ export default function UsersPage() {
           </div>
           {canCreate && (
             <Button asChild>
-              <Link href="/dashboard/users/new">New user</Link>
+              <Link href="/dashboard/settings/users/new">New user</Link>
             </Button>
           )}
         </CardHeader>
@@ -138,7 +138,7 @@ export default function UsersPage() {
                           <div className="inline-flex gap-2">
                             {canEdit && (
                               <Button asChild size="sm" variant="outline">
-                                <Link href={`/dashboard/users/${u.id}/edit`}>
+                                <Link href={`/dashboard/settings/users/${u.id}/edit`}>
                                   Edit
                                 </Link>
                               </Button>

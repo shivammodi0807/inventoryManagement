@@ -8,7 +8,8 @@ import { isAxiosError } from "axios";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 import { cn } from "@/lib/utils";
-import { listRoles, createUser, type CreateUserPayload } from "@/lib/users";
+import { createUser, type CreateUserPayload } from "@/lib/users";
+import { listRoles } from "@/lib/roles";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -84,7 +85,7 @@ export function UserCreateForm({ className }: { className?: string }) {
     try {
       await createMutation.mutateAsync(values);
       reset();
-      router.push("/dashboard");
+      router.push("/dashboard/settings/users");
       router.refresh();
     } catch (err) {
       if (isAxiosError<ApiError>(err)) {

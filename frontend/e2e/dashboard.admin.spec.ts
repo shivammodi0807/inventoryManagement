@@ -11,7 +11,7 @@ test.describe("admin dashboard flows", () => {
   test("admin can open /dashboard/users and see the user table", async ({
     page,
   }) => {
-    await page.goto("/dashboard/users");
+    await page.goto("/dashboard/settings/users");
     await expect(page.getByRole("heading", { name: /^users$/i })).toBeVisible();
     // Seeded admin should always be present.
     await expect(page.getByText("admin@qollab.com").first()).toBeVisible();
@@ -24,7 +24,7 @@ test.describe("admin dashboard flows", () => {
   test("admin can open /dashboard/users/new and see the create form", async ({
     page,
   }) => {
-    await page.goto("/dashboard/users/new");
+    await page.goto("/dashboard/settings/users/new");
     await expect(
       page.getByRole("heading", { name: /create a new user/i }),
     ).toBeVisible();

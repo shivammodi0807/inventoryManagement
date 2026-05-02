@@ -16,7 +16,7 @@ class UnitService
      * @param string $perPage Number of items per page
      * @return LengthAwarePaginator
      */
-    public function getUnits(?string $type = null, string $sortBy = 'name', string $sortOrder = "asc", string $perPage = 15): LengthAwarePaginator
+    public function getUnits(?string $type = null, string $sortBy = 'name', string $sortOrder = "asc", string $perPage = "15"): LengthAwarePaginator
     {
         $query = Unit::withCount('products');
         if (!empty($type)) {

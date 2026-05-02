@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Public paths that don't require authentication
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/reset-password"];
+const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password"];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -21,17 +21,28 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   useEffect(() => {
-    // Skip redirect if already on a public path
     if (isLoading) return;
-    if (isPublicPath) return;
 
-    if (!user && !isPublicPath) {
-      const next = encodeURIComponent(pathname || "/dashboard");
-      router.replace(`/login?next=${next}`);
-    }
-    if (user && isPublicPath) {
-      router.replace("/dashboard");
+    // 1. Not logged in -> must go to login (unless already on a public path)
+    if (!user) {
+      if (!isPublicPath && pathname !== "/verify-email") {
+        const next = encodeURIComponent(pathname || "/dashboard");
+        router.replace(`/login?next=${next}`);
+      }
       return;
+    }
+
+    // 2. Logged in but not verified -> must go to verify-email
+    if (!user.email_verified_at) {
+      if (pathname !== "/verify-email") {
+        router.replace("/verify-email");
+      }
+      return;
+    }
+
+    // 3. Logged in and verified -> shouldn't be on public auth pages or verify-email
+    if (isPublicPath || pathname === "/verify-email") {
+      router.replace("/dashboard");
     }
   }, [isLoading, user, pathname, router, isPublicPath]);
 
