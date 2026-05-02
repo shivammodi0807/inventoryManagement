@@ -18,6 +18,12 @@ class StockLevelResource extends JsonResource
             'id' => $this->id,
             'product_id' => $this->product_id,
             'warehouse_id' => $this->warehouse_id,
+            'warehouse' => $this->whenLoaded('warehouse', fn () => [
+                'id'   => $this->warehouse->id,
+                'name' => $this->warehouse->name,
+                'location' => $this->warehouse->location,
+                'is_active' => $this->warehouse->is_active,
+            ]),
             'total_stock' => (int) $this->total_stock,
             'stock_reserved' => (int) $this->stock_reserved,
             'current_stock' => (int) $this->current_stock,

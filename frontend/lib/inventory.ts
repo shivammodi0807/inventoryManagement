@@ -58,6 +58,17 @@ export const adjustStock = async (productId: number, data: AdjustStockPayload): 
   return res.data;
 };
 
+export interface ReceiveStockPayload {
+  warehouse_id: number;
+  quantity: number;
+  notes?: string;
+}
+
+export const receiveStock = async (productId: number, data: ReceiveStockPayload): Promise<StockLevel> => {
+  const res = await axiosApi.post<StockLevel>(`/api/products/${productId}/receive`, data);
+  return res.data;
+};
+
 export const getProductHistory = async (productId: number, params?: { page?: number; per_page?: number }): Promise<PaginatedResponse<InventoryLog>> => {
   const res = await axiosApi.get<PaginatedResponse<InventoryLog>>(`/api/products/${productId}/history`, { params });
   return res.data;

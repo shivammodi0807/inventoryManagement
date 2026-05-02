@@ -13,6 +13,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
      * WAREHOUSE ROUTES
      */
     Route::get('/warehouses', [WarehouseController::class, 'index'])->middleware('permission:view,warehouse');
+    Route::post('/warehouses', [WarehouseController::class, 'store'])->middleware('permission:create,warehouse');
+    Route::get('/warehouses/{warehouse}', [WarehouseController::class, 'show'])->middleware('permission:view,warehouse');
+    Route::match(['put', 'patch'], '/warehouses/{warehouse}', [WarehouseController::class, 'update'])
+        ->middleware('permission:edit,warehouse');
+    Route::delete('/warehouses/{warehouse}', [WarehouseController::class, 'destroy'])
+        ->middleware('permission:delete,warehouse');
 
 
     /**

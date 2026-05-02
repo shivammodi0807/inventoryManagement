@@ -2,6 +2,9 @@
 
 namespace App\Modules\Inventory\Resources;
 
+use App\Modules\Inventory\Resources\CategoryResource;
+use App\Modules\Inventory\Resources\StockLevelResource;
+use App\Modules\Inventory\Resources\UnitResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -34,6 +37,10 @@ class ProductResource extends JsonResource
             'user_id' => $this->user_id,
             'total_stock' => $this->when($this->relationLoaded('stockLevels'), fn () => $this->total_stock),
             'stock_status' => $this->when($this->relationLoaded('stockLevels'), fn () => $this->stock_status),
+            'stock_levels' => $this->when(
+                $this->relationLoaded('stockLevels'),
+                fn () => StockLevelResource::collection($this->stockLevels)
+            ),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

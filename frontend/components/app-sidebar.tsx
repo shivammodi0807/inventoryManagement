@@ -23,6 +23,7 @@ import {
   ClipboardListIcon,
   BellIcon,
   Settings2Icon,
+  Warehouse as WarehouseIcon,
 } from "lucide-react"
 
 const platformNav: NavItem[] = [
@@ -56,6 +57,19 @@ const platformNav: NavItem[] = [
         title: "Units",
         url: "/dashboard/inventory/units",
         perm: ["view", "unit"],
+      },
+    ],
+  },
+  {
+    title: "Warehouses",
+    url: "/dashboard/warehouses",
+    icon: <WarehouseIcon />,
+    perms: [["view", "warehouse"]],
+    items: [
+      {
+        title: "All Locations",
+        url: "/dashboard/warehouses",
+        perm: ["view", "warehouse"],
       },
     ],
   },
