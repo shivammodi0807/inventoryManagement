@@ -5,9 +5,11 @@ import {
   createSupplier, 
   updateSupplier, 
   deleteSupplier,
-  getSupplierPerformance 
+  getSupplierPerformance,
+  linkProductToSupplier,
+  unlinkProductFromSupplier
 } from "@/lib/supplier";
-import { SupplierFilters, Supplier } from "@/types/supplier";
+import { SupplierFilters, Supplier, LinkProductPayload } from "@/types/supplier";
 import { toast } from "sonner";
 
 export function useSuppliers(filters: SupplierFilters = {}) {
@@ -74,5 +76,35 @@ export function useSupplierPerformance(id: number) {
     queryKey: ["supplier-performance", id],
     queryFn: () => getSupplierPerformance(id),
     enabled: !!id,
+  });
+}
+
+export function useLinkProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ supplierId, data }: { supplierId: number; data: LinkProductPayload }) =>
+      linkProductToSupplier(supplierId, data),
+    onSuccess: (_, { supplierId }) => {
+      queryClient.invalidateQueries({ queryKey: ["supplier", supplierId] });
+      toast.success("Product linked successfully");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to link product");
+    },
+  });
+}
+
+export function useUnlinkProduct() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ supplierId, productId }: { supplierId: number; productId: number }) =>
+      unlinkProductFromSupplier(supplierId, productId),
+    onSuccess: (_, { supplierId }) => {
+      queryClient.invalidateQueries({ queryKey: ["supplier", supplierId] });
+      toast.success("Product unlinked successfully");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to unlink product");
+    },
   });
 }

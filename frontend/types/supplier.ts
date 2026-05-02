@@ -34,3 +34,12 @@ export interface ProductSupplier {
   is_preferred: boolean;
   min_order_qty: number;
 }
+
+export interface LinkProductPayload {
+  product_id: number;
+  supplier_sku?: string;
+  cost_price: string | number;
+  est_delivery_days: number;
+  is_preferred?: boolean;
+  min_order_qty?: number;
+}

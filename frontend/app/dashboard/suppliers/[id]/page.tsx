@@ -14,10 +14,12 @@ import {
   Star,
   Package,
   TrendingUp,
-  Clock
+  Clock,
+  Plus,
+  Trash2
 } from "lucide-react";
 
-import { useSupplier, useSupplierPerformance } from "@/hooks/use-suppliers";
+import { useSupplier, useSupplierPerformance, useUnlinkProduct } from "@/hooks/use-suppliers";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,14 +35,20 @@ import {
 import { ErrorState } from "@/components/shared/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { LinkProductModal } from "@/components/suppliers/link-product-modal";
 
 export default function SupplierDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = parseInt(params.id as string);
 
+  const [isLinkModalOpen, setIsLinkModalOpen] = React.useState(false);
+  const [unlinkProductId, setUnlinkProductId] = React.useState<number | null>(null);
+
   const { data: supplier, isLoading, isError, refetch } = useSupplier(id);
   const { data: performance, isLoading: isLoadingPerf } = useSupplierPerformance(id);
+  const unlinkMutation = useUnlinkProduct();
 
   if (isError) return <ErrorState onRetry={() => refetch()} />;
 
@@ -175,9 +183,14 @@ export default function SupplierDetailPage() {
 
       {/* Linked Products Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Supplied Products</CardTitle>
-          <CardDescription>Items provided by this vendor and procurement details.</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <div>
+            <CardTitle>Supplied Products</CardTitle>
+            <CardDescription>Items provided by this vendor and procurement details.</CardDescription>
+          </div>
+          <Button size="sm" onClick={() => setIsLinkModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Link Product
+          </Button>
         </CardHeader>
         <CardContent>
           {!supplier.products?.length ? (
@@ -196,6 +209,7 @@ export default function SupplierDetailPage() {
                   <TableHead className="text-right">Lead Time (Est.)</TableHead>
                   <TableHead className="text-right">Min Order Qty</TableHead>
                   <TableHead className="text-center">Preferred?</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -218,6 +232,16 @@ export default function SupplierDetailPage() {
                         <span className="text-muted-foreground text-xs">No</span>
                       )}
                     </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => setUnlinkProductId(product.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -225,6 +249,28 @@ export default function SupplierDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      <LinkProductModal
+        supplierId={id}
+        open={isLinkModalOpen}
+        onOpenChange={setIsLinkModalOpen}
+      />
+
+      <ConfirmDialog
+        open={unlinkProductId !== null}
+        onOpenChange={(open) => !open && setUnlinkProductId(null)}
+        title="Unlink Product"
+        description="Are you sure you want to remove this product from the supplier's catalog? This won't delete the product from the system."
+        confirmText="Unlink"
+        onConfirm={async () => {
+          if (unlinkProductId) {
+            await unlinkMutation.mutateAsync({ supplierId: id, productId: unlinkProductId });
+            setUnlinkProductId(null);
+          }
+        }}
+        isLoading={unlinkMutation.isPending}
+        variant="destructive"
+      />
     </div>
   );
 }

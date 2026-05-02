@@ -30,3 +30,11 @@ export async function getSupplierPerformance(id: number): Promise<unknown> {
   const response = await axiosApi.get(`/api/suppliers/${id}/performance`);
   return response.data as unknown;
 }
+
+export async function linkProductToSupplier(supplierId: number, data: import('@/types/supplier').LinkProductPayload): Promise<void> {
+  await axiosApi.post(`/api/suppliers/${supplierId}/products`, data);
+}
+
+export async function unlinkProductFromSupplier(supplierId: number, productId: number): Promise<void> {
+  await axiosApi.delete(`/api/suppliers/${supplierId}/products/${productId}`);
+}
