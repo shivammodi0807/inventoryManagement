@@ -60,6 +60,13 @@ export interface Product {
   lead_time_days: number;
   created_at?: string;
   updated_at?: string;
+  pivot?: {
+    cost_price: string;
+    est_delivery_days: number;
+    supplier_sku?: string;
+    is_preferred: boolean;
+    min_order_qty?: number;
+  };
 }
 
 export interface Supplier {
@@ -71,6 +78,18 @@ export interface Supplier {
   address?: string;
   created_at?: string;
   updated_at?: string;
+  total_closed_orders?: number;
+  on_time_deliveries?: number;
+  on_time_rate?: number;
+  rating?: string;
+  is_active?: boolean;
+  products?: Product[];
+}
+
+export interface SupplierPerformance {
+  total_closed_orders: number;
+  on_time_deliveries: number;
+  on_time_rate: number;
 }
 
 export interface PurchaseOrder {

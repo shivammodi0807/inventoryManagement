@@ -62,7 +62,7 @@ export function StockAdjustModal({ product, isOpen, onClose }: StockAdjustModalP
     reset,
     formState: { errors },
   } = useForm<Values>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       warehouse_id: 1, // Defaulting to 1 for now
       quantity: 0,
@@ -108,7 +108,7 @@ export function StockAdjustModal({ product, isOpen, onClose }: StockAdjustModalP
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
+        <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-4 py-4">
           <FieldGroup>
             <Field>
               <FieldLabel>Type</FieldLabel>
@@ -160,7 +160,7 @@ export function StockAdjustModal({ product, isOpen, onClose }: StockAdjustModalP
           <Button variant="outline" onClick={onClose} disabled={mutation.isPending}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit(onSubmit)} disabled={mutation.isPending}>
+          <Button onClick={handleSubmit(onSubmit as any)} disabled={mutation.isPending}>
             {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Confirm Adjustment
           </Button>

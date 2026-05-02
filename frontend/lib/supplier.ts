@@ -1,6 +1,6 @@
 import axiosApi from "./axiosApi";
 import { Supplier, SupplierFilters } from "@/types/supplier";
-import { PaginatedResponse } from "@/types";
+import { PaginatedResponse, SupplierPerformance } from "@/types";
 
 export async function getSuppliers(params: SupplierFilters = {}): Promise<PaginatedResponse<Supplier>> {
   const response = await axiosApi.get("/api/suppliers", { params });
@@ -26,9 +26,9 @@ export async function deleteSupplier(id: number): Promise<void> {
   await axiosApi.delete(`/api/suppliers/${id}`);
 }
 
-export async function getSupplierPerformance(id: number): Promise<unknown> {
+export async function getSupplierPerformance(id: number): Promise<SupplierPerformance> {
   const response = await axiosApi.get(`/api/suppliers/${id}/performance`);
-  return response.data as unknown;
+  return response.data;
 }
 
 export async function linkProductToSupplier(supplierId: number, data: import('@/types/supplier').LinkProductPayload): Promise<void> {

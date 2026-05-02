@@ -62,7 +62,7 @@ export default function ProductsPage() {
     queryFn: () => getProducts({ 
       page, 
       search, 
-      category_id: categoryId === "all" ? undefined : categoryId,
+      category_id: categoryId === "all" ? undefined : parseInt(categoryId),
       stock_status: stockStatus === "all" ? undefined : stockStatus,
       per_page: 10 
     }),

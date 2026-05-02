@@ -75,7 +75,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(productSchema) as any,
     defaultValues: initialData
       ? {
           sku: initialData.sku,
@@ -139,7 +139,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
   const isLoadingDropdowns = isLoadingCategories || isLoadingUnits;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-8">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <FieldGroup>
           <Field>

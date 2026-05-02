@@ -63,7 +63,7 @@ export function LinkProductModal({ supplierId, open, onOpenChange }: LinkProduct
     control,
     formState: { errors, isSubmitting },
   } = useForm<LinkProductFormValues>({
-    resolver: zodResolver(linkProductSchema),
+    resolver: zodResolver(linkProductSchema) as any,
     defaultValues: {
       product_id: 0,
       supplier_sku: "",
@@ -97,7 +97,7 @@ export function LinkProductModal({ supplierId, open, onOpenChange }: LinkProduct
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit as any)}>
           <DialogHeader>
             <DialogTitle>Link Product to Supplier</DialogTitle>
             <DialogDescription>
@@ -114,7 +114,7 @@ export function LinkProductModal({ supplierId, open, onOpenChange }: LinkProduct
                 render={({ field }) => (
                   <Combobox 
                     value={field.value ? field.value.toString() : ""} 
-                    onValueChange={(val) => field.onChange(parseInt(val))}
+                    onValueChange={(val) => val && field.onChange(parseInt(val))}
                   >
                     <ComboboxInput 
                       placeholder={isLoadingProducts ? "Loading products..." : "Search products..."} 

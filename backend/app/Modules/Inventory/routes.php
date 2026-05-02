@@ -4,9 +4,16 @@ use App\Modules\Inventory\Controllers\CategoryController;
 use App\Modules\Inventory\Controllers\ProductController;
 use App\Modules\Inventory\Controllers\StockController;
 use App\Modules\Inventory\Controllers\UnitController;
+use App\Modules\Inventory\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+
+    /**
+     * WAREHOUSE ROUTES
+     */
+    Route::get('/warehouses', [WarehouseController::class, 'index'])->middleware('permission:view,warehouse');
+
 
     /**
      * CATEGORY ROUTES

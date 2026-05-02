@@ -70,7 +70,7 @@ export const useAuth = () => {
     // Sealed-role identity check. Use this only for UI that's specifically
     // about the Admin badge / sealed-admin invariants. Every other gate
     // should go through `can(action, resource)`.
-    isAdmin: isAdminRole(user ?? undefined),
+    isAdmin: isAdminRole(user?.role?.name),
     can,
     canAny,
 

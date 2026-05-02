@@ -39,6 +39,7 @@ export interface Product {
   stock_status?: 'critical' | 'low' | 'normal' | 'overstock'; // Virtual attribute
   created_at: string;
   updated_at: string;
+  pivot?: import('./supplier').ProductSupplier;
 }
 
 export interface StockLevel {

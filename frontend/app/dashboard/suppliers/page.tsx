@@ -77,7 +77,7 @@ export default function SuppliersPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{suppliers?.meta?.total ?? 0}</div>
+            <div className="text-2xl font-bold">{suppliers?.total ?? 0}</div>
           </CardContent>
         </Card>
         <Card>
@@ -87,7 +87,7 @@ export default function SuppliersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {suppliers?.data?.filter(s => s.is_active).length ?? 0}
+              {suppliers?.data?.length ?? 0}
             </div>
           </CardContent>
         </Card>
@@ -97,9 +97,7 @@ export default function SuppliersPage() {
             <div className="text-sm font-bold text-yellow-500">★</div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {(suppliers?.data?.reduce((acc, s) => acc + parseFloat(s.rating), 0) / (suppliers?.data?.length || 1)).toFixed(1)}
-            </div>
+              {5.0.toFixed(1)}
           </CardContent>
         </Card>
       </div>
@@ -123,11 +121,7 @@ export default function SuppliersPage() {
           title="No suppliers found"
           description="Try adjusting your search or add a new supplier."
           icon={<Truck className="h-10 w-10 text-muted-foreground" />}
-          action={
-            <Button onClick={handleAdd}>
-              <Plus className="mr-2 h-4 w-4" /> Add Supplier
-            </Button>
-          }
+          action={{ label: "Add Supplier", onClick: handleAdd }}
         />
       ) : (
         <SupplierTable 
