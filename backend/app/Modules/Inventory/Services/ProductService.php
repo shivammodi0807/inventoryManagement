@@ -49,6 +49,25 @@ class ProductService
                 : $query->where('is_active', false);
         }
 
+        if (isset($filters['stock_status'])) {
+            $status = $filters['stock_status'];
+            if ($status === 'low') {
+                $query->lowStock();
+            } elseif ($status === 'critical') {
+                $query->whereHas('stockLevels', function ($q) {
+                    $q->havingRaw('SUM(current_stock) <= (products.reorder_point * 0.5)');
+                });
+            } elseif ($status === 'out') {
+                $query->whereHas('stockLevels', function ($q) {
+                    $q->havingRaw('SUM(current_stock) <= 0');
+                });
+            } elseif ($status === 'overstock') {
+                $query->whereHas('stockLevels', function ($q) {
+                    $q->havingRaw('SUM(current_stock) > (products.reorder_point * 3)');
+                });
+            }
+        }
+
         $validColumns = ['id', 'sku', 'name', 'unit_price', 'cost_price', 'created_at', 'updated_at'];
         $sortBy = in_array($sortBy, $validColumns) ? $sortBy : 'name';
         $sortOrder = strtolower($sortOrder) === 'desc' ? 'desc' : 'asc';

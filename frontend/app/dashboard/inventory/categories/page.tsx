@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Plus, Loader2, FolderTree } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Plus, FolderTree, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
-import { getCategories } from "@/lib/inventory";
+import { getCategories, deleteCategory } from "@/lib/inventory";
 import { Button } from "@/components/ui/button";
 import { 
   Card, 
@@ -22,20 +23,56 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
 import { CategoryModal } from "@/components/inventory/category-modal";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { DataTableSkeleton } from "@/components/skeletons/table-skeleton";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
+import { Category } from "@/types/inventory";
 
 export default function CategoriesPage() {
   const { can } = useAuth();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { data: categories, isLoading, isError, refetch } = useQuery({
     queryKey: ["categories"],
     queryFn: () => getCategories(),
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCategory,
+    onSuccess: () => {
+      toast.success("Category deleted");
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      setDeletingId(null);
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to delete category");
+      setDeletingId(null);
+    },
+  });
+
+  const handleEdit = (category: Category) => {
+    setEditingCategory(category);
+    setIsModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingCategory(null);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -47,26 +84,23 @@ export default function CategoriesPage() {
           </p>
         </div>
         {can("create", "category") && (
-          <>
-            <Button onClick={() => setIsModalOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Category
-            </Button>
-            <CategoryModal open={isModalOpen} onOpenChange={setIsModalOpen} />
-          </>
+          <Button onClick={handleAdd}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Category
+          </Button>
         )}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Category Hierarchy</CardTitle>
+          <CardTitle>Category List</CardTitle>
           <CardDescription>
             Manage the classification of your inventory.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <DataTableSkeleton columnCount={3} rowCount={5} />
+            <DataTableSkeleton columnCount={4} rowCount={5} />
           ) : isError ? (
             <ErrorState 
               title="Failed to load categories" 
@@ -79,7 +113,7 @@ export default function CategoriesPage() {
               icon={<FolderTree className="h-10 w-10 text-muted-foreground" />}
               action={can("create", "category") ? {
                 label: "Add Category",
-                onClick: () => setIsModalOpen(true)
+                onClick: handleAdd
               } : undefined}
             />
           ) : (
@@ -89,6 +123,7 @@ export default function CategoriesPage() {
                   <TableHead>Name</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Created At</TableHead>
+                  <TableHead className="w-[80px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -100,8 +135,40 @@ export default function CategoriesPage() {
                         {category.name}
                       </div>
                     </TableCell>
-                    <TableCell>{category.description || "-"}</TableCell>
+                    <TableCell className="max-w-[300px] truncate">
+                      {category.description || "-"}
+                    </TableCell>
                     <TableCell>{new Date(category.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          {can("edit", "category") && (
+                            <DropdownMenuItem onClick={() => handleEdit(category)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                          )}
+                          {can("delete", "category") && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className="text-destructive"
+                                onClick={() => setDeletingId(category.id)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -109,6 +176,21 @@ export default function CategoriesPage() {
           )}
         </CardContent>
       </Card>
+
+      <CategoryModal 
+        open={isModalOpen} 
+        onOpenChange={setIsModalOpen} 
+        initialData={editingCategory}
+      />
+
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(open) => !open && setDeletingId(null)}
+        onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
+        title="Delete Category"
+        description="Are you sure you want to delete this category? This action cannot be undone and may affect products linked to it."
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -22,7 +23,8 @@ import {
   FieldLabel, 
   FieldError 
 } from "@/components/ui/field";
-import { createUnit } from "@/lib/inventory";
+import { createUnit, updateUnit } from "@/lib/inventory";
+import { Unit } from "@/types/inventory";
 
 const unitSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -34,10 +36,12 @@ type UnitFormValues = z.infer<typeof unitSchema>;
 interface UnitModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialData?: Unit | null;
 }
 
-export function UnitModal({ open, onOpenChange }: UnitModalProps) {
+export function UnitModal({ open, onOpenChange, initialData }: UnitModalProps) {
   const queryClient = useQueryClient();
+  const isEditing = !!initialData;
 
   const {
     register,
@@ -52,16 +56,31 @@ export function UnitModal({ open, onOpenChange }: UnitModalProps) {
     },
   });
 
+  React.useEffect(() => {
+    if (open) {
+      reset(initialData ? {
+        name: initialData.name,
+        abbreviation: initialData.abbreviation,
+      } : {
+        name: "",
+        abbreviation: "",
+      });
+    }
+  }, [open, initialData, reset]);
+
   const mutation = useMutation({
-    mutationFn: createUnit,
+    mutationFn: (data: UnitFormValues) => 
+      isEditing 
+        ? updateUnit(initialData!.id, data) 
+        : createUnit(data),
     onSuccess: () => {
-      toast.success("Unit created successfully");
+      toast.success(isEditing ? "Unit updated successfully" : "Unit created successfully");
       queryClient.invalidateQueries({ queryKey: ["units"] });
       onOpenChange(false);
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to create unit");
+      toast.error(error.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} unit`);
     },
   });
 
@@ -73,27 +92,33 @@ export function UnitModal({ open, onOpenChange }: UnitModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Unit</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Unit" : "Add Unit"}</DialogTitle>
           <DialogDescription>
-            Create a new unit of measure for your products.
+            {isEditing 
+              ? "Update the details for this unit of measure." 
+              : "Create a new unit of measure for your products."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Field>
-            <FieldLabel htmlFor="name">Name</FieldLabel>
-            <Input id="name" placeholder="e.g. Kilogram, Piece" {...register("name")} />
+            <FieldLabel htmlFor="unit-name">Name</FieldLabel>
+            <Input id="unit-name" placeholder="e.g. Kilogram, Piece" {...register("name")} />
             <FieldError errors={[errors.name]} />
           </Field>
           
           <Field>
-            <FieldLabel htmlFor="abbreviation">Abbreviation</FieldLabel>
-            <Input id="abbreviation" placeholder="e.g. kg, pc" {...register("abbreviation")} />
+            <FieldLabel htmlFor="unit-abbreviation">Abbreviation</FieldLabel>
+            <Input id="unit-abbreviation" placeholder="e.g. kg, pc" {...register("abbreviation")} />
             <FieldError errors={[errors.abbreviation]} />
           </Field>
 
           <DialogFooter className="mt-6">
+            <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Creating..." : "Save Unit"}
+              {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isEditing ? "Update Unit" : "Save Unit"}
             </Button>
           </DialogFooter>
         </form>

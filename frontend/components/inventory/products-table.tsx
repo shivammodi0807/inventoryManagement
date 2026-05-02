@@ -13,6 +13,7 @@ import { MoreHorizontal, Pencil, History, Trash2, PackagePlus } from "lucide-rea
 import { Product } from "@/types/inventory";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,20 +34,43 @@ import { useAuth } from "@/hooks/use-auth";
 
 interface ProductsTableProps {
   data: Product[];
-  isLoading?: boolean;
   onDelete?: (id: number) => void;
   onAdjustStock?: (product: Product) => void;
+  onSelectionChange?: (selectedIds: number[]) => void;
 }
 
 export function ProductsTable({ 
   data, 
-  isLoading, 
   onDelete, 
-  onAdjustStock 
+  onAdjustStock,
+  onSelectionChange
 }: ProductsTableProps) {
   const { can } = useAuth();
+  const [rowSelection, setRowSelection] = React.useState({});
 
   const columns: ColumnDef<Product>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: "sku",
       header: "SKU",
@@ -159,8 +183,19 @@ export function ProductsTable({
   const table = useReactTable({
     data,
     columns,
+    state: {
+      rowSelection,
+    },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
+    getRowId: (row) => row.id.toString(),
   });
+
+  React.useEffect(() => {
+    const selectedIds = table.getSelectedRowModel().rows.map(row => row.original.id);
+    onSelectionChange?.(selectedIds);
+  }, [rowSelection, table, onSelectionChange]);
 
   return (
     <div className="rounded-md border">
@@ -184,18 +219,26 @@ export function ProductsTable({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              data-state={row.getIsSelected() && "selected"}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
+          {table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                No results.
+              </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>

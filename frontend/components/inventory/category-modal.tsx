@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -23,7 +24,8 @@ import {
   FieldLabel, 
   FieldError 
 } from "@/components/ui/field";
-import { createCategory } from "@/lib/inventory";
+import { createCategory, updateCategory } from "@/lib/inventory";
+import { Category } from "@/types/inventory";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -32,10 +34,15 @@ const categorySchema = z.object({
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
-interface CategoryModalProps { open: boolean; onOpenChange: (open: boolean) => void; }
+interface CategoryModalProps { 
+  open: boolean; 
+  onOpenChange: (open: boolean) => void; 
+  initialData?: Category | null;
+}
 
-export function CategoryModal({ open, onOpenChange }: CategoryModalProps) {
+export function CategoryModal({ open, onOpenChange, initialData }: CategoryModalProps) {
   const queryClient = useQueryClient();
+  const isEditing = !!initialData;
 
   const {
     register,
@@ -50,16 +57,31 @@ export function CategoryModal({ open, onOpenChange }: CategoryModalProps) {
     },
   });
 
+  React.useEffect(() => {
+    if (open) {
+      reset(initialData ? {
+        name: initialData.name,
+        description: initialData.description || "",
+      } : {
+        name: "",
+        description: "",
+      });
+    }
+  }, [open, initialData, reset]);
+
   const mutation = useMutation({
-    mutationFn: createCategory,
+    mutationFn: (data: CategoryFormValues) => 
+      isEditing 
+        ? updateCategory(initialData!.id, data) 
+        : createCategory(data),
     onSuccess: () => {
-      toast.success("Category created successfully");
+      toast.success(isEditing ? "Category updated successfully" : "Category created successfully");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       onOpenChange(false);
       reset();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Failed to create category");
+      toast.error(error.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} category`);
     },
   });
 
@@ -71,22 +93,24 @@ export function CategoryModal({ open, onOpenChange }: CategoryModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Category</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Category" : "Add Category"}</DialogTitle>
           <DialogDescription>
-            Create a new category to group your products.
+            {isEditing 
+              ? "Update the details for this category." 
+              : "Create a new category to group your products."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Field>
-            <FieldLabel htmlFor="name">Name</FieldLabel>
-            <Input id="name" placeholder="e.g. Electronics, Furniture" {...register("name")} />
+            <FieldLabel htmlFor="cat-name">Name</FieldLabel>
+            <Input id="cat-name" placeholder="e.g. Electronics, Furniture" {...register("name")} />
             <FieldError errors={[errors.name]} />
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="description">Description (Optional)</FieldLabel>
+            <FieldLabel htmlFor="cat-description">Description (Optional)</FieldLabel>
             <Textarea 
-              id="description"
+              id="cat-description"
               placeholder="Brief description of the category..." 
               className="resize-none" 
               {...register("description")} 
@@ -95,8 +119,12 @@ export function CategoryModal({ open, onOpenChange }: CategoryModalProps) {
           </Field>
 
           <DialogFooter className="mt-6">
+            <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>
+              Cancel
+            </Button>
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? "Creating..." : "Save Category"}
+              {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isEditing ? "Update Category" : "Save Category"}
             </Button>
           </DialogFooter>
         </form>
