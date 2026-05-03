@@ -36,9 +36,14 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Progress } from "@/components/ui/progress";
 
 export default function SupplierPerformancePage() {
+  const [isMounted, setIsMounted] = React.useState(false);
   const { data: suppliersData, isLoading, isError, refetch } = useSuppliers({
     is_active: true,
   });
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const suppliers = suppliersData?.data || [];
 
@@ -189,24 +194,30 @@ export default function SupplierPerformancePage() {
                 <CardDescription>Distribution of vendor scores.</CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={ratingDistribution}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {ratingDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                {isMounted ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={ratingDistribution}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {ratingDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center w-full h-full">
+                    <div className="h-32 w-32 rounded-full border-4 border-muted animate-pulse" />
+                  </div>
+                )}
               </CardContent>
               <div className="flex flex-wrap justify-center gap-4 pb-6 px-6">
                 {ratingDistribution.map((entry, index) => (

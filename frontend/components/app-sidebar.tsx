@@ -24,6 +24,7 @@ import {
   BellIcon,
   Settings2Icon,
   Warehouse as WarehouseIcon,
+  ShoppingBag as ShoppingBagIcon,
 } from "lucide-react"
 
 const platformNav: NavItem[] = [
@@ -105,6 +106,21 @@ const platformNav: NavItem[] = [
         title: "Pending",
         url: "/dashboard/purchase-orders/pending",
         perm: ["view", "purchase_order"],
+      },
+    ],
+  },
+  {
+    title: "Sales",
+    url: "/dashboard/sales",
+    icon: <ShoppingBagIcon />,
+    items: [
+      {
+        title: "Customers",
+        url: "/dashboard/sales/customers",
+      },
+      {
+        title: "Sales Orders",
+        url: "/dashboard/sales/orders",
       },
     ],
   },

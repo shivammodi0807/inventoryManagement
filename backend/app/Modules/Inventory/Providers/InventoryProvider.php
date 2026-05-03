@@ -31,5 +31,6 @@ class InventoryProvider extends ServiceProvider
         Event::listen(StockChanged::class, CheckStockLevels::class);
         Event::listen(StockChanged::class, InvalidateStockCache::class);
         Event::listen(PurchaseOrderReceived::class, ApplyPurchaseOrderStock::class);
+        Event::listen(\App\Modules\Sales\Events\SalesOrderConfirmed::class, \App\Modules\Inventory\Listeners\DeductSalesOrderStock::class);
     }
 }
