@@ -32,6 +32,7 @@ const supplierSchema = z.object({
   city: z.string().max(100).optional().or(z.literal("")),
   country: z.string().max(100).optional().or(z.literal("")),
   payment_terms: z.string().max(100).optional().or(z.literal("")),
+  rating: z.string().optional().or(z.literal("")),
 });
 
 type SupplierFormValues = z.infer<typeof supplierSchema>;
@@ -64,6 +65,7 @@ export function SupplierModal({ open, onOpenChange, initialData }: SupplierModal
       city: "",
       country: "",
       payment_terms: "",
+      rating: "5.0",
     },
   });
 
@@ -78,6 +80,7 @@ export function SupplierModal({ open, onOpenChange, initialData }: SupplierModal
         city: initialData.city || "",
         country: initialData.country || "",
         payment_terms: initialData.payment_terms || "",
+        rating: initialData.rating || "5.0",
       });
     } else {
       reset({
@@ -89,6 +92,7 @@ export function SupplierModal({ open, onOpenChange, initialData }: SupplierModal
         city: "",
         country: "",
         payment_terms: "",
+        rating: "5.0",
       });
     }
   }, [initialData, reset, open]);
@@ -180,6 +184,22 @@ export function SupplierModal({ open, onOpenChange, initialData }: SupplierModal
               <div className="flex flex-col gap-2">
                 <Label htmlFor="payment_terms">Payment Terms</Label>
                 <Input id="payment_terms" {...register("payment_terms")} placeholder="Net 30" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="rating">Supplier Rating (0-5)</Label>
+                <Input
+                  id="rating"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  {...register("rating")}
+                  placeholder="5.0"
+                />
+                {errors.rating && <p className="text-xs text-destructive">{errors.rating.message}</p>}
               </div>
             </div>
           </div>

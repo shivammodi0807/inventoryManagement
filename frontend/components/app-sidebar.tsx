@@ -82,7 +82,7 @@ const platformNav: NavItem[] = [
       { title: "List", url: "/dashboard/suppliers", perm: ["view", "supplier"] },
       {
         title: "Performance",
-        url: "/dashboard/suppliers/perf",
+        url: "/dashboard/suppliers/performance",
         perm: ["view", "supplier"],
       },
     ],
