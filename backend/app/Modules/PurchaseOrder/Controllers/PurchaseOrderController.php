@@ -8,6 +8,7 @@ use App\Modules\PurchaseOrder\Requests\StorePurchaseOrderRequest;
 use App\Modules\PurchaseOrder\Requests\UpdatePurchaseOrderRequest;
 use App\Modules\PurchaseOrder\Resources\PurchaseOrderResource;
 use App\Modules\PurchaseOrder\Services\PurchaseOrderService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use DomainException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -112,5 +113,18 @@ class PurchaseOrderController extends Controller
         }
 
         return response()->json(new PurchaseOrderResource($order));
+    }
+
+    public function export(int $id)
+    {
+        $order = $this->service->getPurchaseOrder($id);
+
+        if (! $order) {
+            return response()->json(['message' => 'Purchase order not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $pdf = Pdf::loadView('purchase-order::pdf', ['order' => $order]);
+
+        return $pdf->download("PO-{$order->order_number}.pdf");
     }
 }

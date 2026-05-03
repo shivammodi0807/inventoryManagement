@@ -9,7 +9,8 @@ import {
   usePurchaseOrder, 
   useSubmitPurchaseOrder, 
   useConfirmPurchaseOrder, 
-  useCancelPurchaseOrder 
+  useCancelPurchaseOrder,
+  useExportPurchaseOrder
 } from "@/hooks/use-purchase-orders";
 import { PurchaseOrderStatus } from "@/types/purchase-order";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,7 @@ export default function PurchaseOrderDetailPage() {
   const submitMutation = useSubmitPurchaseOrder();
   const confirmMutation = useConfirmPurchaseOrder();
   const cancelMutation = useCancelPurchaseOrder();
+  const exportMutation = useExportPurchaseOrder();
 
   const [confirmDialog, setConfirmDialog] = React.useState<{
     open: boolean;
@@ -114,6 +116,11 @@ export default function PurchaseOrderDetailPage() {
               <XCircle className="mr-2 h-4 w-4" /> Cancel PO
             </Button>
           )}
+          
+          <Button variant="outline" onClick={() => exportMutation.mutate(id)} disabled={exportMutation.isPending}>
+            <FileText className="mr-2 h-4 w-4" /> Export PDF
+          </Button>
+
           {isDraft && (
             <Button onClick={() => setConfirmDialog({ open: true, type: "submit" })}>
               <Send className="mr-2 h-4 w-4" /> Submit to Supplier

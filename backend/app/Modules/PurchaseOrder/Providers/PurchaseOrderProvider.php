@@ -20,6 +20,7 @@ class PurchaseOrderProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->loadViewsFrom(__DIR__.'/../Resources/views', 'purchase-order');
         Route::middleware('api')->prefix('api')->group(__DIR__.'/../routes.php');
     }
 }

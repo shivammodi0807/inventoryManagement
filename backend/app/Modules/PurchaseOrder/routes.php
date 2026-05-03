@@ -16,6 +16,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         ->middleware('permission:view,purchase_order');
     Route::match(['put', 'patch'], '/purchase-orders/{purchase_order}', [PurchaseOrderController::class, 'update'])
         ->middleware('permission:edit,purchase_order');
+    Route::get('/purchase-orders/{id}/export', [PurchaseOrderController::class, 'export'])
+        ->middleware('permission:view,purchase_order');
 
     /**
      * STATUS TRANSITIONS. confirm is mapped to delete,purchase_order so it's

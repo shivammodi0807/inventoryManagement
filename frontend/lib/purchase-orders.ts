@@ -67,3 +67,10 @@ export async function receivePurchaseOrder(
   );
   return response.data;
 }
+
+export async function exportPurchaseOrder(id: number) {
+  const response = await axiosApi.get(`/api/purchase-orders/${id}/export`, {
+    responseType: "blob",
+  });
+  return response.data;
+}

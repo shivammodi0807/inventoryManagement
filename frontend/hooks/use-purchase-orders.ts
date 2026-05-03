@@ -8,7 +8,8 @@ import {
   submitPurchaseOrder,
   confirmPurchaseOrder,
   cancelPurchaseOrder,
-  receivePurchaseOrder
+  receivePurchaseOrder,
+  exportPurchaseOrder
 } from "@/lib/purchase-orders";
 import { 
   PurchaseOrderFilters, 
@@ -119,6 +120,25 @@ export function useReceivePurchaseOrder() {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to receive stock");
+    },
+  });
+}
+
+export function useExportPurchaseOrder() {
+  return useMutation({
+    mutationFn: (id: number) => exportPurchaseOrder(id),
+    onSuccess: (blob, id) => {
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `PO-${id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success("PDF exported successfully");
+    },
+    onError: () => {
+      toast.error("Failed to export PDF");
     },
   });
 }
