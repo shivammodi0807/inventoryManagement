@@ -18,9 +18,15 @@ class HandleOverstockDetected
             return;
         }
 
-        $recipients = User::whereHas('role', function ($q) {
-            $q->whereIn('name', ['Admin', 'Manager']);
-        })->get();
+        $recipients = User::where('is_active', true)
+            ->where(function ($query) {
+                $query->whereHas('role.permissions', function ($q) {
+                    $q->whereIn('action', ['edit', 'manage'])
+                      ->where('resource', 'product');
+                })->orWhereHas('role', function ($q) {
+                    $q->where('name', 'Admin');
+                });
+            })->get();
 
         if ($recipients->isEmpty()) {
             return;

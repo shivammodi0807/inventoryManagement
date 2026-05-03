@@ -222,7 +222,7 @@ export default function SupplierDetailPage() {
                       </div>
                     </TableCell>
                     <TableCell>{product.pivot?.supplier_sku || "-"}</TableCell>
-                    <TableCell className="text-right">${parseFloat(product.pivot?.cost_price).toFixed(2)}</TableCell>
+                    <TableCell className="text-right">${Number(product.pivot?.cost_price || 0).toFixed(2)}</TableCell>
                     <TableCell className="text-right">{product.pivot?.est_delivery_days} days</TableCell>
                     <TableCell className="text-right">{product.pivot?.min_order_qty}</TableCell>
                     <TableCell className="text-center">

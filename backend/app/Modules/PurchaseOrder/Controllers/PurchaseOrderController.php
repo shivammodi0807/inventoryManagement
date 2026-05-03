@@ -40,6 +40,35 @@ class PurchaseOrderController extends Controller
         return response()->json(new PurchaseOrderResource($order), Response::HTTP_CREATED);
     }
 
+    public function quickCreate(Request $request): JsonResponse
+    {
+        $this->authorize('create', PurchaseOrder::class);
+
+        $validated = $request->validate([
+            'supplier_id' => 'required|integer|exists:suppliers,id',
+            'product_id' => 'required|integer|exists:products,id',
+            'quantity' => 'required|integer|min:1',
+            'cost_price' => 'required|numeric|min:0',
+        ]);
+
+        $data = [
+            'supplier_id' => $validated['supplier_id'],
+            'order_date' => now()->toDateString(),
+            'description' => 'Auto-generated from low stock alert.',
+            'items' => [
+                [
+                    'product_id' => $validated['product_id'],
+                    'qty_ordered' => $validated['quantity'],
+                    'cost_price' => $validated['cost_price'],
+                ],
+            ],
+        ];
+
+        $order = $this->service->createPurchaseOrder($data);
+
+        return response()->json(new PurchaseOrderResource($order), Response::HTTP_CREATED);
+    }
+
     public function show(int $id): JsonResponse
     {
         $order = $this->service->getPurchaseOrder($id);

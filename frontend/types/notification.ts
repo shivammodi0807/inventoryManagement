@@ -10,6 +10,13 @@ export interface AppNotification {
     priority?: 'critical' | 'warning' | 'info';
     product_id?: number;
     action_url?: string;
+    can_auto_po?: boolean;
+    suggested_data?: {
+      supplier_id: number;
+      supplier_name: string;
+      quantity: number;
+      cost_price: string | number;
+    };
   };
   read_at: string | null;
   created_at: string;

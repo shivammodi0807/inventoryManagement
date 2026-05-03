@@ -17,6 +17,8 @@ class LowStockNotification extends Notification implements ShouldQueue
         public string $productName,
         public int $currentStock,
         public int $reorderPoint,
+        public bool $canAutoPo = false,
+        public array $suggestedData = [],
     ) {}
 
     /**
@@ -45,6 +47,8 @@ class LowStockNotification extends Notification implements ShouldQueue
             'reorder_point' => $this->reorderPoint,
             'priority' => $this->priority(),
             'action_url' => "/dashboard/products/{$this->productId}",
+            'can_auto_po' => $this->canAutoPo,
+            'suggested_data' => $this->suggestedData,
         ];
     }
 

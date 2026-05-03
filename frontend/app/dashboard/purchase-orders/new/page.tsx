@@ -117,7 +117,8 @@ export default function CreatePurchaseOrderPage() {
         ...values,
         exp_delivery: values.exp_delivery || null, // convert empty string to null
       });
-      router.push(`/dashboard/purchase-orders/${res.data.id}`);
+      // Redirect to the newly created PO detail page
+      router.push(`/dashboard/purchase-orders/${res.id}`);
     } catch (err) {
       // toast handled in mutation
     }

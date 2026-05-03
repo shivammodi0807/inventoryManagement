@@ -11,8 +11,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { getEcho } from "@/lib/echo";
 import { getCsrfCookie } from "@/lib/auth";
 import { AppNotification } from "@/types/notification";
+import { quickCreatePurchaseOrder } from "@/lib/purchase-orders";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import {
   Popover,
   PopoverContent,
@@ -86,6 +89,31 @@ export function NotificationBell() {
   const handleMarkAsRead = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     markAsReadMutation.mutate(id);
+  };
+
+  const autoPoMutation = useMutation({
+    mutationFn: quickCreatePurchaseOrder,
+    onSuccess: (data: any) => {
+      toast.success("Purchase Order generated successfully!");
+      setOpen(false);
+      // Optional: router.push(`/dashboard/purchase-orders/${data.data.id}`);
+    },
+    onError: () => {
+      toast.error("Failed to generate Purchase Order");
+    },
+  });
+
+  const handleApproveAutoPO = (e: React.MouseEvent, n: AppNotification) => {
+    e.stopPropagation();
+    if (n.data.suggested_data) {
+      autoPoMutation.mutate({
+        supplier_id: n.data.suggested_data.supplier_id,
+        product_id: n.data.product_id!,
+        quantity: n.data.suggested_data.quantity,
+        cost_price: n.data.suggested_data.cost_price,
+      });
+      if (!n.read_at) markAsReadMutation.mutate(n.id);
+    }
   };
 
   return (
@@ -168,6 +196,24 @@ export function NotificationBell() {
                       <p className="text-[11px] text-muted-foreground/70 mt-1">
                         {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
                       </p>
+                      {n.data.type === "low_stock" && n.data.can_auto_po && (
+                        <div className="mt-2">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="h-7 text-xs bg-primary/10 hover:bg-primary/20 text-primary border-primary/20"
+                            onClick={(e) => handleApproveAutoPO(e, n)}
+                            disabled={autoPoMutation.isPending}
+                          >
+                            {autoPoMutation.isPending ? (
+                              <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                            ) : (
+                              <ShoppingCart className="mr-1 h-3 w-3" />
+                            )}
+                            Approve & Generate PO
+                          </Button>
+                        </div>
+                      )}
                     </div>
                     {isUnread && (
                       <button

@@ -74,11 +74,19 @@ export function LinkProductModal({ supplierId, open, onOpenChange }: LinkProduct
     },
   });
 
+  const [search, setSearch] = React.useState("");
+  
   React.useEffect(() => {
     if (open) {
       reset();
+      setSearch("");
     }
   }, [open, reset]);
+
+  const products = (productsData?.data || []).filter(p => 
+    p.name.toLowerCase().includes(search.toLowerCase()) || 
+    p.sku.toLowerCase().includes(search.toLowerCase())
+  );
 
   const onSubmit = async (values: LinkProductFormValues) => {
     try {
@@ -91,8 +99,6 @@ export function LinkProductModal({ supplierId, open, onOpenChange }: LinkProduct
       // Errors handled by mutation hook via toast
     }
   };
-
-  const products = productsData?.data || [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -114,11 +120,19 @@ export function LinkProductModal({ supplierId, open, onOpenChange }: LinkProduct
                 render={({ field }) => (
                   <Combobox 
                     value={field.value ? field.value.toString() : ""} 
-                    onValueChange={(val) => val && field.onChange(parseInt(val))}
+                    onValueChange={(val) => {
+                      if (val) {
+                        field.onChange(parseInt(val));
+                        const selected = products.find(p => p.id.toString() === val);
+                        if (selected) setSearch(selected.name);
+                      }
+                    }}
                   >
                     <ComboboxInput 
                       placeholder={isLoadingProducts ? "Loading products..." : "Search products..."} 
                       disabled={isLoadingProducts}
+                      value={search}
+                      onChange={(e: any) => setSearch(e.target.value)}
                     />
                     <ComboboxContent>
                       <ComboboxEmpty>No product found.</ComboboxEmpty>

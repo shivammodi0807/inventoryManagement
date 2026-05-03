@@ -28,6 +28,12 @@ class ProductStoreRequest extends FormRequest
                 'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
             ]);
         }
+
+        if ($this->has('auto_po_generation')) {
+            $this->merge([
+                'auto_po_generation' => filter_var($this->auto_po_generation, FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -46,6 +52,7 @@ class ProductStoreRequest extends FormRequest
             'attributes' => 'nullable|array',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'is_active' => 'nullable|boolean',
+            'auto_po_generation' => 'nullable|boolean',
         ];
     }
 

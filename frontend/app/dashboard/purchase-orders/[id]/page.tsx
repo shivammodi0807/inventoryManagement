@@ -51,18 +51,12 @@ export default function PurchaseOrderDetailPage() {
 
   if (isError) return <ErrorState onRetry={() => refetch()} />;
 
-  const order = data?.data;
+  const order = data?.data || data;
 
   const handleAction = async () => {
-    if (!confirmDialog.type) return;
-    try {
-      if (confirmDialog.type === "submit") await submitMutation.mutateAsync(id);
-      if (confirmDialog.type === "confirm") await confirmMutation.mutateAsync(id);
-      if (confirmDialog.type === "cancel") await cancelMutation.mutateAsync(id);
-      setConfirmDialog({ open: false, type: null });
-    } catch (error) {
-      // toast handles errors
-    }
+    // The mutations are now handled directly by the ConfirmDialog's onConfirm
+    // to avoid double-triggering which caused transition errors.
+    setConfirmDialog({ open: false, type: null });
   };
 
   const isActionLoading = submitMutation.isPending || confirmMutation.isPending || cancelMutation.isPending;
@@ -96,7 +90,7 @@ export default function PurchaseOrderDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Purchase Order {order.po_number}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Purchase Order {order.order_number}</h1>
             <div className="flex items-center space-x-2 mt-1">
               <POStatusBadge status={order.status} />
               <span className="text-muted-foreground text-sm">
@@ -172,7 +166,7 @@ export default function PurchaseOrderDetailPage() {
                           </span>
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          ${parseFloat(item.total_price).toFixed(2)}
+                          ${(Number(item.line_total || 0)).toFixed(2)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -263,7 +257,12 @@ export default function PurchaseOrderDetailPage() {
           "Cancel Order"
         }
         variant={confirmDialog.type === "cancel" ? "destructive" : "default"}
-        onConfirm={handleAction}
+        onConfirm={async () => {
+          if (confirmDialog.type === "submit") await submitMutation.mutateAsync(id);
+          if (confirmDialog.type === "confirm") await confirmMutation.mutateAsync(id);
+          if (confirmDialog.type === "cancel") await cancelMutation.mutateAsync(id);
+          setConfirmDialog({ open: false, type: null });
+        }}
         isLoading={isActionLoading}
       />
 

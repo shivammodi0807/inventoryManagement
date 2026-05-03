@@ -47,6 +47,7 @@ export interface Product {
   reorder_quantity: number;
   lead_time_days: number;
   is_active: boolean;
+  auto_po_generation: boolean;
   image_url: string | null;
   attributes: Record<string, any> | null;
   stock_levels?: StockLevel[];

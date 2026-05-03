@@ -29,12 +29,14 @@ class Product extends Model
         'attributes',
         'image_url',
         'is_active',
+        'auto_po_generation',
         'user_id',
     ];
 
     protected $casts = [
         'attributes' => 'json',
         'is_active' => 'boolean',
+        'auto_po_generation' => 'boolean',
         'unit_price' => 'decimal:2',
         'cost_price' => 'decimal:2',
     ];

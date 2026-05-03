@@ -23,6 +23,15 @@ class LinkProductRequest extends FormRequest
         return $this->user()?->can('linkProduct', $supplier) ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('is_preferred')) {
+            $this->merge([
+                'is_preferred' => filter_var($this->is_preferred, FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *

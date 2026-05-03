@@ -74,3 +74,13 @@ export async function exportPurchaseOrder(id: number) {
   });
   return response.data;
 }
+
+export async function quickCreatePurchaseOrder(data: {
+  supplier_id: number;
+  product_id: number;
+  quantity: number;
+  cost_price: string | number;
+}) {
+  const response = await axiosApi.post("/api/purchase-orders/quick-create", data);
+  return response.data;
+}

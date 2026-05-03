@@ -46,6 +46,7 @@ const productSchema = z.object({
   reorder_quantity: z.coerce.number().min(0),
   lead_time_days: z.coerce.number().min(0),
   is_active: z.boolean().default(true),
+  auto_po_generation: z.boolean().default(false),
   image: z.any().optional(),
 });
 
@@ -92,6 +93,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
           reorder_quantity: initialData.reorder_quantity,
           lead_time_days: initialData.lead_time_days,
           is_active: initialData.is_active,
+          auto_po_generation: initialData.auto_po_generation,
         }
       : {
           sku: "",
@@ -105,12 +107,14 @@ export function ProductForm({ initialData }: ProductFormProps) {
           reorder_quantity: 0,
           lead_time_days: 0,
           is_active: true,
+          auto_po_generation: false,
         },
   });
 
   const categoryId = watch("category_id");
   const unitId = watch("unit_id");
   const isActive = watch("is_active");
+  const isAutoPO = watch("auto_po_generation");
 
   const [imagePreview, setImagePreview] = React.useState<string | null>(initialData?.image_url || null);
 
@@ -345,6 +349,23 @@ export function ProductForm({ initialData }: ProductFormProps) {
               />
             </div>
             <FieldError errors={[errors.is_active]} />
+          </Field>
+
+          <Field>
+            <div className="flex items-center justify-between rounded-lg border p-4 bg-primary/5">
+              <div className="space-y-0.5">
+                <FieldLabel htmlFor="auto_po_generation">Auto PO Generation</FieldLabel>
+                <FieldDescription>
+                  Suggest automatic PO when stock falls below reorder point.
+                </FieldDescription>
+              </div>
+              <Switch
+                id="auto_po_generation"
+                checked={isAutoPO}
+                onCheckedChange={(checked) => setValue("auto_po_generation", checked)}
+              />
+            </div>
+            <FieldError errors={[errors.auto_po_generation]} />
           </Field>
         </FieldGroup>
       </div>

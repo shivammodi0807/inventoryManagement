@@ -23,6 +23,21 @@ class ProductUpdateRequest extends FormRequest
         return $this->user()?->can('update', $product) ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('is_active')) {
+            $this->merge([
+                'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+
+        if ($this->has('auto_po_generation')) {
+            $this->merge([
+                'auto_po_generation' => filter_var($this->auto_po_generation, FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -46,6 +61,7 @@ class ProductUpdateRequest extends FormRequest
             'attributes' => 'nullable|array',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'is_active' => 'nullable|boolean',
+            'auto_po_generation' => 'nullable|boolean',
         ];
     }
 

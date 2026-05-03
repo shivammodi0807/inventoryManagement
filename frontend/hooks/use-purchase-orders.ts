@@ -53,7 +53,8 @@ export function useUpdatePurchaseOrder() {
     mutationFn: ({ id, data }: { id: number; data: UpdatePurchaseOrderPayload }) => updatePurchaseOrder(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      queryClient.invalidateQueries({ queryKey: ["purchase-order", data.data.id] });
+      const orderId = data?.data?.id || data?.id;
+      if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order updated successfully");
     },
     onError: (error: any) => {
@@ -68,7 +69,8 @@ export function useSubmitPurchaseOrder() {
     mutationFn: (id: number) => submitPurchaseOrder(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      queryClient.invalidateQueries({ queryKey: ["purchase-order", data.data.id] });
+      const orderId = data?.data?.id || data?.id;
+      if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order submitted successfully");
     },
     onError: (error: any) => {
@@ -83,7 +85,8 @@ export function useConfirmPurchaseOrder() {
     mutationFn: (id: number) => confirmPurchaseOrder(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      queryClient.invalidateQueries({ queryKey: ["purchase-order", data.data.id] });
+      const orderId = data?.data?.id || data?.id;
+      if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order confirmed successfully");
     },
     onError: (error: any) => {
@@ -98,7 +101,8 @@ export function useCancelPurchaseOrder() {
     mutationFn: (id: number) => cancelPurchaseOrder(id),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      queryClient.invalidateQueries({ queryKey: ["purchase-order", data.data.id] });
+      const orderId = data?.data?.id || data?.id;
+      if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order cancelled successfully");
     },
     onError: (error: any) => {
@@ -113,7 +117,8 @@ export function useReceivePurchaseOrder() {
     mutationFn: ({ id, data }: { id: number; data: ReceivePurchaseOrderPayload }) => receivePurchaseOrder(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      queryClient.invalidateQueries({ queryKey: ["purchase-order", data.data.id] });
+      const orderId = data?.data?.id || data?.id;
+      if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       // Invalidate stock/products as well since we just received inventory
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success("Stock received successfully");

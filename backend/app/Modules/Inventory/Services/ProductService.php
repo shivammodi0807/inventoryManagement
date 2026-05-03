@@ -117,6 +117,7 @@ class ProductService
             'attributes' => $data['attributes'] ?? null,
             'image_url' => $imageUrl ?? ($data['image_url'] ?? null),
             'is_active' => filter_var($data['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'auto_po_generation' => filter_var($data['auto_po_generation'] ?? false, FILTER_VALIDATE_BOOLEAN),
             'user_id' => $userId,
         ]);
     }
@@ -161,6 +162,7 @@ class ProductService
             'attributes' => array_key_exists('attributes', $data) ? $data['attributes'] : $product->attributes,
             'image_url' => $imageUrl,
             'is_active' => array_key_exists('is_active', $data) ? filter_var($data['is_active'], FILTER_VALIDATE_BOOLEAN) : $product->is_active,
+            'auto_po_generation' => array_key_exists('auto_po_generation', $data) ? filter_var($data['auto_po_generation'], FILTER_VALIDATE_BOOLEAN) : $product->auto_po_generation,
         ]);
 
         return $product;
@@ -177,6 +179,11 @@ class ProductService
 
         if (! $product) {
             return false;
+        }
+
+        // Delete image file from storage if it exists
+        if ($product->image_url && Storage::disk('public')->exists($product->image_url)) {
+            Storage::disk('public')->delete($product->image_url);
         }
 
         return (bool) $product->delete();
