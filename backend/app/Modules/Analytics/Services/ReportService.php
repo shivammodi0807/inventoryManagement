@@ -4,6 +4,8 @@ namespace App\Modules\Analytics\Services;
 
 use App\Models\Inventory\Product;
 use App\Models\Sales\SalesOrder;
+use App\Models\Supplier\Supplier;
+use App\Modules\PurchaseOrder\Enums\PurchaseOrderStatus;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -161,39 +163,6 @@ class ReportService
             ->toArray();
     }
 
-    /**
-     * Get supplier performance metrics based on purchase history.
-     */
-    public function getSupplierPerformanceData(): array
-    {
-        $suppliers = DB::table('suppliers')
-            ->leftJoin('purchase_orders', 'suppliers.id', '=', 'purchase_orders.supplier_id')
-            ->select(
-                'suppliers.id',
-                'suppliers.name',
-                'suppliers.rating',
-                DB::raw('COUNT(purchase_orders.id) as total_orders'),
-                DB::raw('SUM(purchase_orders.total_amount) as total_spend'),
-                DB::raw('AVG(CASE WHEN purchase_orders.status = "received" THEN DATEDIFF(purchase_orders.updated_at, purchase_orders.order_date) ELSE NULL END) as avg_lead_time'),
-                DB::raw('COUNT(CASE WHEN purchase_orders.status = "received" AND purchase_orders.updated_at <= purchase_orders.exp_delivery THEN 1 END) * 100.0 / NULLIF(COUNT(CASE WHEN purchase_orders.status = "received" THEN 1 END), 0) as on_time_rate')
-            )
-            ->whereNull('suppliers.deleted_at')
-            ->groupBy('suppliers.id', 'suppliers.name', 'suppliers.rating')
-            ->get();
-
-        $topPerformers = $suppliers->sortByDesc('rating')->take(5)->values();
-
-        return [
-            'suppliers' => $suppliers,
-            'top_performers' => $topPerformers,
-            'summary' => [
-                'avg_reliability' => $suppliers->whereNotNull('on_time_rate')->avg('on_time_rate') ?? 0,
-                'avg_lead_time' => $suppliers->whereNotNull('avg_lead_time')->avg('avg_lead_time') ?? 0,
-                'total_vendors' => $suppliers->count(),
-                'top_vendor' => $topPerformers->first()
-            ]
-        ];
-    }
 
     /**
      * Get inventory forecast based on sales velocity.
@@ -265,5 +234,87 @@ class ReportService
         if ($days <= 14) return 'warning';
         if ($days <= 30) return 'low';
         return 'healthy';
+    }
+
+    public function getSupplierPerformance(): array
+    {
+        $suppliers = Supplier::with(['purchaseOrders' => function($query) {
+            $query->where('status', PurchaseOrderStatus::Received->value)
+                  ->with('items');
+        }])->get();
+
+        $suppliersData = $suppliers->map(function ($supplier) {
+            $receivedOrders = $supplier->purchaseOrders;
+            $totalOrders = $receivedOrders->count();
+
+            if ($totalOrders === 0) {
+                return [
+                    'id' => $supplier->id,
+                    'name' => $supplier->name,
+                    'on_time_rate' => 100,
+                    'fulfillment_rate' => 100,
+                    'avg_lead_time' => 0,
+                    'total_orders' => 0,
+                    'total_spend' => 0,
+                    'rating' => (float)$supplier->rating ?: 5.0,
+                    'status' => 'excellent'
+                ];
+            }
+
+            $onTimeOrders = $receivedOrders->filter(function ($order) {
+                if (!$order->exp_delivery) return true;
+                return $order->updated_at->lte($order->exp_delivery);
+            })->count();
+
+            $totalOrdered = 0;
+            $totalReceived = 0;
+            $totalLeadTime = 0;
+            $totalSpend = 0;
+
+            foreach ($receivedOrders as $order) {
+                $totalOrdered += $order->items->sum('qty_ordered');
+                $totalReceived += $order->items->sum('qty_received');
+                $totalLeadTime += $order->created_at->diffInDays($order->updated_at);
+                $totalSpend += (float)$order->total_amount;
+            }
+
+            $onTimeRate = ($onTimeOrders / $totalOrders) * 100;
+            $fulfillmentRate = ($totalOrdered > 0) ? ($totalReceived / $totalOrdered) * 100 : 100;
+            $avgLeadTime = $totalLeadTime / $totalOrders;
+
+            return [
+                'id' => $supplier->id,
+                'name' => $supplier->name,
+                'on_time_rate' => round($onTimeRate, 1),
+                'fulfillment_rate' => round($fulfillmentRate, 1),
+                'avg_lead_time' => round($avgLeadTime, 1),
+                'total_orders' => $totalOrders,
+                'total_spend' => round($totalSpend, 2),
+                'rating' => round(($onTimeRate + $fulfillmentRate) / 20, 1), // 0-10 scale
+                'status' => $this->getSupplierPerformanceStatus($onTimeRate, $fulfillmentRate)
+            ];
+        });
+
+        $topPerformers = $suppliersData->sortByDesc('rating')->take(5)->values();
+
+        return [
+            'suppliers' => $suppliersData->values()->toArray(),
+            'top_performers' => $topPerformers->toArray(),
+            'summary' => [
+                'avg_reliability' => $suppliersData->avg('on_time_rate') ?? 0,
+                'avg_lead_time' => $suppliersData->avg('avg_lead_time') ?? 0,
+                'total_vendors' => $suppliersData->count(),
+                'top_vendor' => $topPerformers->first()
+            ]
+        ];
+    }
+
+    private function getSupplierPerformanceStatus($onTime, $fulfillment): string
+    {
+        $avg = ($onTime + $fulfillment) / 2;
+        if ($avg >= 90) return 'excellent';
+        if ($avg >= 75) return 'good';
+        if ($avg >= 50) return 'average';
+        return 'poor';
     }
 }

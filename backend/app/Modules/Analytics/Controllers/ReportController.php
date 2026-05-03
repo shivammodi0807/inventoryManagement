@@ -81,7 +81,7 @@ class ReportController extends Controller
      */
     public function supplierPerformance(): JsonResponse
     {
-        return response()->json($this->service->getSupplierPerformanceData());
+        return response()->json($this->service->getSupplierPerformance());
     }
 
     /**
@@ -114,8 +114,10 @@ class ReportController extends Controller
      */
     public function exportSupplierPerformance()
     {
-        $data = $this->service->getSupplierPerformanceData();
-        $pdf = Pdf::loadView('analytics::supplier_performance_pdf', $data);
+        $data = $this->service->getSupplierPerformance();
+        
+        // Convert arrays to objects for the view if necessary
+        $pdf = Pdf::loadView('analytics::supplier_performance_pdf', json_decode(json_encode($data), true));
         
         return $pdf->download("supplier-performance-" . now()->format('Y-m-d') . ".pdf");
     }

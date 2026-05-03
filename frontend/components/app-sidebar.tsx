@@ -82,11 +82,6 @@ const platformNav: NavItem[] = [
     perms: [["view", "supplier"]],
     items: [
       { title: "List", url: "/dashboard/suppliers", perm: ["view", "supplier"] },
-      {
-        title: "Performance",
-        url: "/dashboard/suppliers/performance",
-        perm: ["view", "supplier"],
-      },
     ],
   },
   {
@@ -138,6 +133,8 @@ const platformNav: NavItem[] = [
       { title: "Inventory Valuation", url: "/dashboard/reports/inventory" },
       { title: "Sales Analysis", url: "/dashboard/reports/sales" },
       { title: "Low Stock", url: "/dashboard/reports/low-stock" },
+      { title: "Inventory Forecasting", url: "/dashboard/reports/forecast" },
+      { title: "Supplier Performance", url: "/dashboard/reports/suppliers" },
       { title: "Audit Logs", url: "/dashboard/reports/audit" },
     ],
   },
