@@ -19,6 +19,19 @@ export interface Unit {
   updated_at: string;
 }
 
+export interface SupplierLink {
+  id: number;
+  name: string;
+  contact_name: string | null;
+  email: string | null;
+  phone: string | null;
+  supplier_sku: string | null;
+  cost_price: string;
+  est_delivery_days: number;
+  is_preferred: boolean;
+  min_order_qty: number;
+}
+
 export interface Product {
   id: number;
   sku: string;
@@ -39,6 +52,7 @@ export interface Product {
   stock_levels?: StockLevel[];
   total_stock?: number; // Virtual attribute from backend
   stock_status?: 'critical' | 'low' | 'normal' | 'overstock'; // Virtual attribute
+  suppliers?: SupplierLink[];
   created_at: string;
   updated_at: string;
   pivot?: import('./supplier').ProductSupplier;

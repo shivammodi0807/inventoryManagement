@@ -84,7 +84,7 @@ class ProductService
      */
     public function getProduct(int $id): ?Product
     {
-        return Product::with(['category', 'unit', 'creator', 'stockLevels.warehouse'])->find($id);
+        return Product::with(['category', 'unit', 'creator', 'stockLevels.warehouse', 'suppliers'])->find($id);
     }
 
     /**

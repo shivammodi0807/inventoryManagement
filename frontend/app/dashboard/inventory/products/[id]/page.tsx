@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, User as UserIcon, Warehouse as WarehouseIcon, Edit, History } from "lucide-react";
+import { Loader2, ArrowLeft, User as UserIcon, Warehouse as WarehouseIcon, Edit, History, Truck, Trash2, Plus } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -30,8 +30,11 @@ import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StockAdjustModal } from "@/components/inventory/stock-adjust-modal";
+import { LinkSupplierModal } from "@/components/inventory/link-supplier-modal";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { useAuth } from "@/hooks/use-auth";
-import { Product } from "@/types/inventory";
+import { useUnlinkProduct } from "@/hooks/use-suppliers";
+import { Product, SupplierLink } from "@/types/inventory";
 
 const stockStatusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   normal: "default",
@@ -56,6 +59,10 @@ export default function ProductDetailPage() {
   const id = parseInt(params.id as string);
 
   const [adjustingProduct, setAdjustingProduct] = React.useState<Product | null>(null);
+  const [isLinkModalOpen, setIsLinkModalOpen] = React.useState(false);
+  const [unlinkingSupplierId, setUnlinkingSupplierId] = React.useState<number | null>(null);
+
+  const unlinkMutation = useUnlinkProduct();
 
   const {
     data: product,
@@ -392,6 +399,88 @@ export default function ProductDetailPage() {
               )}
             </CardContent>
           </Card>
+          {/* Suppliers */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle>Suppliers & Sourcing</CardTitle>
+                </div>
+                <CardDescription>Vendors providing this product and their pricing.</CardDescription>
+              </div>
+              {can("edit", "product") && (
+                <Button size="sm" variant="outline" onClick={() => setIsLinkModalOpen(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Supplier
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent>
+              {isLoadingProduct ? (
+                <DataTableSkeleton columnCount={5} rowCount={2} />
+              ) : !product?.suppliers?.length ? (
+                <EmptyState
+                  title="No suppliers linked"
+                  description="You haven't defined any suppliers for this product yet."
+                  icon={<Truck className="h-8 w-8 text-muted-foreground" />}
+                  action={can("edit", "product") ? {
+                    label: "Add Supplier",
+                    onClick: () => setIsLinkModalOpen(true),
+                  } : undefined}
+                />
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Supplier</TableHead>
+                      <TableHead>Vendor SKU</TableHead>
+                      <TableHead className="text-right">Cost Price</TableHead>
+                      <TableHead className="text-right">Lead Time</TableHead>
+                      <TableHead className="text-center">Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {product.suppliers.map((s: SupplierLink) => (
+                      <TableRow key={s.id}>
+                        <TableCell className="font-medium">
+                          <div className="flex flex-col">
+                            <span>{s.name}</span>
+                            <span className="text-xs text-muted-foreground font-normal">{s.email || s.phone || "No contact info"}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm font-mono">{s.supplier_sku || "—"}</TableCell>
+                        <TableCell className="text-right font-medium">
+                          ${parseFloat(s.cost_price).toFixed(2)}
+                        </TableCell>
+                        <TableCell className="text-right text-sm">
+                          {s.est_delivery_days} days
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {s.is_preferred ? (
+                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Preferred</Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Regular</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-destructive"
+                            onClick={() => setUnlinkingSupplierId(s.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
         </>
       )}
 
@@ -400,6 +489,29 @@ export default function ProductDetailPage() {
         product={adjustingProduct}
         isOpen={!!adjustingProduct}
         onClose={() => setAdjustingProduct(null)}
+      />
+
+      <LinkSupplierModal
+        productId={id}
+        open={isLinkModalOpen}
+        onOpenChange={setIsLinkModalOpen}
+      />
+
+      <ConfirmDialog
+        open={unlinkingSupplierId !== null}
+        onOpenChange={(open) => !open && setUnlinkingSupplierId(null)}
+        title="Unlink Supplier"
+        description="Are you sure you want to remove this supplier from the product? This will not delete the supplier from the system."
+        confirmText="Unlink"
+        variant="destructive"
+        onConfirm={async () => {
+          if (unlinkingSupplierId) {
+            await unlinkMutation.mutateAsync({ supplierId: unlinkingSupplierId, productId: id });
+            setUnlinkingSupplierId(null);
+            refetchProduct();
+          }
+        }}
+        isLoading={unlinkMutation.isPending}
       />
     </div>
   );

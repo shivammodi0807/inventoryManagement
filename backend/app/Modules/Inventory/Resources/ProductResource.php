@@ -5,6 +5,8 @@ namespace App\Modules\Inventory\Resources;
 use App\Modules\Inventory\Resources\CategoryResource;
 use App\Modules\Inventory\Resources\StockLevelResource;
 use App\Modules\Inventory\Resources\UnitResource;
+use App\Modules\Supplier\Resources\SupplierLinkResource;
+use App\Modules\Supplier\Resources\SupplierResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -41,6 +43,7 @@ class ProductResource extends JsonResource
                 $this->relationLoaded('stockLevels'),
                 fn () => StockLevelResource::collection($this->stockLevels)
             ),
+            'suppliers' => SupplierLinkResource::collection($this->whenLoaded('suppliers')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

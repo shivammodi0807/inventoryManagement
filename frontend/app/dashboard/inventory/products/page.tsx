@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Search, Filter, Download, Trash2, Package } from "lucide-react";
+import { Plus, Search, Filter, Download, Trash2, Package, Truck } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { getProducts, getCategories, deleteProduct } from "@/lib/inventory";
 import { ProductsTable } from "@/components/inventory/products-table";
 import { StockAdjustModal } from "@/components/inventory/stock-adjust-modal";
+import { BulkLinkSupplierModal } from "@/components/inventory/bulk-link-supplier-modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -51,6 +52,7 @@ export default function ProductsPage() {
   const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [deletingId, setDeletingId] = React.useState<number | null>(null);
   const [isBulkDeleting, setIsBulkDeleting] = React.useState(false);
+  const [isBulkLinking, setIsBulkLinking] = React.useState(false);
 
   const page = parseInt(searchParams.get("page") || "1");
   const search = searchParams.get("search") || "";
@@ -222,15 +224,27 @@ export default function ProductsPage() {
           </Select>
         </div>
 
-        {selectedIds.length > 0 && can("delete", "product") && (
-          <Button 
-            variant="destructive" 
-            size="sm"
-            onClick={() => setIsBulkDeleting(true)}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete Selected ({selectedIds.length})
-          </Button>
+        {selectedIds.length > 0 && can("edit", "product") && (
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsBulkLinking(true)}
+            >
+              <Truck className="mr-2 h-4 w-4" />
+              Link to Supplier ({selectedIds.length})
+            </Button>
+            {can("delete", "product") && (
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => setIsBulkDeleting(true)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Selected ({selectedIds.length})
+              </Button>
+            )}
+          </div>
         )}
       </div>
 
@@ -336,6 +350,16 @@ export default function ProductsPage() {
         title="Bulk Delete Products"
         description={`Are you sure you want to delete ${selectedIds.length} selected products? This action cannot be undone.`}
         isLoading={bulkDeleteMutation.isPending}
+      />
+
+      <BulkLinkSupplierModal
+        productIds={selectedIds}
+        open={isBulkLinking}
+        onOpenChange={setIsBulkLinking}
+        onSuccess={() => {
+          setSelectedIds([]);
+          refetch();
+        }}
       />
     </div>
   );
