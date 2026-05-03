@@ -14,6 +14,7 @@ import {
   BreadcrumbList,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 export default function DashboardLayout({
   children,
@@ -25,8 +26,8 @@ export default function DashboardLayout({
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b">
-            <div className="flex items-center gap-2 px-4">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b px-4">
+            <div className="flex items-center gap-2">
               <SidebarTrigger className="-ml-1" />
               <Separator
                 orientation="vertical"
@@ -42,6 +43,10 @@ export default function DashboardLayout({
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
+            {/* Right side of header */}
+            <div className="flex items-center gap-1">
+              <NotificationBell />
+            </div>
           </header>
           <div className="p-6 flex-1 bg-gray-50/50">{children}</div>
         </SidebarInset>
@@ -49,3 +54,4 @@ export default function DashboardLayout({
     </TooltipProvider>
   );
 }
+
