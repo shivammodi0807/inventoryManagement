@@ -15,6 +15,8 @@ Route::prefix('sales')->middleware('auth:sanctum')->group(function () {
     Route::get('orders/{id}', [SalesOrderController::class, 'show']);
     Route::post('orders/{id}/confirm', [SalesOrderController::class, 'confirm']);
     Route::post('orders/{id}/cancel', [SalesOrderController::class, 'cancel']);
+    Route::post('orders/{id}/ship', [SalesOrderController::class, 'ship']);
+    Route::post('orders/{id}/deliver', [SalesOrderController::class, 'deliver']);
 
     // Invoices
     Route::post('orders/{orderId}/invoice', [InvoiceController::class, 'generate']);

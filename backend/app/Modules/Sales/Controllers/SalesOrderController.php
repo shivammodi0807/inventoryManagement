@@ -67,4 +67,24 @@ class SalesOrderController extends Controller
             return response()->json(['message' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
     }
+
+    public function ship(int $id): JsonResponse
+    {
+        try {
+            $order = $this->service->shipSalesOrder($id);
+            return response()->json($order);
+        } catch (\DomainException $e) {
+            return response()->json(['message' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+    }
+
+    public function deliver(int $id): JsonResponse
+    {
+        try {
+            $order = $this->service->deliverSalesOrder($id);
+            return response()->json($order);
+        } catch (\DomainException $e) {
+            return response()->json(['message' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+    }
 }

@@ -111,6 +111,38 @@ class SalesOrderService
     }
 
     /**
+     * Mark a sales order as shipped.
+     */
+    public function shipSalesOrder(int $id): SalesOrder
+    {
+        $order = SalesOrder::findOrFail($id);
+
+        if ($order->status !== SalesOrderStatus::Confirmed) {
+            throw new DomainException("Order must be confirmed before shipping. Current status: {$order->status->value}");
+        }
+
+        $order->update(['status' => SalesOrderStatus::Shipped->value]);
+
+        return $order->fresh();
+    }
+
+    /**
+     * Mark a sales order as delivered.
+     */
+    public function deliverSalesOrder(int $id): SalesOrder
+    {
+        $order = SalesOrder::findOrFail($id);
+
+        if ($order->status !== SalesOrderStatus::Shipped) {
+            throw new DomainException("Order must be shipped before marking as delivered. Current status: {$order->status->value}");
+        }
+
+        $order->update(['status' => SalesOrderStatus::Delivered->value]);
+
+        return $order->fresh();
+    }
+
+    /**
      * Cancel a sales order.
      */
     public function cancelSalesOrder(int $id): SalesOrder

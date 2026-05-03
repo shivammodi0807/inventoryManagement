@@ -19,6 +19,9 @@ class AnalyticsProvider extends ServiceProvider
             ->middleware('api')
             ->group(__DIR__ . '/../routes.php');
 
+        // Load the module's views
+        $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'analytics');
+
         // Bust cache on relevant events
         \Illuminate\Support\Facades\Event::listen(
             \App\Modules\Inventory\Events\StockChanged::class,
@@ -27,6 +30,11 @@ class AnalyticsProvider extends ServiceProvider
         
         \Illuminate\Support\Facades\Event::listen(
             \App\Modules\PurchaseOrder\Events\PurchaseOrderReceived::class,
+            [\App\Modules\Analytics\Listeners\BustDashboardCache::class, 'handle']
+        );
+
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Modules\Sales\Events\SalesOrderConfirmed::class,
             [\App\Modules\Analytics\Listeners\BustDashboardCache::class, 'handle']
         );
     }

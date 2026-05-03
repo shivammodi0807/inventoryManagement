@@ -20,6 +20,8 @@ import {
   useSalesOrder, 
   useConfirmSalesOrder, 
   useCancelSalesOrder,
+  useShipSalesOrder,
+  useDeliverSalesOrder,
   useGenerateInvoice 
 } from "@/hooks/use-sales-orders";
 import { Button } from "@/components/ui/button";
@@ -50,10 +52,12 @@ export default function SalesOrderDetailPage() {
   const confirmMutation = useConfirmSalesOrder();
   const cancelMutation = useCancelSalesOrder();
   const generateInvoiceMutation = useGenerateInvoice();
+  const shipMutation = useShipSalesOrder();
+  const deliverMutation = useDeliverSalesOrder();
 
   const [confirmDialog, setConfirmDialog] = React.useState<{
     open: boolean;
-    type: "confirm" | "cancel" | "invoice" | null;
+    type: "confirm" | "cancel" | "invoice" | "ship" | "deliver" | null;
   }>({ open: false, type: null });
 
   const [paymentModalOpen, setPaymentModalOpen] = React.useState(false);
@@ -125,6 +129,18 @@ export default function SalesOrderDetailPage() {
           {isConfirmed && !hasInvoice && (
             <Button onClick={() => setConfirmDialog({ open: true, type: "invoice" })}>
               <FileText className="mr-2 h-4 w-4" /> Generate Invoice
+            </Button>
+          )}
+
+          {isConfirmed && (
+            <Button variant="outline" onClick={() => setConfirmDialog({ open: true, type: "ship" })}>
+              <Package className="mr-2 h-4 w-4" /> Mark as Shipped
+            </Button>
+          )}
+
+          {order.status === "shipped" && (
+            <Button onClick={() => setConfirmDialog({ open: true, type: "deliver" })}>
+              <CheckCircle2 className="mr-2 h-4 w-4" /> Mark as Delivered
             </Button>
           )}
 
@@ -330,16 +346,22 @@ export default function SalesOrderDetailPage() {
         title={
           confirmDialog.type === "confirm" ? "Confirm Sales Order" :
           confirmDialog.type === "cancel" ? "Cancel Sales Order" :
+          confirmDialog.type === "ship" ? "Mark as Shipped" :
+          confirmDialog.type === "deliver" ? "Mark as Delivered" :
           "Generate Invoice"
         }
         description={
           confirmDialog.type === "confirm" ? "This will confirm the order and automatically deduct stock from selected warehouses. Proceed?" :
           confirmDialog.type === "cancel" ? "Are you sure you want to cancel this order? This action cannot be undone." :
+          confirmDialog.type === "ship" ? "Are you sure you want to mark this order as shipped? This will update the order status." :
+          confirmDialog.type === "deliver" ? "Are you sure you want to mark this order as delivered? This will finalize the order status." :
           "This will generate a tax invoice and lock the order for modifications. Proceed?"
         }
         confirmText={
           confirmDialog.type === "confirm" ? "Confirm & Deduct" :
           confirmDialog.type === "cancel" ? "Cancel Order" :
+          confirmDialog.type === "ship" ? "Ship Order" :
+          confirmDialog.type === "deliver" ? "Deliver Order" :
           "Generate"
         }
         variant={confirmDialog.type === "cancel" ? "destructive" : "default"}
@@ -347,9 +369,17 @@ export default function SalesOrderDetailPage() {
           if (confirmDialog.type === "confirm") await confirmMutation.mutateAsync(id);
           if (confirmDialog.type === "cancel") await cancelMutation.mutateAsync(id);
           if (confirmDialog.type === "invoice") await generateInvoiceMutation.mutateAsync(id);
+          if (confirmDialog.type === "ship") await shipMutation.mutateAsync(id);
+          if (confirmDialog.type === "deliver") await deliverMutation.mutateAsync(id);
           setConfirmDialog({ open: false, type: null });
         }}
-        isLoading={confirmMutation.isPending || cancelMutation.isPending || generateInvoiceMutation.isPending}
+        isLoading={
+          confirmMutation.isPending || 
+          cancelMutation.isPending || 
+          generateInvoiceMutation.isPending || 
+          shipMutation.isPending || 
+          deliverMutation.isPending
+        }
       />
 
       <PaymentModal

@@ -3,6 +3,9 @@ export interface DashboardKPIs {
   total_stock_value: number;
   low_stock_count: number;
   open_po_count: number;
+  monthly_sales: number;
+  pending_sales_count: number;
+  total_logs_count: number;
 }
 
 export interface StockMovement {
@@ -25,6 +28,15 @@ export interface LowStockItem {
   total_stock: number;
 }
 
+export interface RecentActivity {
+  id: number;
+  product_name: string;
+  user_name: string | null;
+  change_type: string;
+  quantity_change: number;
+  created_at: string;
+}
+
 export interface DashboardStats {
   kpis: DashboardKPIs;
   charts: {
@@ -33,5 +45,6 @@ export interface DashboardStats {
   };
   widgets: {
     low_stock_items: LowStockItem[];
+    recent_activity: RecentActivity[];
   };
 }

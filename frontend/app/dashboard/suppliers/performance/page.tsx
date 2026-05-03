@@ -12,8 +12,11 @@ import {
   ArrowDownRight,
   ShieldCheck,
   PackageCheck,
-  AlertCircle
+  AlertCircle,
+  FileText
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { getReportExportUrl } from "@/hooks/use-reports";
 import { 
   BarChart, 
   Bar, 
@@ -27,7 +30,7 @@ import {
   Pie
 } from "recharts";
 
-import { useSuppliers } from "@/hooks/use-suppliers";
+import { useSupplierPerformance } from "@/hooks/use-reports";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DataTableSkeleton } from "@/components/skeletons/table-skeleton";
@@ -37,48 +40,47 @@ import { Progress } from "@/components/ui/progress";
 
 export default function SupplierPerformancePage() {
   const [isMounted, setIsMounted] = React.useState(false);
-  const { data: suppliersData, isLoading, isError, refetch } = useSuppliers({
-    is_active: true,
-  });
+  const { data, isLoading, isError, refetch } = useSupplierPerformance();
 
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const suppliers = suppliersData?.data || [];
-
-  // Helper to get status color based on rating
-  const getRatingColor = (rating: number) => {
-    if (rating >= 4.5) return "text-green-600";
-    if (rating >= 3.5) return "text-blue-600";
-    if (rating >= 2.5) return "text-yellow-600";
-    return "text-red-600";
-  };
-
   if (isError) return <ErrorState onRetry={() => refetch()} />;
 
-  // Calculate top performers
-  const topPerformers = [...suppliers]
-    .sort((a, b) => parseFloat(b.rating || "0") - parseFloat(a.rating || "0"))
-    .slice(0, 5);
+  const suppliers = data?.suppliers || [];
+  const topPerformers = data?.top_performers || [];
+  const summary = data?.summary || {
+    avg_reliability: 0,
+    avg_lead_time: 0,
+    total_vendors: 0,
+    top_vendor: null
+  };
 
   // Prepare chart data for ratings distribution
   const ratingDistribution = [
-    { name: "5 Star", value: suppliers.filter(s => parseFloat(s.rating || "0") >= 4.5).length },
-    { name: "4 Star", value: suppliers.filter(s => parseFloat(s.rating || "0") >= 3.5 && parseFloat(s.rating || "0") < 4.5).length },
-    { name: "3 Star", value: suppliers.filter(s => parseFloat(s.rating || "0") >= 2.5 && parseFloat(s.rating || "0") < 3.5).length },
-    { name: "Below 3", value: suppliers.filter(s => parseFloat(s.rating || "0") < 2.5).length },
+    { name: "5 Star", value: suppliers.filter((s: any) => parseFloat(s.rating || "0") >= 4.5).length },
+    { name: "4 Star", value: suppliers.filter((s: any) => parseFloat(s.rating || "0") >= 3.5 && parseFloat(s.rating || "0") < 4.5).length },
+    { name: "3 Star", value: suppliers.filter((s: any) => parseFloat(s.rating || "0") >= 2.5 && parseFloat(s.rating || "0") < 3.5).length },
+    { name: "Below 3", value: suppliers.filter((s: any) => parseFloat(s.rating || "0") < 2.5).length },
   ].filter(d => d.value > 0);
 
   const COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444"];
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Supplier Performance</h1>
-        <p className="text-muted-foreground">
-          Analytics and KPIs for vendor reliability and delivery quality.
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-1">
+            <h1 className="text-3xl font-bold tracking-tight">Supplier Performance</h1>
+            <p className="text-muted-foreground">
+                Analytics and KPIs for vendor reliability and delivery quality.
+            </p>
+        </div>
+        <Button variant="outline" size="sm" asChild>
+          <a href={getReportExportUrl("supplier-performance")} target="_blank">
+            <FileText className="h-4 w-4 mr-2" /> Export PDF
+          </a>
+        </Button>
       </div>
 
       {isLoading ? (
@@ -106,39 +108,33 @@ export default function SupplierPerformancePage() {
                 <ShieldCheck className="h-4 w-4 text-green-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">94.2%</div>
+                <div className="text-2xl font-bold">{summary.avg_reliability.toFixed(1)}%</div>
                 <p className="text-xs text-muted-foreground">
-                  <span className="text-green-500 inline-flex items-center">
-                    <ArrowUpRight className="h-3 w-3 mr-1" /> +2.1%
-                  </span>{" "}
-                  from last month
+                  On-time delivery performance
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">On-Time Delivery</CardTitle>
+                <CardTitle className="text-sm font-medium">Avg. Lead Time</CardTitle>
                 <Clock className="h-4 w-4 text-blue-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">88.5%</div>
+                <div className="text-2xl font-bold">{summary.avg_lead_time.toFixed(1)} Days</div>
                 <p className="text-xs text-muted-foreground">
-                  <span className="text-red-500 inline-flex items-center">
-                    <ArrowDownRight className="h-3 w-3 mr-1" /> -1.4%
-                  </span>{" "}
-                  from last month
+                  From order to reception
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Lead Time Deviation</CardTitle>
-                <TrendingUp className="h-4 w-4 text-yellow-500" />
+                <CardTitle className="text-sm font-medium">Total Vendors</CardTitle>
+                <BarChart3 className="h-4 w-4 text-yellow-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">1.2 Days</div>
+                <div className="text-2xl font-bold">{summary.total_vendors}</div>
                 <p className="text-xs text-muted-foreground">
-                  Average delay across all vendors
+                  Active supplier base
                 </p>
               </CardContent>
             </Card>
@@ -148,9 +144,9 @@ export default function SupplierPerformancePage() {
                 <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">4.9 / 5.0</div>
+                <div className="text-2xl font-bold">{parseFloat(summary.top_vendor?.rating || "0").toFixed(1)} / 5.0</div>
                 <p className="text-xs text-muted-foreground">
-                  Held by {topPerformers[0]?.name || "N/A"}
+                  Held by {summary.top_vendor?.name || "N/A"}
                 </p>
               </CardContent>
             </Card>
@@ -165,14 +161,14 @@ export default function SupplierPerformancePage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {topPerformers.map((supplier) => {
+                  {topPerformers.map((supplier: any) => {
                     const rating = parseFloat(supplier.rating || "0");
                     return (
                       <div key={supplier.id} className="flex items-center gap-4">
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-medium leading-none">{supplier.name}</p>
-                            <span className={`text-sm font-bold ${getRatingColor(rating)}`}>
+                            <span className="text-sm font-bold">
                               {rating.toFixed(1)} ★
                             </span>
                           </div>
@@ -230,7 +226,7 @@ export default function SupplierPerformancePage() {
             </Card>
           </div>
 
-          {/* Delivery Reliability Table (Mock UI) */}
+          {/* Delivery Reliability Table */}
           <Card>
             <CardHeader>
               <CardTitle>Delivery Reliability</CardTitle>
@@ -244,25 +240,29 @@ export default function SupplierPerformancePage() {
                       <th className="h-10 px-2 text-left align-middle font-medium text-muted-foreground">Vendor</th>
                       <th className="h-10 px-2 text-center align-middle font-medium text-muted-foreground">On-Time Rate</th>
                       <th className="h-10 px-2 text-right align-middle font-medium text-muted-foreground">Avg. Delay</th>
-                      <th className="h-10 px-2 text-right align-middle font-medium text-muted-foreground">Return Rate</th>
-                      <th className="h-10 px-2 text-center align-middle font-medium text-muted-foreground">Status</th>
+                      <th className="h-10 px-2 text-right align-middle font-medium text-muted-foreground">Total Spend</th>
+                      <th className="h-10 px-2 text-center align-middle font-medium text-muted-foreground">Rating</th>
                     </tr>
                   </thead>
                   <tbody className="[&_tr:last-child]:border-0">
-                    {suppliers.slice(0, 5).map((s, i) => (
+                    {suppliers.slice(0, 5).map((s: any) => (
                       <tr key={s.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                         <td className="p-2 align-middle font-medium">{s.name}</td>
                         <td className="p-2 align-middle text-center">
                           <div className="flex flex-col items-center gap-1">
-                            <span className="text-xs font-bold">{[98, 92, 85, 78, 95][i]}%</span>
-                            <Progress value={[98, 92, 85, 78, 95][i]} className="h-1 w-16" />
+                            <span className="text-xs font-bold">{Math.round(s.on_time_rate || 0)}%</span>
+                            <Progress value={s.on_time_rate || 0} className="h-1 w-16" />
                           </div>
                         </td>
-                        <td className="p-2 align-middle text-right">{[0.2, 0.8, 1.5, 3.2, 0.5][i]} Days</td>
-                        <td className="p-2 align-middle text-right">{[0.5, 1.2, 2.5, 4.8, 0.8][i]}%</td>
+                        <td className="p-2 align-middle text-right">
+                          {s.avg_lead_time ? `${parseFloat(s.avg_lead_time).toFixed(1)} Days` : "N/A"}
+                        </td>
+                        <td className="p-2 align-middle text-right">
+                          ${parseFloat(s.total_spend || 0).toLocaleString()}
+                        </td>
                         <td className="p-2 align-middle text-center">
-                          <Badge variant={i === 3 ? "destructive" : "default"}>
-                            {i === 3 ? "Action Required" : "Stable"}
+                          <Badge variant="outline">
+                            {parseFloat(s.rating || 0).toFixed(1)} ★
                           </Badge>
                         </td>
                       </tr>

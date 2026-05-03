@@ -5,6 +5,7 @@ namespace App\Modules\Analytics\Services;
 use App\Models\Inventory\Product;
 use App\Models\Inventory\InventoryLog;
 use App\Models\Purchase\PurchaseOrder;
+use App\Models\Sales\SalesOrder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -18,6 +19,9 @@ class DashboardService
                 'total_stock_value' => $this->getTotalStockValue(),
                 'low_stock_count' => $this->getLowStockCount(),
                 'open_po_count' => $this->getOpenPOCount(),
+                'monthly_sales' => $this->getMonthlySales(),
+                'pending_sales_count' => $this->getPendingSalesCount(),
+                'total_logs_count' => $this->getLogsCount(),
             ],
             'charts' => [
                 'stock_movements' => $this->getStockMovements(),
@@ -25,8 +29,33 @@ class DashboardService
             ],
             'widgets' => [
                 'low_stock_items' => $this->getLowStockItems(),
+                'recent_activity' => $this->getRecentActivity(),
             ]
         ];
+    }
+
+    private function getLogsCount(): int
+    {
+        return DB::table('inventory_logs')->count();
+    }
+
+    private function getRecentActivity(int $limit = 5): array
+    {
+        return DB::table('inventory_logs')
+            ->join('products', 'inventory_logs.product_id', '=', 'products.id')
+            ->leftJoin('users', 'inventory_logs.user_id', '=', 'users.id')
+            ->select(
+                'inventory_logs.id',
+                'products.name as product_name',
+                'users.full_name as user_name',
+                'inventory_logs.type as change_type',
+                'inventory_logs.quantity_change',
+                'inventory_logs.created_at'
+            )
+            ->orderByDesc('inventory_logs.created_at')
+            ->limit($limit)
+            ->get()
+            ->toArray();
     }
 
     private function getTotalSkus(): int
@@ -60,6 +89,18 @@ class DashboardService
     private function getOpenPOCount(): int
     {
         return PurchaseOrder::whereIn('status', ['draft', 'submitted', 'confirmed'])->count();
+    }
+
+    private function getMonthlySales(): float
+    {
+        return (float) SalesOrder::where('status', '!=', 'cancelled')
+            ->whereBetween('order_date', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])
+            ->sum('grand_total');
+    }
+
+    private function getPendingSalesCount(): int
+    {
+        return SalesOrder::where('status', 'pending')->count();
     }
 
     private function getStockMovements(): array

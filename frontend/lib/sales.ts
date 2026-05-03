@@ -53,6 +53,16 @@ export async function cancelSalesOrder(id: number): Promise<any> {
   return response.data;
 }
 
+export async function shipSalesOrder(id: number): Promise<any> {
+  const response = await axiosApi.post(`/api/sales/orders/${id}/ship`);
+  return response.data;
+}
+
+export async function deliverSalesOrder(id: number): Promise<any> {
+  const response = await axiosApi.post(`/api/sales/orders/${id}/deliver`);
+  return response.data;
+}
+
 // Invoices & Payments
 export async function generateInvoice(orderId: number): Promise<any> {
   const response = await axiosApi.post(`/api/sales/orders/${orderId}/invoice`);
@@ -61,6 +71,11 @@ export async function generateInvoice(orderId: number): Promise<any> {
 
 export async function recordPayment(invoiceId: number, data: any): Promise<any> {
   const response = await axiosApi.post(`/api/sales/invoices/${invoiceId}/payments`, data);
+  return response.data;
+}
+
+export async function getInvoices(filters: any = {}): Promise<any> {
+  const response = await axiosApi.get("/api/sales/invoices", { params: filters });
   return response.data;
 }
 

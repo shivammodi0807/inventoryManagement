@@ -5,8 +5,11 @@ import {
   createSalesOrder, 
   confirmSalesOrder, 
   cancelSalesOrder,
+  shipSalesOrder,
+  deliverSalesOrder,
   generateInvoice,
-  recordPayment
+  recordPayment,
+  getInvoices
 } from "@/lib/sales";
 import { toast } from "sonner";
 
@@ -14,6 +17,13 @@ export function useSalesOrders(filters: any = {}) {
   return useQuery({
     queryKey: ["sales-orders", filters],
     queryFn: () => getSalesOrders(filters),
+  });
+}
+
+export function useInvoices(filters: any = {}) {
+  return useQuery({
+    queryKey: ["invoices", filters],
+    queryFn: () => getInvoices(filters),
   });
 }
 
@@ -65,6 +75,36 @@ export function useCancelSalesOrder() {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to cancel sales order");
+    },
+  });
+}
+
+export function useShipSalesOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: shipSalesOrder,
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ["sales-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["sales-order", id] });
+      toast.success("Sales order marked as shipped");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to ship sales order");
+    },
+  });
+}
+
+export function useDeliverSalesOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deliverSalesOrder,
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({ queryKey: ["sales-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["sales-order", id] });
+      toast.success("Sales order marked as delivered");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to deliver sales order");
     },
   });
 }

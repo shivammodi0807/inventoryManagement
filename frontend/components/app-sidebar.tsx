@@ -25,6 +25,7 @@ import {
   Settings2Icon,
   Warehouse as WarehouseIcon,
   ShoppingBag as ShoppingBagIcon,
+  BarChart3Icon,
 } from "lucide-react"
 
 const platformNav: NavItem[] = [
@@ -122,6 +123,22 @@ const platformNav: NavItem[] = [
         title: "Sales Orders",
         url: "/dashboard/sales/orders",
       },
+      {
+        title: "Invoices",
+        url: "/dashboard/sales/invoices",
+      },
+    ],
+  },
+  {
+    title: "Reports",
+    url: "/dashboard/reports",
+    icon: <BarChart3Icon />,
+    items: [
+      { title: "Overview", url: "/dashboard/reports" },
+      { title: "Inventory Valuation", url: "/dashboard/reports/inventory" },
+      { title: "Sales Analysis", url: "/dashboard/reports/sales" },
+      { title: "Low Stock", url: "/dashboard/reports/low-stock" },
+      { title: "Audit Logs", url: "/dashboard/reports/audit" },
     ],
   },
   {
