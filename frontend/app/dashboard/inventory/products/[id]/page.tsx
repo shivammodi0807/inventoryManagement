@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2, ArrowLeft, User as UserIcon, Warehouse as WarehouseIcon, Edit, History } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import { getProduct, getProductHistory } from "@/lib/inventory";
 import { Button } from "@/components/ui/button";
@@ -97,10 +98,22 @@ export default function ProductDetailPage() {
                 <Skeleton className="h-4 w-32 mt-2" />
               </>
             ) : (
-              <>
-                <h1 className="text-3xl font-bold tracking-tight">{product?.name}</h1>
-                <p className="text-muted-foreground">SKU: {product?.sku}</p>
-              </>
+              <div className="flex items-start gap-6">
+                {product?.image_url && (
+                  <div className="relative h-24 w-24 overflow-hidden rounded-lg border bg-muted shadow-sm">
+                    <Image
+                      src={product.image_url}
+                      alt={product.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <div>
+                  <h1 className="text-3xl font-bold tracking-tight">{product?.name}</h1>
+                  <p className="text-muted-foreground">SKU: {product?.sku}</p>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -190,6 +203,49 @@ export default function ProductDetailPage() {
               </CardHeader>
             </Card>
           </div>
+
+          {/* Product Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Information</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Category</h4>
+                  <p>{product?.category?.name ?? "Uncategorized"}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Unit of Measure</h4>
+                  <p>{product?.unit?.name} ({product?.unit?.abbreviation})</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Status</h4>
+                  <Badge variant={product?.is_active ? "default" : "secondary"}>
+                    {product?.is_active ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground">Description</h4>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {product?.description || "No description provided."}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                   <div>
+                    <h4 className="text-sm font-medium text-muted-foreground">Cost Price</h4>
+                    <p>${parseFloat(product?.cost_price || "0").toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-muted-foreground">Reorder Quantity</h4>
+                    <p>{product?.reorder_quantity ?? 0}</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Per-warehouse stock breakdown */}
           <Card>

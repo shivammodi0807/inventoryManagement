@@ -29,6 +29,7 @@ import { Unit } from "@/types/inventory";
 const unitSchema = z.object({
   name: z.string().min(1, "Name is required"),
   abbreviation: z.string().min(1, "Abbreviation is required").max(10),
+  type: z.string().optional().or(z.literal("")),
 });
 
 type UnitFormValues = z.infer<typeof unitSchema>;
@@ -53,6 +54,7 @@ export function UnitModal({ open, onOpenChange, initialData }: UnitModalProps) {
     defaultValues: {
       name: "",
       abbreviation: "",
+      type: "",
     },
   });
 
@@ -61,9 +63,11 @@ export function UnitModal({ open, onOpenChange, initialData }: UnitModalProps) {
       reset(initialData ? {
         name: initialData.name,
         abbreviation: initialData.abbreviation,
+        type: initialData.type || "",
       } : {
         name: "",
         abbreviation: "",
+        type: "",
       });
     }
   }, [open, initialData, reset]);
@@ -110,6 +114,12 @@ export function UnitModal({ open, onOpenChange, initialData }: UnitModalProps) {
             <FieldLabel htmlFor="unit-abbreviation">Abbreviation</FieldLabel>
             <Input id="unit-abbreviation" placeholder="e.g. kg, pc" {...register("abbreviation")} />
             <FieldError errors={[errors.abbreviation]} />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="unit-type">Type (Optional)</FieldLabel>
+            <Input id="unit-type" placeholder="e.g. Weight, Volume, Count" {...register("type")} />
+            <FieldError errors={[errors.type]} />
           </Field>
 
           <DialogFooter className="mt-6">

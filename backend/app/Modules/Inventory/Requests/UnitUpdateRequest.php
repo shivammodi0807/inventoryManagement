@@ -28,6 +28,15 @@ class UnitUpdateRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('abbreviation')) {
+            $this->merge([
+                'symbol' => $this->abbreviation,
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         $unitId = $this->route('id') ?? $this->route('unit');

@@ -13,6 +13,8 @@ export interface Unit {
   id: number;
   name: string;
   abbreviation: string;
+  type: string | null;
+  products_count?: number;
   created_at: string;
   updated_at: string;
 }

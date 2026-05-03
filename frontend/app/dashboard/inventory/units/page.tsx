@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Ruler, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Plus, Ruler, MoreHorizontal, Pencil, Trash2, Package, Tag } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -79,9 +79,13 @@ export default function UnitsPage() {
     setIsModalOpen(true);
   };
 
+  const totalUnits = units?.data?.length || 0;
+  const unitsWithType = units?.data?.filter(u => u.type).length || 0;
+  const totalProductsLinked = units?.data?.reduce((acc, curr) => acc + (curr.products_count || 0), 0) || 0;
+
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
             Units of Measure
@@ -98,6 +102,45 @@ export default function UnitsPage() {
         )}
       </div>
 
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Units</CardTitle>
+            <Ruler className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalUnits}</div>
+            <p className="text-xs text-muted-foreground">
+              Active measurement units
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Categorized</CardTitle>
+            <Tag className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{unitsWithType}</div>
+            <p className="text-xs text-muted-foreground">
+              Units with defined type
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Usage</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalProductsLinked}</div>
+            <p className="text-xs text-muted-foreground">
+              Total products linked
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>Unit List</CardTitle>
@@ -109,19 +152,23 @@ export default function UnitsPage() {
           {isLoading ? (
             <DataTableSkeleton columnCount={4} rowCount={5} />
           ) : isError ? (
-            <ErrorState 
-              title="Failed to load units" 
-              onRetry={() => refetch()} 
+            <ErrorState
+              title="Failed to load units"
+              onRetry={() => refetch()}
             />
           ) : !units?.data?.length ? (
             <EmptyState
               title="No units found"
               description="Define measurement units to quantify your products."
               icon={<Ruler className="h-10 w-10 text-muted-foreground" />}
-              action={can("create", "unit") ? {
-                label: "Add Unit",
-                onClick: handleAdd
-              } : undefined}
+              action={
+                can("create", "unit")
+                  ? {
+                      label: "Add Unit",
+                      onClick: handleAdd,
+                    }
+                  : undefined
+              }
             />
           ) : (
             <Table>
@@ -129,6 +176,8 @@ export default function UnitsPage() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Abbreviation</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="text-center">Linked Products</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead className="w-[80px]"></TableHead>
                 </TableRow>
@@ -142,7 +191,21 @@ export default function UnitsPage() {
                         {unit.name}
                       </div>
                     </TableCell>
-                    <TableCell>{unit.abbreviation}</TableCell>
+                    <TableCell>
+                      <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs font-semibold">
+                        {unit.abbreviation}
+                      </code>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm capitalize text-muted-foreground">
+                        {unit.type || "—"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                        {unit.products_count || 0} products
+                      </div>
+                    </TableCell>
                     <TableCell>
                       {new Date(unit.created_at).toLocaleDateString()}
                     </TableCell>
@@ -164,7 +227,7 @@ export default function UnitsPage() {
                           {can("delete", "unit") && (
                             <>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="text-destructive"
                                 onClick={() => setDeletingId(unit.id)}
                               >
@@ -184,9 +247,9 @@ export default function UnitsPage() {
         </CardContent>
       </Card>
 
-      <UnitModal 
-        open={isModalOpen} 
-        onOpenChange={setIsModalOpen} 
+      <UnitModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
         initialData={editingUnit}
       />
 
