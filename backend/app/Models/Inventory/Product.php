@@ -137,4 +137,20 @@ class Product extends Model
             default => 'normal',
         };
     }
+
+    /**
+     * Accessor: get full URL for image.
+     */
+    public function getImageUrlAttribute($value): ?string
+    {
+        if (!$value) {
+            return null;
+        }
+
+        if (str_starts_with($value, 'http')) {
+            return $value;
+        }
+
+        return asset('storage/' . $value);
+    }
 }

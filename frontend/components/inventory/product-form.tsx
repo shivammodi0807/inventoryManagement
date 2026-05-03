@@ -6,8 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import { isAxiosError } from "axios";
+import Image from "next/image";
 
 import { Product, Category, Unit } from "@/types/inventory";
 import { getCategories, getUnits, createProduct, updateProduct } from "@/lib/inventory";
@@ -31,9 +32,10 @@ import {
 import { toast } from "sonner";
 import { ApiError } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 
 const productSchema = z.object({
-  sku: z.string().min(3, "SKU must be at least 3 characters").max(50),
+  sku: z.string().max(50).optional().or(z.literal("")),
   name: z.string().min(1, "Name is required").max(255),
   description: z.string().optional(),
   category_id: z.coerce.number().min(1, "Please select a category"),
@@ -44,6 +46,7 @@ const productSchema = z.object({
   reorder_quantity: z.coerce.number().min(0),
   lead_time_days: z.coerce.number().min(0),
   is_active: z.boolean().default(true),
+  image: z.any().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -107,12 +110,25 @@ export function ProductForm({ initialData }: ProductFormProps) {
 
   const categoryId = watch("category_id");
   const unitId = watch("unit_id");
+  const isActive = watch("is_active");
+
+  const [imagePreview, setImagePreview] = React.useState<string | null>(initialData?.image_url || null);
 
   const mutation = useMutation({
-    mutationFn: (values: ProductFormValues) =>
-      isEditing
-        ? updateProduct(initialData!.id, values)
-        : createProduct(values),
+    mutationFn: (values: ProductFormValues) => {
+      const formData = new FormData();
+      Object.entries(values).forEach(([key, value]) => {
+        if (key === "image" && value instanceof File) {
+          formData.append(key, value);
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, value.toString());
+        }
+      });
+
+      return isEditing
+        ? updateProduct(initialData!.id, formData)
+        : createProduct(formData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success(isEditing ? "Product updated" : "Product created");
@@ -136,17 +152,82 @@ export function ProductForm({ initialData }: ProductFormProps) {
 
   const onSubmit = (values: ProductFormValues) => mutation.mutate(values);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setValue("image", file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setValue("image", null);
+    setImagePreview(null);
+  };
+
   const isLoadingDropdowns = isLoadingCategories || isLoadingUnits;
 
   return (
     <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-8">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <FieldGroup>
+          {isEditing && (
+            <Field>
+              <FieldLabel htmlFor="sku">SKU</FieldLabel>
+              <Input id="sku" {...register("sku")} disabled />
+              <FieldError errors={[errors.sku]} />
+              <FieldDescription>Unique product identifier.</FieldDescription>
+            </Field>
+          )}
+
           <Field>
-            <FieldLabel htmlFor="sku">SKU</FieldLabel>
-            <Input id="sku" {...register("sku")} placeholder="e.g. PRD-001" />
-            <FieldError errors={[errors.sku]} />
-            <FieldDescription>Unique product identifier.</FieldDescription>
+            <FieldLabel htmlFor="image">Product Image</FieldLabel>
+            <div className="mt-2 flex flex-col items-center gap-4">
+              {imagePreview ? (
+                <div className="relative h-40 w-40 overflow-hidden rounded-lg border">
+                  <Image
+                    src={imagePreview}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute right-1 top-1 rounded-full bg-destructive p-1 text-destructive-foreground shadow-sm hover:bg-destructive/90"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex h-40 w-40 flex-col items-center justify-center rounded-lg border border-dashed text-muted-foreground">
+                  <Upload className="mb-2 h-8 w-8" />
+                  <span className="text-xs">No image uploaded</span>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById("image-upload")?.click()}
+                >
+                  {imagePreview ? "Change Image" : "Upload Image"}
+                </Button>
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+              </div>
+            </div>
+            <FieldError errors={[errors.image]} />
           </Field>
 
           <Field>
@@ -247,6 +328,23 @@ export function ProductForm({ initialData }: ProductFormProps) {
               className="min-h-[100px]"
             />
             <FieldError errors={[errors.description]} />
+          </Field>
+
+          <Field>
+            <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FieldLabel htmlFor="is_active">Active Status</FieldLabel>
+                <FieldDescription>
+                  Whether this product is currently available for use.
+                </FieldDescription>
+              </div>
+              <Switch
+                id="is_active"
+                checked={isActive}
+                onCheckedChange={(checked) => setValue("is_active", checked)}
+              />
+            </div>
+            <FieldError errors={[errors.is_active]} />
           </Field>
         </FieldGroup>
       </div>

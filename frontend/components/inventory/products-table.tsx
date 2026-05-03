@@ -8,7 +8,8 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, History, Trash2, PackagePlus } from "lucide-react";
+import { MoreHorizontal, Pencil, History, Trash2, PackagePlus, ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 import { Product } from "@/types/inventory";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 
 interface ProductsTableProps {
@@ -47,6 +54,7 @@ export function ProductsTable({
 }: ProductsTableProps) {
   const { can } = useAuth();
   const [rowSelection, setRowSelection] = React.useState({});
+  const [selectedImage, setSelectedImage] = React.useState<{ url: string; name: string } | null>(null);
 
   const columns: ColumnDef<Product>[] = [
     {
@@ -70,6 +78,32 @@ export function ProductsTable({
       ),
       enableSorting: false,
       enableHiding: false,
+    },
+    {
+      id: "image",
+      header: "Image",
+      cell: ({ row }) => {
+        const imageUrl = row.original.image_url;
+        return (
+          <div 
+            className="relative h-10 w-10 cursor-zoom-in overflow-hidden rounded border bg-muted transition-transform hover:scale-105"
+            onClick={() => imageUrl && setSelectedImage({ url: imageUrl, name: row.original.name })}
+          >
+            {imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt={row.original.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center">
+                <ImageIcon className="h-5 w-5 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "sku",
@@ -241,6 +275,25 @@ export function ProductsTable({
           )}
         </TableBody>
       </Table>
+
+      <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
+        <DialogContent className="max-w-3xl overflow-hidden p-0">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{selectedImage?.name}</DialogTitle>
+          </DialogHeader>
+          {selectedImage && (
+            <div className="relative aspect-square w-full">
+              <Image
+                src={selectedImage.url}
+                alt={selectedImage.name}
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

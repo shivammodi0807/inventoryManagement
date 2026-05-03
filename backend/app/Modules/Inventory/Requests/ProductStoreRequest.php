@@ -21,10 +21,19 @@ class ProductStoreRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('is_active')) {
+            $this->merge([
+                'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         return [
-            'sku' => 'required|string|max:255|unique:products,sku',
+            'sku' => 'nullable|string|max:255|unique:products,sku',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:2000',
             'category_id' => 'nullable|integer|exists:categories,id',
@@ -35,7 +44,7 @@ class ProductStoreRequest extends FormRequest
             'reorder_quantity' => 'required|integer|min:0',
             'lead_time_days' => 'nullable|integer|min:0',
             'attributes' => 'nullable|array',
-            'image_url' => 'nullable|string|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'is_active' => 'nullable|boolean',
         ];
     }

@@ -4,6 +4,8 @@ namespace App\Modules\Inventory\Services;
 
 use App\Models\Inventory\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductService
 {
@@ -93,8 +95,16 @@ class ProductService
      */
     public function createProduct(array $data, int $userId): Product
     {
+        $sku = $data['sku'] ?? $this->generateUniqueSku();
+
+        $imageUrl = null;
+        if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
+            $path = $data['image']->store('products', 'public');
+            $imageUrl = $path;
+        }
+
         return Product::create([
-            'sku' => $data['sku'],
+            'sku' => $sku,
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
             'category_id' => $data['category_id'] ?? null,
@@ -105,8 +115,8 @@ class ProductService
             'reorder_quantity' => $data['reorder_quantity'],
             'lead_time_days' => $data['lead_time_days'] ?? 7,
             'attributes' => $data['attributes'] ?? null,
-            'image_url' => $data['image_url'] ?? null,
-            'is_active' => $data['is_active'] ?? true,
+            'image_url' => $imageUrl ?? ($data['image_url'] ?? null),
+            'is_active' => filter_var($data['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'user_id' => $userId,
         ]);
     }
@@ -125,6 +135,18 @@ class ProductService
             return null;
         }
 
+        $imageUrl = $product->image_url;
+        if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
+            // Delete old image if exists
+            if ($product->image_url && Storage::disk('public')->exists($product->image_url)) {
+                Storage::disk('public')->delete($product->image_url);
+            }
+            $path = $data['image']->store('products', 'public');
+            $imageUrl = $path;
+        } elseif (array_key_exists('image_url', $data)) {
+            $imageUrl = $data['image_url'];
+        }
+
         $product->update([
             'sku' => $data['sku'] ?? $product->sku,
             'name' => $data['name'] ?? $product->name,
@@ -137,8 +159,8 @@ class ProductService
             'reorder_quantity' => $data['reorder_quantity'] ?? $product->reorder_quantity,
             'lead_time_days' => $data['lead_time_days'] ?? $product->lead_time_days,
             'attributes' => array_key_exists('attributes', $data) ? $data['attributes'] : $product->attributes,
-            'image_url' => array_key_exists('image_url', $data) ? $data['image_url'] : $product->image_url,
-            'is_active' => array_key_exists('is_active', $data) ? (bool) $data['is_active'] : $product->is_active,
+            'image_url' => $imageUrl,
+            'is_active' => array_key_exists('is_active', $data) ? filter_var($data['is_active'], FILTER_VALIDATE_BOOLEAN) : $product->is_active,
         ]);
 
         return $product;
@@ -172,5 +194,16 @@ class ProductService
             ->lowStock()
             ->orderBy('name')
             ->paginate($perPage);
+    }
+    /**
+     * Generate a unique SKU.
+     */
+    private function generateUniqueSku(): string
+    {
+        do {
+            $sku = 'PROD-' . strtoupper(Str::random(6));
+        } while (Product::where('sku', $sku)->exists());
+
+        return $sku;
     }
 }

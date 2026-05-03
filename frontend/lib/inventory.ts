@@ -28,12 +28,21 @@ export const getProduct = async (id: number): Promise<Product> => {
   return res.data;
 };
 
-export const createProduct = async (data: Partial<Product>): Promise<Product> => {
-  const res = await axiosApi.post<Product>("/api/products", data);
+export const createProduct = async (data: FormData | Partial<Product>): Promise<Product> => {
+  const res = await axiosApi.post<Product>("/api/products", data, {
+    headers: data instanceof FormData ? { "Content-Type": "multipart/form-data" } : undefined
+  });
   return res.data;
 };
 
-export const updateProduct = async (id: number, data: Partial<Product>): Promise<Product> => {
+export const updateProduct = async (id: number, data: FormData | Partial<Product>): Promise<Product> => {
+  if (data instanceof FormData) {
+    data.append("_method", "PUT");
+    const res = await axiosApi.post<Product>(`/api/products/${id}`, data, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    return res.data;
+  }
   const res = await axiosApi.put<Product>(`/api/products/${id}`, data);
   return res.data;
 };

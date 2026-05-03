@@ -44,7 +44,7 @@ class ProductUpdateRequest extends FormRequest
             'reorder_quantity' => 'sometimes|required|integer|min:0',
             'lead_time_days' => 'nullable|integer|min:0',
             'attributes' => 'nullable|array',
-            'image_url' => 'nullable|string|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'is_active' => 'nullable|boolean',
         ];
     }
