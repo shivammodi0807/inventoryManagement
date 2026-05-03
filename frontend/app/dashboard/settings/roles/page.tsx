@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import { ShieldCheckIcon, ShieldXIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
+import { ShieldCheckIcon, Trash2Icon, UserIcon, PlusIcon, PencilIcon } from "lucide-react";
 
 import { useAuth } from "@/hooks/use-auth";
 import { deleteRole, listRoles } from "@/lib/roles";
@@ -17,17 +17,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { RoleModal } from "@/components/settings/role-modal";
 import type { ApiError, Role } from "@/types";
 
 export default function RolesPage() {
   const { can, isLoading } = useAuth();
   const canView = can("view", "role");
+  const canCreate = can("create", "role");
   const canEdit = can("edit", "role");
   const canDelete = can("delete", "role");
-  const canManagePerms = can("edit", "role"); // Usually the same as edit role
 
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
   const rolesQuery = useQuery({
     queryKey: ["roles"],
@@ -83,6 +86,16 @@ export default function RolesPage() {
     deleteMutation.mutate(r.id);
   };
 
+  const openCreateModal = () => {
+    setSelectedRole(null);
+    setModalOpen(true);
+  };
+
+  const openEditModal = (role: Role) => {
+    setSelectedRole(role);
+    setModalOpen(true);
+  };
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
       <Card>
@@ -93,8 +106,12 @@ export default function RolesPage() {
               Define what different types of users can see and do in the system.
             </CardDescription>
           </div>
-          {/* Create new role would go here, currently API supports it but I'll focus on the matrix first */}
-          {/* <Button disabled>New Role</Button> */}
+          {canCreate && (
+            <Button onClick={openCreateModal} className="gap-2">
+              <PlusIcon className="size-4" />
+              New Role
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {actionError && (
@@ -141,8 +158,19 @@ export default function RolesPage() {
                       </td>
                       <td className="py-3 pr-4 text-right">
                         <div className="inline-flex gap-2">
-                          {canManagePerms && (
-                            <Button asChild size="sm" variant="outline" className="gap-1.5">
+                          {canEdit && (
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="h-8 w-8 p-0"
+                              onClick={() => openEditModal(r)}
+                            >
+                              <PencilIcon className="size-3.5" />
+                              <span className="sr-only">Edit</span>
+                            </Button>
+                          )}
+                          {canEdit && (
+                            <Button asChild size="sm" variant="outline" className="gap-1.5 h-8">
                               <Link href={`/dashboard/settings/roles/${r.id}`}>
                                 <ShieldCheckIcon className="size-3.5" />
                                 Permissions
@@ -171,6 +199,12 @@ export default function RolesPage() {
           )}
         </CardContent>
       </Card>
+
+      <RoleModal
+        role={selectedRole}
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+      />
     </div>
   );
 }

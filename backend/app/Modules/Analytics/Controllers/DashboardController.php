@@ -24,8 +24,6 @@ class DashboardController extends Controller
             return $this->dashboardService->getDashboardStats();
         });
 
-        return response()->json([
-            'data' => $stats
-        ]);
+        return response()->json($stats);
     }
 }
