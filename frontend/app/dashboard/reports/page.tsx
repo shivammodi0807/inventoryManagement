@@ -50,6 +50,13 @@ export default function ReportsPage() {
       href: "/dashboard/suppliers/performance",
       color: "border-indigo-100 bg-indigo-50/30",
     },
+    {
+      title: "Inventory Forecasting",
+      description: "Predictive stock runway analysis. Know exactly when you will run out of stock.",
+      icon: <TrendingUp className="h-8 w-8 text-violet-500" />,
+      href: "/dashboard/reports/forecast",
+      color: "border-violet-100 bg-violet-50/30",
+    },
   ];
 
   return (

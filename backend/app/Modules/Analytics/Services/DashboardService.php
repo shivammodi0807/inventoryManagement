@@ -8,6 +8,7 @@ use App\Models\Purchase\PurchaseOrder;
 use App\Models\Sales\SalesOrder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Modules\Analytics\Services\ReportService;
 
 class DashboardService
 {
@@ -22,6 +23,7 @@ class DashboardService
                 'monthly_sales' => $this->getMonthlySales(),
                 'pending_sales_count' => $this->getPendingSalesCount(),
                 'total_logs_count' => $this->getLogsCount(),
+                'stock_out_soon' => $this->getStockOutSoonCount(),
             ],
             'charts' => [
                 'stock_movements' => $this->getStockMovements(),
@@ -37,6 +39,15 @@ class DashboardService
     private function getLogsCount(): int
     {
         return DB::table('inventory_logs')->count();
+    }
+
+    private function getStockOutSoonCount(): int
+    {
+        $reportService = new ReportService();
+        $forecast = $reportService->getInventoryForecast();
+        return count(array_filter($forecast, function($p) {
+            return $p['status'] === 'critical';
+        }));
     }
 
     private function getRecentActivity(int $limit = 5): array

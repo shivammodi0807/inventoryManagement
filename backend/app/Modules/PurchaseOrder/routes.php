@@ -20,6 +20,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         ->middleware('permission:view,purchase_order');
     Route::post('/purchase-orders/quick-create', [PurchaseOrderController::class, 'quickCreate'])
         ->middleware('permission:create,purchase_order');
+    Route::post('/purchase-orders/bulk', [PurchaseOrderController::class, 'bulkStore'])
+        ->middleware('permission:create,purchase_order');
 
     /**
      * STATUS TRANSITIONS. confirm is mapped to delete,purchase_order so it's

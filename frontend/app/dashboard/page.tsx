@@ -130,6 +130,21 @@ export default function DashboardPage() {
             <p className="text-xs text-muted-foreground mt-1">Awaiting confirmation</p>
           </CardContent>
         </Card>
+
+        <Card className="border-red-200 bg-red-50/30">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-red-700">Stock-out Soon</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/reports/forecast" className="group">
+              <div className="text-2xl font-bold text-red-600 group-hover:underline">{data.kpis.stock_out_soon || 0}</div>
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                Run out in &lt; 7 days <ArrowRight className="h-3 w-3 inline opacity-0 group-hover:opacity-100 transition-opacity" />
+              </p>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Charts Row */}

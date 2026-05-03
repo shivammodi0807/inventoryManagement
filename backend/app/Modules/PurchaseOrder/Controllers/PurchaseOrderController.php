@@ -156,4 +156,19 @@ class PurchaseOrderController extends Controller
 
         return $pdf->download("PO-{$order->order_number}.pdf");
     }
+    public function bulkStore(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'selections' => 'required|array',
+            'selections.*.product_id' => 'required|integer|exists:products,id',
+            'selections.*.qty_to_order' => 'required|integer|min:1',
+        ]);
+
+        $orders = $this->service->bulkCreatePurchaseOrders($validated['selections']);
+
+        return response()->json([
+            'message' => count($orders) . ' Purchase Orders created successfully.',
+            'orders' => PurchaseOrderResource::collection($orders)
+        ], Response::HTTP_CREATED);
+    }
 }

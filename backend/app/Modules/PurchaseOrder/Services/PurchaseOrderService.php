@@ -208,4 +208,51 @@ class PurchaseOrderService
 
         return $order;
     }
+
+    /**
+     * Create multiple POs by grouping products by their preferred supplier.
+     *
+     * @param array<int, array{product_id:int, qty_to_order:int}> $productSelections
+     */
+    public function bulkCreatePurchaseOrders(array $productSelections): array
+    {
+        return DB::transaction(function () use ($productSelections) {
+            $productIds = collect($productSelections)->pluck('product_id')->toArray();
+            
+            // Get product details with preferred suppliers and current cost price
+            $products = DB::table('products')
+                ->leftJoin('product_supplier', 'products.id', '=', 'product_supplier.product_id')
+                ->whereIn('products.id', $productIds)
+                ->where('product_supplier.is_preferred', true)
+                ->select('products.id', 'products.name', 'products.cost_price', 'product_supplier.supplier_id')
+                ->get()
+                ->groupBy('supplier_id');
+
+            $createdOrders = [];
+
+            foreach ($products as $supplierId => $supplierProducts) {
+                if (!$supplierId) continue;
+
+                $items = $supplierProducts->map(function($p) use ($productSelections) {
+                    $selection = collect($productSelections)->firstWhere('product_id', $p->id);
+                    return [
+                        'product_id' => $p->id,
+                        'qty_ordered' => $selection['qty_to_order'],
+                        'cost_price' => $p->cost_price,
+                    ];
+                })->toArray();
+
+                $order = $this->createPurchaseOrder([
+                    'supplier_id' => $supplierId,
+                    'order_date' => now()->toDateString(),
+                    'description' => 'Bulk generated from forecasting analysis.',
+                    'items' => $items,
+                ]);
+
+                $createdOrders[] = $order;
+            }
+
+            return $createdOrders;
+        });
+    }
 }

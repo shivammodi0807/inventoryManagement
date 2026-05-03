@@ -55,6 +55,16 @@ export function useSupplierPerformance() {
   });
 }
 
+export function useInventoryForecast() {
+  return useQuery({
+    queryKey: ["reports", "inventory-forecast"],
+    queryFn: async () => {
+      const response = await axiosApi.get("/api/reports/inventory-forecast");
+      return response.data;
+    },
+  });
+}
+
 export function getReportExportUrl(type: string, params: any = {}) {
   const query = new URLSearchParams(params).toString();
   return `${process.env.NEXT_PUBLIC_API_URL}/api/reports/export/${type}${query ? `?${query}` : ""}`;

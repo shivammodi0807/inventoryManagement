@@ -9,7 +9,8 @@ import {
   confirmPurchaseOrder,
   cancelPurchaseOrder,
   receivePurchaseOrder,
-  exportPurchaseOrder
+  exportPurchaseOrder,
+  bulkCreatePurchaseOrders
 } from "@/lib/purchase-orders";
 import { 
   PurchaseOrderFilters, 
@@ -144,6 +145,20 @@ export function useExportPurchaseOrder() {
     },
     onError: () => {
       toast.error("Failed to export PDF");
+    },
+  });
+}
+
+export function useBulkCreatePurchaseOrders() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (selections: { product_id: number; qty_to_order: number }[]) => bulkCreatePurchaseOrders(selections),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+      toast.success(data.message || "Purchase orders created successfully");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to create bulk purchase orders");
     },
   });
 }

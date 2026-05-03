@@ -84,3 +84,8 @@ export async function quickCreatePurchaseOrder(data: {
   const response = await axiosApi.post("/api/purchase-orders/quick-create", data);
   return response.data;
 }
+
+export async function bulkCreatePurchaseOrders(selections: { product_id: number; qty_to_order: number }[]) {
+  const response = await axiosApi.post("/api/purchase-orders/bulk", { selections });
+  return response.data;
+}

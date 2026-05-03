@@ -13,6 +13,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/reports/low-stock', [ReportController::class, 'lowStockReport']);
     Route::get('/reports/audit-logs', [ReportController::class, 'auditLogs']);
     Route::get('/reports/supplier-performance', [ReportController::class, 'supplierPerformance']);
+    Route::get('/reports/inventory-forecast', [ReportController::class, 'inventoryForecast']);
     
     // Exports
     Route::get('/reports/export/inventory-valuation', [ReportController::class, 'exportInventoryValuation']);
