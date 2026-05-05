@@ -107,28 +107,41 @@ class ReportService
      */
     public function getLowStockData(): array
     {
-        return DB::table('products')
-            ->leftJoin('stock_levels', 'products.id', '=', 'stock_levels.product_id')
-            ->leftJoin('product_supplier', 'products.id', '=', 'product_supplier.product_id')
-            ->leftJoin('suppliers', 'product_supplier.supplier_id', '=', 'suppliers.id')
-            ->select(
-                'products.id',
-                'products.name',
-                'products.sku',
-                'products.reorder_point',
-                'products.reorder_quantity',
-                DB::raw('COALESCE(SUM(stock_levels.current_stock), 0) as total_stock'),
-                'suppliers.name as preferred_supplier',
-                'suppliers.email as supplier_email'
-            )
-            ->where('products.is_active', true)
-            ->whereNull('products.deleted_at')
+        // Fetch AI Forecasts
+        $forecasts = $this->getInventoryForecast();
+        
+        // Filter for low stock statuses
+        $lowStockItems = array_filter($forecasts, function ($item) {
+            return in_array($item['status'], ['out_of_stock', 'critical', 'warning', 'low']);
+        });
+        
+        $productIds = array_column($lowStockItems, 'id');
+        
+        if (empty($productIds)) return [];
+        
+        // Fetch Supplier details for these products
+        $supplierData = DB::table('product_supplier')
+            ->join('suppliers', 'product_supplier.supplier_id', '=', 'suppliers.id')
+            ->whereIn('product_supplier.product_id', $productIds)
             ->where('product_supplier.is_preferred', true)
-            ->groupBy('products.id', 'products.name', 'products.sku', 'products.reorder_point', 'products.reorder_quantity', 'suppliers.name', 'suppliers.email')
-            ->havingRaw('total_stock <= products.reorder_point')
-            ->orderBy('total_stock')
-            ->get()
-            ->toArray();
+            ->pluck('suppliers.name', 'product_supplier.product_id');
+            
+        // Map data back
+        return array_map(function ($item) use ($supplierData) {
+            return [
+                'id' => $item['id'],
+                'name' => $item['name'],
+                'sku' => $item['sku'],
+                // Display the dynamic AI reorder point if available
+                'reorder_point' => $item['ai_reorder_point'] ?? 0, 
+                // Suggest order quantity (e.g., 30 days of demand)
+                'reorder_quantity' => $item['ai_predicted_demand_30d'] ?? 50,
+                'total_stock' => $item['current_stock'],
+                'preferred_supplier' => $supplierData[$item['id']] ?? 'Unknown',
+                'status' => $item['status'],
+                'days_remaining' => $item['days_remaining']
+            ];
+        }, $lowStockItems);
     }
 
     /**
@@ -165,14 +178,14 @@ class ReportService
 
 
     /**
-     * Get inventory forecast based on sales velocity.
+     * Get inventory forecast integrating ML Predictions from Prophet model.
      */
     public function getInventoryForecast(): array
     {
         $lookbackDays = 30;
         $startDate = now()->subDays($lookbackDays);
 
-        // 1. Calculate Daily Sales Velocity per product
+        // 1. Calculate Daily Sales Velocity per product (Historical 30d)
         $velocity = DB::table('sales_order_items')
             ->join('sales_orders', 'sales_order_items.sales_order_id', '=', 'sales_orders.id')
             ->where('sales_orders.status', '!=', 'cancelled')
@@ -186,38 +199,83 @@ class ReportService
             ->get()
             ->keyBy('product_id');
 
-        // 2. Get current stock levels
+        // 2. Get AI Predictions for the next 30 days
+        $aiPredictions = DB::table('predictions')
+            ->where('type', 'demand')
+            ->where('target_date', '>=', now()->toDateString())
+            ->where('target_date', '<=', now()->addDays(30)->toDateString())
+            ->get()
+            ->groupBy('product_id');
+
+        // 3. Get current stock levels and supplier lead times
         $products = DB::table('products')
             ->leftJoin('stock_levels', 'products.id', '=', 'stock_levels.product_id')
+            ->leftJoin('product_supplier', function($join) {
+                $join->on('products.id', '=', 'product_supplier.product_id')
+                     ->where('product_supplier.is_preferred', true);
+            })
+            ->leftJoin('predictions as lead_time_predictions', function($join) {
+                $join->on('product_supplier.supplier_id', '=', 'lead_time_predictions.supplier_id')
+                     ->where('lead_time_predictions.type', 'lead_time');
+            })
             ->select(
                 'products.id',
                 'products.name',
                 'products.sku',
-                DB::raw('COALESCE(SUM(stock_levels.current_stock), 0) as total_stock')
+                DB::raw('COALESCE(SUM(stock_levels.current_stock), 0) as total_stock'),
+                'lead_time_predictions.predicted_value as ai_lead_time',
+                'lead_time_predictions.confidence_upper as ai_lead_time_std_dev'
             )
             ->whereNull('products.deleted_at')
-            ->groupBy('products.id', 'products.name', 'products.sku')
+            ->groupBy('products.id', 'products.name', 'products.sku', 'ai_lead_time', 'ai_lead_time_std_dev')
             ->get();
 
-        // 3. Map forecasting data
-        $forecast = $products->map(function ($product) use ($velocity) {
+        // 4. Map forecasting data
+        $forecast = $products->map(function ($product) use ($velocity, $aiPredictions) {
             $productVelocity = $velocity->get($product->id);
             $dailyVelocity = $productVelocity ? (float)$productVelocity->daily_velocity : 0;
+            $stock = (int)$product->total_stock;
             
-            // If stock is 0 and velocity is 0, it's not "healthy", it's just out. 
-            // But we focus on when it *will* run out.
-            $daysRemaining = $dailyVelocity > 0 ? (int)floor($product->total_stock / $dailyVelocity) : 999;
+            // Get AI predicted demand sum
+            $productPredictions = $aiPredictions->get($product->id, collect());
+            $aiPredictedDemand30d = $productPredictions->sum('predicted_value');
+            $aiAvgDailyDemand = $aiPredictedDemand30d / 30;
+            
+            // Calculate dynamic safety stock using the 95% service level formula
+            // Safety Stock = Z (1.65) * stdDev(LT) * SQRT(AvgDemand)
+            $stdDevLt = $product->ai_lead_time_std_dev ? (float)$product->ai_lead_time_std_dev : 2.0; // fallback 2 days
+            $aiSafetyStock = (int) round(1.65 * $stdDevLt * sqrt($aiAvgDailyDemand > 0 ? $aiAvgDailyDemand : $dailyVelocity));
+            
+            // Use AI demand for days remaining if available, else fallback to historical
+            $effectiveDailyDemand = $aiAvgDailyDemand > 0 ? $aiAvgDailyDemand : $dailyVelocity;
+            $daysRemaining = $effectiveDailyDemand > 0 ? (int)floor($stock / $effectiveDailyDemand) : 999;
+            
+            // Reorder point is expected lead time demand + safety stock
+            $expectedLt = $product->ai_lead_time ? (float)$product->ai_lead_time : 7.0; // fallback 7 days
+            $aiReorderPoint = (int) round(($expectedLt * $effectiveDailyDemand) + $aiSafetyStock);
             
             return [
                 'id' => $product->id,
                 'name' => $product->name,
                 'sku' => $product->sku,
-                'current_stock' => (int)$product->total_stock,
+                'current_stock' => $stock,
                 'daily_velocity' => round($dailyVelocity, 2),
                 'total_sold_30d' => $productVelocity ? (int)$productVelocity->total_sold : 0,
                 'days_remaining' => $daysRemaining,
                 'estimated_stock_out' => $daysRemaining < 999 ? now()->addDays($daysRemaining)->toDateString() : 'N/A',
-                'status' => $this->getForecastStatus($daysRemaining, (int)$product->total_stock),
+                'status' => $this->getForecastStatus($daysRemaining, $stock, $aiReorderPoint),
+                // AI Fields
+                'ai_predicted_demand_30d' => round($aiPredictedDemand30d),
+                'ai_safety_stock' => $aiSafetyStock,
+                'ai_reorder_point' => $aiReorderPoint,
+                'chart_data' => $productPredictions->map(function($p) {
+                    return [
+                        'date' => $p->target_date,
+                        'demand' => $p->predicted_value,
+                        'lower' => $p->confidence_lower,
+                        'upper' => $p->confidence_upper
+                    ];
+                })->values()->toArray()
             ];
         })->sortBy('days_remaining')->values()->toArray();
 
@@ -225,13 +283,13 @@ class ReportService
     }
 
     /**
-     * Determine forecast status based on days remaining.
+     * Determine forecast status based on AI dynamic thresholds.
      */
-    private function getForecastStatus(int $days, int $stock): string
+    private function getForecastStatus(int $days, int $stock, int $reorderPoint): string
     {
         if ($stock <= 0) return 'out_of_stock';
-        if ($days <= 7) return 'critical';
-        if ($days <= 14) return 'warning';
+        if ($stock <= $reorderPoint) return 'critical'; // Hit AI Reorder Point + Safety Stock
+        if ($stock <= $reorderPoint * 1.5) return 'warning';
         if ($days <= 30) return 'low';
         return 'healthy';
     }

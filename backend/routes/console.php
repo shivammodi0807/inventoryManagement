@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('inventory:check-forecasts')->dailyAt('08:00');
+Schedule::job(new \App\Modules\Analytics\Jobs\TrainPredictiveModels)->dailyAt('02:00');

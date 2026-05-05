@@ -14,10 +14,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, TrendingUp, AlertTriangle, Clock, Calendar, ArrowRight, ShoppingCart } from "lucide-react";
+import { ChevronLeft, TrendingUp, AlertTriangle, Clock, Calendar, ArrowRight, ShoppingCart, BrainCircuit, BarChart2 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Area, AreaChart } from "recharts";
 
 export default function InventoryForecastPage() {
   const { data, isLoading } = useInventoryForecast();
@@ -159,8 +161,8 @@ export default function InventoryForecastPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Stock Runway Analysis</CardTitle>
-          <CardDescription>Predictive analysis of product stock based on current sales speed. Select items to generate bulk POs.</CardDescription>
+          <CardTitle className="flex items-center gap-2"><BrainCircuit className="h-5 w-5 text-indigo-600" /> AI Predictive Runway Analysis</CardTitle>
+          <CardDescription>Machine Learning demand forecasting using Meta Prophet and Scikit-Learn lead time estimation.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -174,10 +176,12 @@ export default function InventoryForecastPage() {
                 </TableHead>
                 <TableHead>Product</TableHead>
                 <TableHead className="text-right">Current Stock</TableHead>
-                <TableHead className="text-right">Daily Velocity</TableHead>
+                <TableHead className="text-right">Safety Stock</TableHead>
+                <TableHead className="text-right">AI Demand (30d)</TableHead>
                 <TableHead className="text-right">Days Remaining</TableHead>
                 <TableHead>Estimated Stock-out</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead></TableHead>
                 <TableHead></TableHead>
               </TableRow>
             </TableHeader>
@@ -195,8 +199,11 @@ export default function InventoryForecastPage() {
                     <div className="text-xs text-muted-foreground">{product.sku}</div>
                   </TableCell>
                   <TableCell className="text-right font-mono">{product.current_stock}</TableCell>
+                  <TableCell className="text-right font-mono text-indigo-700 bg-indigo-50/50">
+                    {product.ai_safety_stock || 'N/A'}
+                  </TableCell>
                   <TableCell className="text-right text-muted-foreground">
-                    {product.daily_velocity} / day
+                    {product.ai_predicted_demand_30d} units
                   </TableCell>
                   <TableCell className="text-right font-bold">
                     {product.days_remaining === 999 ? "∞" : product.days_remaining}
@@ -216,6 +223,37 @@ export default function InventoryForecastPage() {
                           Restock <ArrowRight className="h-3 w-3" />
                         </Link>
                       </Button>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {product.chart_data && product.chart_data.length > 0 && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-8 gap-1">
+                            <BarChart2 className="h-3 w-3" /> Forecast
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl">
+                          <DialogHeader>
+                            <DialogTitle>Demand Forecast for {product.name}</DialogTitle>
+                            <DialogDescription>Prophet time-series prediction for the next 30 days with confidence intervals.</DialogDescription>
+                          </DialogHeader>
+                          <div className="h-[400px] mt-4 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <AreaChart data={product.chart_data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="date" />
+                                <YAxis />
+                                <RechartsTooltip />
+                                <Legend />
+                                <Area type="monotone" dataKey="upper" stackId="1" stroke="none" fill="#8884d8" fillOpacity={0.1} name="Upper Bound" />
+                                <Area type="monotone" dataKey="lower" stackId="2" stroke="none" fill="#82ca9d" fillOpacity={0.1} name="Lower Bound" />
+                                <Line type="monotone" dataKey="demand" stroke="#4f46e5" strokeWidth={3} dot={false} name="Predicted Demand" />
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                     )}
                   </TableCell>
                 </TableRow>
