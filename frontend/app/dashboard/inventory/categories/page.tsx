@@ -8,12 +8,12 @@ import { toast } from "sonner";
 
 import { getCategories, deleteCategory } from "@/lib/inventory";
 import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import {
   Table,
@@ -38,6 +38,7 @@ import { DataTableSkeleton } from "@/components/skeletons/table-skeleton";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Category } from "@/types/inventory";
+import { Badge } from "@/components/ui/badge";
 
 export default function CategoriesPage() {
   const { can } = useAuth();
@@ -58,7 +59,7 @@ export default function CategoriesPage() {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       setDeletingId(null);
     },
-    onError: (err: any) => {
+    onError: (err: { response?: { data?: { message?: string } } }) => {
       toast.error(err.response?.data?.message || "Failed to delete category");
       setDeletingId(null);
     },
@@ -102,9 +103,9 @@ export default function CategoriesPage() {
           {isLoading ? (
             <DataTableSkeleton columnCount={4} rowCount={5} />
           ) : isError ? (
-            <ErrorState 
-              title="Failed to load categories" 
-              onRetry={() => refetch()} 
+            <ErrorState
+              title="Failed to load categories"
+              onRetry={() => refetch()}
             />
           ) : !categories?.data?.length ? (
             <EmptyState
@@ -122,6 +123,7 @@ export default function CategoriesPage() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Description</TableHead>
+                  <TableHead className="text-center">Products</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead className="w-[80px]"></TableHead>
                 </TableRow>
@@ -137,6 +139,11 @@ export default function CategoriesPage() {
                     </TableCell>
                     <TableCell className="max-w-[300px] truncate">
                       {category.description || "-"}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="secondary" className="font-mono">
+                        {category.products_count ?? 0}
+                      </Badge>
                     </TableCell>
                     <TableCell>{new Date(category.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
@@ -157,7 +164,7 @@ export default function CategoriesPage() {
                           {can("delete", "category") && (
                             <>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="text-destructive"
                                 onClick={() => setDeletingId(category.id)}
                               >
@@ -177,9 +184,9 @@ export default function CategoriesPage() {
         </CardContent>
       </Card>
 
-      <CategoryModal 
-        open={isModalOpen} 
-        onOpenChange={setIsModalOpen} 
+      <CategoryModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
         initialData={editingCategory}
       />
 

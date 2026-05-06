@@ -1,5 +1,6 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { toast } from "sonner";
+import { ApiError } from "@/types";
 
 const axiosApi = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
@@ -28,7 +29,7 @@ axiosApi.interceptors.response.use(
   async (error: AxiosError) => {
     const status = error.response?.status;
     const original = error.config as RetriableConfig | undefined;
-    const data = error.response?.data as any;
+    const data = error.response?.data as ApiError | undefined;
 
     // 419 = CSRF token mismatch. Refresh the cookie and retry once.
     if (status === 419 && original && !original._retry) {

@@ -15,10 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
   Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
+  CardContent 
 } from "@/components/ui/card";
 import {
   Select,
@@ -82,7 +79,7 @@ export default function ProductsPage() {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       setDeletingId(null);
     },
-    onError: (err: any) => {
+    onError: (err: { response?: { data?: { message?: string } } }) => {
       toast.error(err.response?.data?.message || "Failed to delete product");
       setDeletingId(null);
     },
@@ -275,7 +272,7 @@ export default function ProductsPage() {
               <ProductsTable 
                 data={data?.data || []} 
                 onAdjustStock={(p) => setAdjustingProduct(p)}
-                onDelete={(id) => setDeletingId(id)}
+                onDelete={(p) => setDeletingId(p.id)}
                 onSelectionChange={setSelectedIds}
               />
               

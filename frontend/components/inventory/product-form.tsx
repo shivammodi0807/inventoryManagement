@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch, Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
@@ -10,7 +10,7 @@ import { Loader2, Upload, X } from "lucide-react";
 import { isAxiosError } from "axios";
 import Image from "next/image";
 
-import { Product, Category, Unit } from "@/types/inventory";
+import { Product } from "@/types/inventory";
 import { getCategories, getUnits, createProduct, updateProduct } from "@/lib/inventory";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +47,7 @@ const productSchema = z.object({
   lead_time_days: z.coerce.number().min(0),
   is_active: z.boolean().default(true),
   auto_po_generation: z.boolean().default(false),
-  image: z.any().optional(),
+  image: z.any().nullable().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -72,14 +72,14 @@ export function ProductForm({ initialData }: ProductFormProps) {
   });
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
-    watch,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema) as any,
+  } = useForm({
+    resolver: zodResolver(productSchema),
     defaultValues: initialData
       ? {
           sku: initialData.sku,
@@ -94,6 +94,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
           lead_time_days: initialData.lead_time_days,
           is_active: initialData.is_active,
           auto_po_generation: initialData.auto_po_generation,
+          image: null,
         }
       : {
           sku: "",
@@ -108,13 +109,14 @@ export function ProductForm({ initialData }: ProductFormProps) {
           lead_time_days: 0,
           is_active: true,
           auto_po_generation: false,
+          image: null,
         },
   });
 
-  const categoryId = watch("category_id");
-  const unitId = watch("unit_id");
-  const isActive = watch("is_active");
-  const isAutoPO = watch("auto_po_generation");
+  const categoryId = useWatch({ control, name: "category_id" });
+  const unitId = useWatch({ control, name: "unit_id" });
+  const isActive = useWatch({ control, name: "is_active" });
+  const isAutoPO = useWatch({ control, name: "auto_po_generation" });
 
   const [imagePreview, setImagePreview] = React.useState<string | null>(initialData?.image_url || null);
 
@@ -143,7 +145,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
         const data = err.response?.data;
         if (err.response?.status === 422 && data?.errors) {
           Object.entries(data.errors).forEach(([field, messages]) => {
-            setError(field as any, { message: messages[0] });
+            setError(field as Path<ProductFormValues>, { message: messages[0] });
           });
           return;
         }
@@ -176,7 +178,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
   const isLoadingDropdowns = isLoadingCategories || isLoadingUnits;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <FieldGroup>
           {isEditing && (
@@ -192,7 +194,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
             <FieldLabel htmlFor="image">Product Image</FieldLabel>
             <div className="mt-2 flex flex-col items-center gap-4">
               {imagePreview ? (
-                <div className="relative h-40 w-40 overflow-hidden rounded-lg border">
+                <div className="relative h-40 w-40 overflow-hidden rounded-lg border bg-card">
                   <Image
                     src={imagePreview}
                     alt="Preview"
@@ -208,7 +210,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
                   </button>
                 </div>
               ) : (
-                <div className="flex h-40 w-40 flex-col items-center justify-center rounded-lg border border-dashed text-muted-foreground">
+                <div className="flex h-40 w-40 flex-col items-center justify-center rounded-lg border border-dashed text-muted-foreground bg-muted/30">
                   <Upload className="mb-2 h-8 w-8" />
                   <span className="text-xs">No image uploaded</span>
                 </div>
@@ -335,7 +337,7 @@ export function ProductForm({ initialData }: ProductFormProps) {
           </Field>
 
           <Field>
-            <div className="flex items-center justify-between rounded-lg border p-4">
+            <div className="flex items-center justify-between rounded-lg border p-4 bg-card">
               <div className="space-y-0.5">
                 <FieldLabel htmlFor="is_active">Active Status</FieldLabel>
                 <FieldDescription>

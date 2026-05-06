@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Resolver, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
@@ -28,18 +28,25 @@ import { useProducts } from "@/hooks/use-products";
 import { useWarehouses } from "@/hooks/use-warehouses";
 import { useCreateSalesOrder } from "@/hooks/use-sales-orders";
 import { Separator } from "@/components/ui/separator";
+import { Customer } from "@/types/customer";
+import { Product } from "@/types/inventory";
+import { Warehouse } from "@/types/warehouse";
 
 const salesOrderSchema = z.object({
-  customer_id: z.string().min(1, "Customer is required"),
+  customer_id: z.coerce.number().min(1, "Customer is required"),
   order_date: z.string().min(1, "Date is required"),
   shipping_address: z.string().optional(),
   notes: z.string().optional(),
-  items: z.array(z.object({
-    product_id: z.string().min(1, "Product is required"),
-    warehouse_id: z.string().min(1, "Warehouse is required"),
-    quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
-    unit_price: z.coerce.number().min(0, "Price cannot be negative"),
-  })).min(1, "At least one item is required"),
+  items: z
+    .array(
+      z.object({
+        product_id: z.coerce.number().min(1, "Product is required"),
+        warehouse_id: z.coerce.number().min(1, "Warehouse is required"),
+        quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
+        unit_price: z.coerce.number().min(0, "Price cannot be negative"),
+      }),
+    )
+    .min(1, "At least one item is required"),
 });
 
 type SalesOrderFormValues = z.infer<typeof salesOrderSchema>;
@@ -47,7 +54,7 @@ type SalesOrderFormValues = z.infer<typeof salesOrderSchema>;
 export default function CreateSalesOrderPage() {
   const router = useRouter();
   const createMutation = useCreateSalesOrder();
-  
+
   const { data: customers } = useCustomers({ is_active: true });
   const { data: products } = useProducts();
   const { data: warehouses } = useWarehouses();
@@ -57,14 +64,13 @@ export default function CreateSalesOrderPage() {
     handleSubmit,
     control,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<SalesOrderFormValues>({
-    resolver: zodResolver(salesOrderSchema),
+    resolver: zodResolver(salesOrderSchema) as Resolver<SalesOrderFormValues>,
     defaultValues: {
-      customer_id: "",
+      customer_id: undefined,
       order_date: new Date().toISOString().split("T")[0],
-      items: [{ product_id: "", warehouse_id: "", quantity: 1, unit_price: 0 }],
+      items: [{ product_id: 0, warehouse_id: 0, quantity: 1, unit_price: 0 }],
     },
   });
 
@@ -77,14 +83,26 @@ export default function CreateSalesOrderPage() {
     try {
       await createMutation.mutateAsync(values);
       router.push("/dashboard/sales/orders");
-    } catch (error) {
+    } catch {
       // Error handled in hook
     }
   });
 
-  const watchItems = watch("items");
-  const subtotal = watchItems.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
-  const customerId = watch("customer_id");
+  const watchItems = useWatch({
+    control,
+    name: "items",
+    defaultValue: [],
+  });
+
+  const subtotal = watchItems.reduce(
+    (acc, item) => acc + (item?.quantity || 0) * (item?.unit_price || 0),
+    0,
+  );
+
+  const customerId = useWatch({
+    control,
+    name: "customer_id",
+  });
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-5xl mx-auto">
@@ -92,7 +110,9 @@ export default function CreateSalesOrderPage() {
         <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Create Sales Order</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Create Sales Order
+        </h1>
       </div>
 
       <form onSubmit={onSubmit} className="space-y-6">
@@ -104,15 +124,15 @@ export default function CreateSalesOrderPage() {
             <FieldGroup className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field data-invalid={!!errors.customer_id}>
                 <FieldLabel htmlFor="customer_id">Customer</FieldLabel>
-                <Select 
-                  onValueChange={(v) => setValue("customer_id", v)} 
-                  value={customerId}
+                <Select
+                  onValueChange={(v) => setValue("customer_id", parseInt(v))}
+                  value={customerId ? customerId.toString() : ""}
                 >
                   <SelectTrigger id="customer_id">
                     <SelectValue placeholder="Select a customer" />
                   </SelectTrigger>
                   <SelectContent>
-                    {customers?.data?.map((c: any) => (
+                    {customers?.data?.map((c: Customer) => (
                       <SelectItem key={c.id} value={c.id.toString()}>
                         {c.name}
                       </SelectItem>
@@ -124,13 +144,26 @@ export default function CreateSalesOrderPage() {
 
               <Field data-invalid={!!errors.order_date}>
                 <FieldLabel htmlFor="order_date">Order Date</FieldLabel>
-                <Input type="date" id="order_date" {...register("order_date")} />
+                <Input
+                  type="date"
+                  id="order_date"
+                  {...register("order_date")}
+                />
                 <FieldError errors={[errors.order_date]} />
               </Field>
 
-              <Field data-invalid={!!errors.shipping_address} className="md:col-span-2">
-                <FieldLabel htmlFor="shipping_address">Shipping Address</FieldLabel>
-                <Input id="shipping_address" placeholder="Enter delivery address" {...register("shipping_address")} />
+              <Field
+                data-invalid={!!errors.shipping_address}
+                className="md:col-span-2"
+              >
+                <FieldLabel htmlFor="shipping_address">
+                  Shipping Address
+                </FieldLabel>
+                <Input
+                  id="shipping_address"
+                  placeholder="Enter delivery address"
+                  {...register("shipping_address")}
+                />
                 <FieldError errors={[errors.shipping_address]} />
               </Field>
             </FieldGroup>
@@ -140,30 +173,42 @@ export default function CreateSalesOrderPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Items</CardTitle>
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="sm" 
-              onClick={() => append({ product_id: "", warehouse_id: "", quantity: 1, unit_price: 0 })}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                append({
+                  product_id: 0,
+                  warehouse_id: 0,
+                  quantity: 1,
+                  unit_price: 0,
+                })
+              }
             >
               <Plus className="mr-2 h-4 w-4" /> Add Item
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="flex flex-col md:flex-row gap-4 items-start border p-4 rounded-lg relative">
+              <div
+                key={field.id}
+                className="flex flex-col md:flex-row gap-4 items-start border p-4 rounded-lg relative"
+              >
                 <FieldGroup className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
                   <Field data-invalid={!!errors.items?.[index]?.product_id}>
                     <FieldLabel>Product</FieldLabel>
-                    <Select 
-                      onValueChange={(v) => setValue(`items.${index}.product_id`, v)} 
-                      defaultValue={field.product_id}
+                    <Select
+                      onValueChange={(v) =>
+                        setValue(`items.${index}.product_id`, parseInt(v))
+                      }
+                      value={field.product_id ? field.product_id.toString() : ""}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select product" />
                       </SelectTrigger>
                       <SelectContent>
-                        {products?.data?.map((p: any) => (
+                        {products?.data?.map((p: Product) => (
                           <SelectItem key={p.id} value={p.id.toString()}>
                             {p.name}
                           </SelectItem>
@@ -175,41 +220,52 @@ export default function CreateSalesOrderPage() {
 
                   <Field data-invalid={!!errors.items?.[index]?.warehouse_id}>
                     <FieldLabel>Warehouse</FieldLabel>
-                    <Select 
-                      onValueChange={(v) => setValue(`items.${index}.warehouse_id`, v)} 
-                      defaultValue={field.warehouse_id}
+                    <Select
+                      onValueChange={(v) =>
+                        setValue(`items.${index}.warehouse_id`, parseInt(v))
+                      }
+                      value={field.warehouse_id ? field.warehouse_id.toString() : ""}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Location" />
                       </SelectTrigger>
                       <SelectContent>
-                        {warehouses?.map((w: any) => (
+                        {warehouses?.map((w: Warehouse) => (
                           <SelectItem key={w.id} value={w.id.toString()}>
                             {w.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <FieldError errors={[errors.items?.[index]?.warehouse_id]} />
+                    <FieldError
+                      errors={[errors.items?.[index]?.warehouse_id]}
+                    />
                   </Field>
 
                   <Field data-invalid={!!errors.items?.[index]?.quantity}>
                     <FieldLabel>Qty</FieldLabel>
-                    <Input type="number" {...register(`items.${index}.quantity`)} />
+                    <Input
+                      type="number"
+                      {...register(`items.${index}.quantity`)}
+                    />
                     <FieldError errors={[errors.items?.[index]?.quantity]} />
                   </Field>
 
                   <Field data-invalid={!!errors.items?.[index]?.unit_price}>
                     <FieldLabel>Price</FieldLabel>
-                    <Input type="number" step="0.01" {...register(`items.${index}.unit_price`)} />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      {...register(`items.${index}.unit_price`)}
+                    />
                     <FieldError errors={[errors.items?.[index]?.unit_price]} />
                   </Field>
                 </FieldGroup>
                 {fields.length > 1 && (
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
                     onClick={() => remove(index)}
                     className="mt-8 text-destructive shrink-0"
                   >
@@ -220,7 +276,7 @@ export default function CreateSalesOrderPage() {
             ))}
 
             <div className="flex justify-end pt-4">
-              <div className="w-full max-w-[250px] space-y-2">
+              <div className="w-full max-w-62.5 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal:</span>
                   <span>${subtotal.toLocaleString()}</span>

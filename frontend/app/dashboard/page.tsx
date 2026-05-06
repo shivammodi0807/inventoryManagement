@@ -1,19 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useDashboardStats } from "@/hooks/use-dashboard";
 import { StockMovementChart } from "@/components/dashboard/stock-movement-chart";
 import { CategoryValueChart } from "@/components/dashboard/category-value-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, DollarSign, AlertTriangle, ShoppingCart, ShoppingBag, Clock, History, ArrowRight } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/shared/error-state";
 import Link from "next/link";
@@ -21,6 +14,7 @@ import { formatDistanceToNow } from "date-fns";
 
 export default function DashboardPage() {
   const { data, isLoading, isError, refetch } = useDashboardStats();
+  const [filter, setFilter] = useState<"all" | "category" | "value">("all");
 
   if (isError) return <ErrorState onRetry={() => refetch()} />;
 
@@ -35,8 +29,8 @@ export default function DashboardPage() {
           <Skeleton className="h-32 rounded-xl" />
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Skeleton className="col-span-4 h-[400px] rounded-xl" />
-          <Skeleton className="col-span-3 h-[400px] rounded-xl" />
+          <Skeleton className="col-span-4 h-100 rounded-xl" />
+          <Skeleton className="col-span-3 h-100 rounded-xl" />
         </div>
       </div>
     );
@@ -153,7 +147,14 @@ export default function DashboardPage() {
           <StockMovementChart data={data.charts.stock_movements} />
         </div>
         <div className="col-span-1 lg:col-span-3">
-          <CategoryValueChart data={data.charts.category_value} />
+          <Tabs value={filter} onValueChange={(v) => setFilter(v as "all" | "category" | "value")}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="all">Overview</TabsTrigger>
+              <TabsTrigger value="category">Category</TabsTrigger>
+              <TabsTrigger value="value">Value</TabsTrigger>
+            </TabsList>
+            <CategoryValueChart data={data.charts.category_value} />
+          </Tabs>
         </div>
       </div>
 

@@ -25,12 +25,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { POStatusBadge } from "@/components/purchase-orders/po-status-badge";
 import { ErrorState } from "@/components/shared/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Pagination } from "@/components/ui/pagination";
 
 export default function PurchaseOrdersPage() {
   const [search, setSearch] = React.useState("");
@@ -90,7 +89,7 @@ export default function PurchaseOrdersPage() {
             <div className="flex items-center space-x-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
               <Select value={status} onValueChange={(val) => { setStatus(val); setPage(1); }}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-45">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -136,7 +135,7 @@ export default function PurchaseOrdersPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {orders.map((order: any) => (
+                    {orders.map((order) => (
                       <TableRow key={order.id} className="cursor-pointer hover:bg-muted/50">
                         <TableCell className="font-medium">
                           <Link href={`/dashboard/purchase-orders/${order.id}`} className="text-primary hover:underline">
@@ -145,7 +144,7 @@ export default function PurchaseOrdersPage() {
                         </TableCell>
                         <TableCell>
                           <div className="font-medium">{order.supplier?.name}</div>
-                          <div className="text-xs text-muted-foreground">{order.supplier?.contact_email}</div>
+                          <div className="text-xs text-muted-foreground">{order.supplier?.email}</div>
                         </TableCell>
                         <TableCell>{format(new Date(order.order_date), "MMM d, yyyy")}</TableCell>
                         <TableCell>

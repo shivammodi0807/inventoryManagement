@@ -12,15 +12,18 @@ import {
   getInvoices
 } from "@/lib/sales";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { ApiError } from "@/types";
+import { SalesOrderFilters, InvoiceFilters, SalesOrder, SalesOrdersResponse } from "@/types/sales";
 
-export function useSalesOrders(filters: any = {}) {
-  return useQuery({
+export function useSalesOrders(filters: SalesOrderFilters = {}) {
+  return useQuery<SalesOrdersResponse>({
     queryKey: ["sales-orders", filters],
     queryFn: () => getSalesOrders(filters),
   });
 }
 
-export function useInvoices(filters: any = {}) {
+export function useInvoices(filters: InvoiceFilters = {}) {
   return useQuery({
     queryKey: ["invoices", filters],
     queryFn: () => getInvoices(filters),
@@ -28,7 +31,7 @@ export function useInvoices(filters: any = {}) {
 }
 
 export function useSalesOrder(id: number) {
-  return useQuery({
+  return useQuery<SalesOrder>({
     queryKey: ["sales-order", id],
     queryFn: () => getSalesOrder(id),
     enabled: !!id,
@@ -43,7 +46,7 @@ export function useCreateSalesOrder() {
       queryClient.invalidateQueries({ queryKey: ["sales-orders"] });
       toast.success("Sales order created successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to create sales order");
     },
   });
@@ -58,7 +61,7 @@ export function useConfirmSalesOrder() {
       queryClient.invalidateQueries({ queryKey: ["sales-order", id] });
       toast.success("Sales order confirmed and stock deducted");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to confirm sales order");
     },
   });
@@ -73,7 +76,7 @@ export function useCancelSalesOrder() {
       queryClient.invalidateQueries({ queryKey: ["sales-order", id] });
       toast.success("Sales order cancelled");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to cancel sales order");
     },
   });
@@ -88,7 +91,7 @@ export function useShipSalesOrder() {
       queryClient.invalidateQueries({ queryKey: ["sales-order", id] });
       toast.success("Sales order marked as shipped");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to ship sales order");
     },
   });
@@ -103,7 +106,7 @@ export function useDeliverSalesOrder() {
       queryClient.invalidateQueries({ queryKey: ["sales-order", id] });
       toast.success("Sales order marked as delivered");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to deliver sales order");
     },
   });
@@ -117,7 +120,7 @@ export function useGenerateInvoice() {
       queryClient.invalidateQueries({ queryKey: ["sales-order", orderId] });
       toast.success("Invoice generated successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to generate invoice");
     },
   });
@@ -126,15 +129,15 @@ export function useGenerateInvoice() {
 export function useRecordPayment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ invoiceId, data }: { invoiceId: number; data: any }) => 
+    mutationFn: ({ invoiceId, data }: { invoiceId: number; data: { amount: number; payment_method: string; notes?: string } }) => 
       recordPayment(invoiceId, data),
-    onSuccess: (_, { invoiceId }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sales-orders"] });
       // We might need to find which order this invoice belongs to to invalidate it
       queryClient.invalidateQueries({ queryKey: ["sales-order"] }); 
       toast.success("Payment recorded successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to record payment");
     },
   });

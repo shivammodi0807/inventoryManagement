@@ -24,7 +24,7 @@ export default function Error({
         </div>
         <h2 className="text-2xl font-bold tracking-tight">Something went wrong!</h2>
         <p className="max-w-[500px] text-muted-foreground">
-          An unexpected error occurred. We've logged the details and are working to fix it.
+          An unexpected error occurred. We&apos;ve logged the details and are working to fix it.
           In the meantime, you can try refreshing the page.
         </p>
       </div>

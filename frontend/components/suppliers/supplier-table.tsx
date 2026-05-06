@@ -12,7 +12,15 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  RowData,
 } from "@tanstack/react-table";
+
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData extends RowData> {
+    onEdit?: (data: TData) => void;
+    onDelete?: (data: TData) => void;
+  }
+}
 import { 
   MoreHorizontal, 
   ArrowUpDown, 
@@ -56,7 +64,7 @@ export function SupplierTable({ data, onEdit, onDelete }: SupplierTableProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 
-  const columns: ColumnDef<Supplier>[] = [
+  const columns = React.useMemo<ColumnDef<Supplier>[]>(() => [
     {
       accessorKey: "name",
       header: ({ column }) => {
@@ -130,7 +138,7 @@ export function SupplierTable({ data, onEdit, onDelete }: SupplierTableProps) {
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row, table }) => {
         const supplier = row.original;
 
         return (
@@ -148,12 +156,12 @@ export function SupplierTable({ data, onEdit, onDelete }: SupplierTableProps) {
                   <Eye className="mr-2 h-4 w-4" /> View Details
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(supplier)}>
+              <DropdownMenuItem onClick={() => table.options.meta?.onEdit?.(supplier)}>
                 <Edit className="mr-2 h-4 w-4" /> Edit
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem 
-                onClick={() => onDelete(supplier)}
+                onClick={() => table.options.meta?.onDelete?.(supplier)}
                 className="text-destructive focus:text-destructive"
               >
                 <Trash className="mr-2 h-4 w-4" /> Deactivate
@@ -163,8 +171,14 @@ export function SupplierTable({ data, onEdit, onDelete }: SupplierTableProps) {
         );
       },
     },
-  ];
+  ], []);
 
+  const tableMeta = React.useMemo(() => ({
+    onEdit,
+    onDelete,
+  }), [onEdit, onDelete]);
+
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -180,6 +194,7 @@ export function SupplierTable({ data, onEdit, onDelete }: SupplierTableProps) {
       columnFilters,
       columnVisibility,
     },
+    meta: tableMeta,
   });
 
   return (

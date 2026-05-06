@@ -1,3 +1,5 @@
+import type { Supplier } from "./supplier";
+
 // Roles are dynamic (admins can create new ones from Settings → Roles), so
 // the name is just `string`. Only the two sealed roles are special: their
 // ids are stable (1 = Admin, 2 = Guest) and the SealedRoleGuard forbids
@@ -7,6 +9,7 @@ export interface Permission {
   id: number;
   action: string;
   resource: string;
+  description?: string;
 }
 
 export interface Role {
@@ -69,22 +72,8 @@ export interface Product {
   };
 }
 
-export interface Supplier {
-  id: number;
-  company_name: string;
-  contact_person?: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  created_at?: string;
-  updated_at?: string;
-  total_closed_orders?: number;
-  on_time_deliveries?: number;
-  on_time_rate?: number;
-  rating?: string;
-  is_active?: boolean;
-  products?: Product[];
-}
+export type { Supplier, SupplierFilters, ProductSupplier, LinkProductPayload } from "./supplier";
+
 
 export interface SupplierPerformance {
   total_closed_orders: number;

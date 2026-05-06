@@ -1,11 +1,10 @@
 "use client";
 
 import React from "react";
-import { FileText, Search, Filter } from "lucide-react";
+import {  Search } from "lucide-react";
 import { useInvoices } from "@/hooks/use-sales-orders";
 import { InvoiceTable } from "@/components/sales/invoice-table";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { 
   Select, 
   SelectContent, 
@@ -32,7 +31,7 @@ export default function InvoicesPage() {
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-1 items-center space-x-2">
-          <div className="relative w-full md:w-[300px]">
+          <div className="relative w-full md:w-75">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search invoices..."
@@ -42,7 +41,7 @@ export default function InvoicesPage() {
             />
           </div>
           <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -58,7 +57,7 @@ export default function InvoicesPage() {
 
       {isLoading ? (
         <div className="space-y-3">
-          <Skeleton className="h-[400px] w-full" />
+          <Skeleton className="h-100 w-full" />
         </div>
       ) : (
         <InvoiceTable data={data?.data || []} />

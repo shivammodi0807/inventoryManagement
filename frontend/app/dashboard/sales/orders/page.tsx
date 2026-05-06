@@ -64,7 +64,7 @@ export default function SalesOrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {orders?.data?.filter((o: any) => o.status === "pending").length ?? 0}
+              {orders?.data?.filter((o) => o.status === "pending").length ?? 0}
             </div>
           </CardContent>
         </Card>
@@ -75,7 +75,7 @@ export default function SalesOrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {orders?.data?.filter((o: any) => o.status === "confirmed").length ?? 0}
+              {orders?.data?.filter((o) => o.status === "confirmed").length ?? 0}
             </div>
           </CardContent>
         </Card>

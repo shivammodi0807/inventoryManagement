@@ -11,7 +11,16 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  RowData,
 } from "@tanstack/react-table";
+
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData extends RowData> {
+    onEdit?: (data: TData) => void;
+    onDelete?: (data: TData) => void;
+    onToggleActive?: (data: TData) => void;
+  }
+}
 import { ArrowUpDown, Edit, Trash2, MoreHorizontal, MapPin, ToggleLeft, ToggleRight } from "lucide-react";
 
 import { Warehouse } from "@/types/warehouse";
@@ -47,7 +56,7 @@ export function WarehouseTable({ data, onEdit, onDelete, onToggleActive }: Wareh
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
 
-  const columns: ColumnDef<Warehouse>[] = [
+  const columns = React.useMemo<ColumnDef<Warehouse>[]>(() => [
     {
       accessorKey: "name",
       header: ({ column }) => (
@@ -98,7 +107,7 @@ export function WarehouseTable({ data, onEdit, onDelete, onToggleActive }: Wareh
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row, table }) => {
         const warehouse = row.original;
         return (
           <DropdownMenu>
@@ -110,11 +119,11 @@ export function WarehouseTable({ data, onEdit, onDelete, onToggleActive }: Wareh
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onEdit(warehouse)}>
+              <DropdownMenuItem onClick={() => table.options.meta?.onEdit?.(warehouse)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onToggleActive(warehouse)}>
+              <DropdownMenuItem onClick={() => table.options.meta?.onToggleActive?.(warehouse)}>
                 {warehouse.is_active ? (
                   <>
                     <ToggleLeft className="mr-2 h-4 w-4" />
@@ -129,7 +138,7 @@ export function WarehouseTable({ data, onEdit, onDelete, onToggleActive }: Wareh
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => onDelete(warehouse)}
+                onClick={() => table.options.meta?.onDelete?.(warehouse)}
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -140,8 +149,15 @@ export function WarehouseTable({ data, onEdit, onDelete, onToggleActive }: Wareh
         );
       },
     },
-  ];
+  ], []);
 
+  const tableMeta = React.useMemo(() => ({
+    onEdit,
+    onDelete,
+    onToggleActive,
+  }), [onEdit, onDelete, onToggleActive]);
+
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -158,6 +174,7 @@ export function WarehouseTable({ data, onEdit, onDelete, onToggleActive }: Wareh
       globalFilter,
     },
     onGlobalFilterChange: setGlobalFilter,
+    meta: tableMeta,
   });
 
   return (

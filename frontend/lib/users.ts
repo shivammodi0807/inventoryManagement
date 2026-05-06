@@ -1,5 +1,5 @@
 import axiosApi from "./axiosApi";
-import type { PaginatedResponse, Role, User } from "@/types";
+import type { PaginatedResponse, User } from "@/types";
 
 export type CreateUserPayload = {
   full_name: string;

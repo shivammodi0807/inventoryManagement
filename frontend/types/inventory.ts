@@ -5,6 +5,7 @@ export interface Category {
   name: string;
   parent_id: number | null;
   description: string | null;
+  products_count?: number;
   created_at: string;
   updated_at: string;
 }
@@ -49,7 +50,7 @@ export interface Product {
   is_active: boolean;
   auto_po_generation: boolean;
   image_url: string | null;
-  attributes: Record<string, any> | null;
+  attributes: Record<string, unknown> | null;
   stock_levels?: StockLevel[];
   total_stock?: number; // Virtual attribute from backend
   stock_status?: 'critical' | 'low' | 'normal' | 'overstock'; // Virtual attribute

@@ -6,11 +6,8 @@ import {
   ArrowLeft, 
   Mail, 
   Phone, 
-  MapPin, 
-  Globe, 
+  MapPin,  
   CreditCard, 
-  Truck, 
-  Calendar,
   Star,
   Package,
   TrendingUp,
@@ -47,7 +44,7 @@ export default function SupplierDetailPage() {
   const [unlinkProductId, setUnlinkProductId] = React.useState<number | null>(null);
 
   const { data: supplier, isLoading, isError, refetch } = useSupplier(id);
-  const { data: performance, isLoading: isLoadingPerf } = useSupplierPerformance(id);
+  const { data: performance } = useSupplierPerformance(id);
   const unlinkMutation = useUnlinkProduct();
 
   if (isError) return <ErrorState onRetry={() => refetch()} />;
@@ -213,7 +210,7 @@ export default function SupplierDetailPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {supplier.products.map((product: any) => (
+                {supplier.products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
                       <div className="flex flex-col">

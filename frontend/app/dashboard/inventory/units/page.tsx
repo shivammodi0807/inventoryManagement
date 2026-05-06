@@ -63,7 +63,7 @@ export default function UnitsPage() {
       queryClient.invalidateQueries({ queryKey: ["units"] });
       setDeletingId(null);
     },
-    onError: (err: any) => {
+    onError: (err: { response?: { data?: { message?: string } } }) => {
       toast.error(err.response?.data?.message || "Failed to delete unit");
       setDeletingId(null);
     },

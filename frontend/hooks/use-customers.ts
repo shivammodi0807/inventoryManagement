@@ -6,18 +6,20 @@ import {
   updateCustomer, 
   deleteCustomer 
 } from "@/lib/sales";
-import { CustomerFilters, Customer } from "@/types/customer";
+import { CustomerFilters, Customer, CustomersResponse } from "@/types/customer";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { ApiError } from "@/types";
 
 export function useCustomers(filters: CustomerFilters = {}) {
-  return useQuery({
+  return useQuery<CustomersResponse>({
     queryKey: ["customers", filters],
     queryFn: () => getCustomers(filters),
   });
 }
 
 export function useCustomer(id: number) {
-  return useQuery({
+  return useQuery<Customer>({
     queryKey: ["customer", id],
     queryFn: () => getCustomer(id),
     enabled: !!id,
@@ -32,7 +34,7 @@ export function useCreateCustomer() {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       toast.success("Customer created successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to create customer");
     },
   });
@@ -48,7 +50,7 @@ export function useUpdateCustomer() {
       queryClient.invalidateQueries({ queryKey: ["customer", id] });
       toast.success("Customer updated successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to update customer");
     },
   });
@@ -62,7 +64,7 @@ export function useDeleteCustomer() {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       toast.success("Customer deleted successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to delete customer");
     },
   });

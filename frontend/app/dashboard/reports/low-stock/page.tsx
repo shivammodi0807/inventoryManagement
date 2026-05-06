@@ -17,6 +17,7 @@ import { ChevronLeft, AlertCircle, ShoppingCart, FileText } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { getReportExportUrl } from "@/hooks/use-reports";
+import { LowStockReportItem } from "@/types/reports";
 
 export default function LowStockReportPage() {
   const { data, isLoading } = useLowStockReport();
@@ -88,7 +89,7 @@ export default function LowStockReportPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                data.map((item: any) => (
+                data.map((item: LowStockReportItem) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell><code>{item.sku}</code></TableCell>

@@ -11,9 +11,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -171,7 +168,7 @@ export default function NotificationsPage() {
       </div>
 
       {/* Filter tabs */}
-      <Tabs value={filter} onValueChange={(v) => { setFilter(v as any); setPage(1); }}>
+      <Tabs value={filter} onValueChange={(v) => { setFilter(v as "all" | "unread"); setPage(1); }}>
         <TabsList className="w-fit">
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="unread" className="gap-2">

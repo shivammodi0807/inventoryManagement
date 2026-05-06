@@ -24,6 +24,7 @@ import {
   useDeliverSalesOrder,
   useGenerateInvoice 
 } from "@/hooks/use-sales-orders";
+import { SalesOrderItem, Payment } from "@/types/sales";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -82,11 +83,11 @@ export default function SalesOrderDetailPage() {
   const isConfirmed = order.status === "confirmed";
   const hasInvoice = !!order.invoice;
 
-  const statusVariants: any = {
+  const statusVariants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
     pending: "secondary",
-    confirmed: "blue",
-    shipped: "indigo",
-    delivered: "success",
+    confirmed: "default",
+    shipped: "default",
+    delivered: "default",
     cancelled: "destructive",
   };
 
@@ -144,7 +145,7 @@ export default function SalesOrderDetailPage() {
             </Button>
           )}
 
-          {hasInvoice && (
+          {order.invoice && (
             <>
               <Button variant="outline" asChild>
                 <a href={getInvoicePdfUrl(order.invoice.id)} target="_blank" rel="noopener noreferrer">
@@ -180,7 +181,7 @@ export default function SalesOrderDetailPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {order.items?.map((item: any) => (
+                    {order.items?.map((item: SalesOrderItem) => (
                       <TableRow key={item.id}>
                         <TableCell>
                           <div className="font-medium">{item.product?.name}</div>
@@ -195,7 +196,7 @@ export default function SalesOrderDetailPage() {
                         <TableCell className="text-right">${Number(item.unit_price).toFixed(2)}</TableCell>
                         <TableCell className="text-right">{item.quantity}</TableCell>
                         <TableCell className="text-right font-medium">
-                          ${(item.quantity * item.unit_price).toFixed(2)}
+                          ${(item.quantity * Number(item.unit_price)).toFixed(2)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -222,12 +223,12 @@ export default function SalesOrderDetailPage() {
             </CardContent>
           </Card>
 
-          {hasInvoice && (
+          {order.invoice && (
             <Card>
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle>Invoice & Payments</CardTitle>
-                  <Badge variant={order.invoice.status === "paid" ? "success" : "warning"}>
+                  <Badge variant={order.invoice.status === "paid" ? "default" : "secondary"}>
                     {order.invoice.status.toUpperCase()}
                   </Badge>
                 </div>
@@ -252,7 +253,7 @@ export default function SalesOrderDetailPage() {
                   </div>
                 </div>
 
-                {order.invoice.payments?.length > 0 && (
+                {order.invoice.payments && order.invoice.payments.length > 0 && (
                   <div className="space-y-3">
                     <h4 className="font-medium text-sm">Payment History</h4>
                     <div className="rounded-md border">
@@ -266,7 +267,7 @@ export default function SalesOrderDetailPage() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {order.invoice.payments.map((payment: any) => (
+                          {order.invoice.payments.map((payment: Payment) => (
                             <TableRow key={payment.id}>
                               <TableCell>{format(new Date(payment.payment_date), "MMM d, yyyy")}</TableCell>
                               <TableCell className="capitalize">{payment.payment_method.replace('_', ' ')}</TableCell>

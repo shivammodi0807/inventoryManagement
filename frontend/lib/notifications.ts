@@ -1,5 +1,5 @@
 import axiosApi from "./axiosApi";
-import { AppNotification, PaginatedNotifications } from "@/types/notification";
+import { PaginatedNotifications } from "@/types/notification";
 
 export async function getNotifications(params?: {
   page?: number;

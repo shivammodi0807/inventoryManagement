@@ -16,7 +16,7 @@ export default function NotFound() {
         </div>
         <h2 className="text-3xl font-bold tracking-tight">Page Not Found</h2>
         <p className="max-w-[500px] text-muted-foreground">
-          Sorry, we couldn't find the page you're looking for. It might have been moved
+          Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been moved
           or deleted, or you might have mistyped the URL.
         </p>
       </div>

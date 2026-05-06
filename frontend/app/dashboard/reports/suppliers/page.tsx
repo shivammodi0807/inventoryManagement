@@ -18,6 +18,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { getReportExportUrl } from "@/hooks/use-reports";
+import { SupplierPerformanceItem, TopPerformerSupplier } from "@/types/reports";
 
 export default function SupplierPerformancePage() {
   const { data, isLoading } = useSupplierPerformance();
@@ -95,8 +96,8 @@ export default function SupplierPerformancePage() {
             <CheckCircle className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Math.round(suppliers.reduce((acc: any, s: any) => acc + s.fulfillment_rate, 0) / suppliers.length || 0)}%</div>
-            <Progress value={suppliers.reduce((acc: any, s: any) => acc + s.fulfillment_rate, 0) / suppliers.length || 0} className="h-2 mt-2" />
+            <div className="text-2xl font-bold">{Math.round(suppliers.reduce((acc: number, s: SupplierPerformanceItem) => acc + s.fulfillment_rate, 0) / suppliers.length || 0)}%</div>
+            <Progress value={suppliers.reduce((acc: number, s: SupplierPerformanceItem) => acc + s.fulfillment_rate, 0) / suppliers.length || 0} className="h-2 mt-2" />
           </CardContent>
         </Card>
         <Card>
@@ -139,7 +140,7 @@ export default function SupplierPerformancePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {suppliers.slice(0, 5).map((supplier: any) => (
+                {suppliers.slice(0, 5).map((supplier: SupplierPerformanceItem) => (
                   <TableRow key={supplier.id}>
                     <TableCell className="font-medium">{supplier.name}</TableCell>
                     <TableCell className="text-right">{supplier.total_orders}</TableCell>
@@ -173,7 +174,7 @@ export default function SupplierPerformancePage() {
             <CardDescription>Highest rated based on reliability.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {topPerformers.map((supplier: any) => (
+            {topPerformers.map((supplier: TopPerformerSupplier) => (
               <div key={supplier.id} className="space-y-1">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">{supplier.name}</span>

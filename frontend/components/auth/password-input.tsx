@@ -33,7 +33,6 @@ interface PasswordInputProps extends React.ComponentProps<
  */
 
 export function PasswordInput({
-  className,
   containerClassName,
   label = "Password",
   error,

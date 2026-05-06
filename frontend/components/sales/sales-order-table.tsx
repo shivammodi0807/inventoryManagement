@@ -1,14 +1,26 @@
 "use client";
 
+import * as React from "react";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
+  RowData,
 } from "@tanstack/react-table";
+
+declare module "@tanstack/react-table" {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface TableMeta<TData extends RowData> {
+    onConfirm?: (id: number) => void;
+    onCancel?: (id: number) => void;
+    onGenerateInvoice?: (id: number) => void;
+  }
+}
 import { MoreHorizontal, Eye, CheckCircle, XCircle, FileText, Download } from "lucide-react";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 import {
   Table,
@@ -28,11 +40,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
 import { getInvoicePdfUrl } from "@/lib/sales";
+import { SalesOrder } from "@/types/sales";
 
 interface SalesOrderTableProps {
-  data: any[];
+  data: SalesOrder[];
   onConfirm: (id: number) => void;
   onCancel: (id: number) => void;
   onGenerateInvoice: (id: number) => void;
@@ -41,7 +53,7 @@ interface SalesOrderTableProps {
 export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }: SalesOrderTableProps) {
   const router = useRouter();
 
-  const columns: ColumnDef<any>[] = [
+  const columns = React.useMemo<ColumnDef<SalesOrder>[]>(() => [
     {
       accessorKey: "order_number",
       header: "Order #",
@@ -71,11 +83,11 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
-        const variants: any = {
+        const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
           pending: "secondary",
-          confirmed: "blue",
-          shipped: "indigo",
-          delivered: "success",
+          confirmed: "default",
+          shipped: "default",
+          delivered: "default",
           cancelled: "destructive",
         };
         return <Badge variant={variants[status] || "outline"}>{status.toUpperCase()}</Badge>;
@@ -83,8 +95,9 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row, table }) => {
         const order = row.original;
+        const meta = table.options.meta;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -97,14 +110,14 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
               <DropdownMenuItem onClick={() => router.push(`/dashboard/sales/orders/${order.id}`)}>
                 <Eye className="mr-2 h-4 w-4" /> View Details
               </DropdownMenuItem>
-              
+
               {order.status === "pending" && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => onConfirm(order.id)}>
+                  <DropdownMenuItem onClick={() => meta?.onConfirm?.(order.id)}>
                     <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> Confirm Order
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onCancel(order.id)} className="text-destructive">
+                  <DropdownMenuItem onClick={() => meta?.onCancel?.(order.id)} className="text-destructive">
                     <XCircle className="mr-2 h-4 w-4" /> Cancel Order
                   </DropdownMenuItem>
                 </>
@@ -113,7 +126,7 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
               {order.status === "confirmed" && !order.invoice && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => onGenerateInvoice(order.id)}>
+                  <DropdownMenuItem onClick={() => meta?.onGenerateInvoice?.(order.id)}>
                     <FileText className="mr-2 h-4 w-4" /> Generate Invoice
                   </DropdownMenuItem>
                 </>
@@ -134,13 +147,21 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
         );
       },
     },
-  ];
+  ], [router]);
 
+  const tableMeta = React.useMemo(() => ({
+    onConfirm,
+    onCancel,
+    onGenerateInvoice,
+  }), [onConfirm, onCancel, onGenerateInvoice]);
+
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    meta: tableMeta,
   });
 
   return (

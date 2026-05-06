@@ -6,7 +6,15 @@ import {
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
+  RowData,
 } from "@tanstack/react-table";
+
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData extends RowData> {
+    onEdit?: (data: TData) => void;
+    onDelete?: (data: TData) => void;
+  }
+}
 import { MoreHorizontal, Pencil, Trash2, Mail, Phone, MapPin } from "lucide-react";
 
 import {
@@ -27,6 +35,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Customer } from "@/types/customer";
 import { Badge } from "@/components/ui/badge";
+import React from "react";
 
 interface CustomerTableProps {
   data: Customer[];
@@ -35,7 +44,7 @@ interface CustomerTableProps {
 }
 
 export function CustomerTable({ data, onEdit, onDelete }: CustomerTableProps) {
-  const columns: ColumnDef<Customer>[] = [
+  const columns = React.useMemo<ColumnDef<Customer>[]>(() => [
     {
       accessorKey: "name",
       header: "Name",
@@ -81,14 +90,14 @@ export function CustomerTable({ data, onEdit, onDelete }: CustomerTableProps) {
       accessorKey: "is_active",
       header: "Status",
       cell: ({ row }) => (
-        <Badge variant={row.getValue("is_active") ? "success" : "secondary"}>
+        <Badge variant={row.getValue("is_active") ? "default" : "secondary"}>
           {row.getValue("is_active") ? "Active" : "Inactive"}
         </Badge>
       ),
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row, table }) => {
         const customer = row.original;
         return (
           <DropdownMenu>
@@ -99,11 +108,11 @@ export function CustomerTable({ data, onEdit, onDelete }: CustomerTableProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onEdit(customer)}>
+              <DropdownMenuItem onClick={() => table.options.meta?.onEdit?.(customer)}>
                 <Pencil className="mr-2 h-4 w-4" /> Edit
               </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => onDelete(customer)}
+              <DropdownMenuItem
+                onClick={() => table.options.meta?.onDelete?.(customer)}
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="mr-2 h-4 w-4" /> Delete
@@ -113,13 +122,20 @@ export function CustomerTable({ data, onEdit, onDelete }: CustomerTableProps) {
         );
       },
     },
-  ];
+  ], []);
 
+  const tableMeta = React.useMemo(() => ({
+    onEdit,
+    onDelete,
+  }), [onEdit, onDelete]);
+
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    meta: tableMeta,
   });
 
   return (
@@ -133,9 +149,9 @@ export function CustomerTable({ data, onEdit, onDelete }: CustomerTableProps) {
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                 </TableHead>
               ))}
             </TableRow>

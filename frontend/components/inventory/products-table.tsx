@@ -7,7 +7,16 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  RowData,
 } from "@tanstack/react-table";
+
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData extends RowData> {
+    onDelete?: (data: TData) => void;
+    onAdjustStock?: (product: TData) => void;
+    can?: (action: string, subject: string) => boolean;
+  }
+}
 import { MoreHorizontal, Pencil, History, Trash2, PackagePlus, ImageIcon } from "lucide-react";
 import Image from "next/image";
 
@@ -41,7 +50,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 interface ProductsTableProps {
   data: Product[];
-  onDelete?: (id: number) => void;
+  onDelete?: (product: Product) => void;
   onAdjustStock?: (product: Product) => void;
   onSelectionChange?: (selectedIds: number[]) => void;
 }
@@ -56,7 +65,7 @@ export function ProductsTable({
   const [rowSelection, setRowSelection] = React.useState({});
   const [selectedImage, setSelectedImage] = React.useState<{ url: string; name: string } | null>(null);
 
-  const columns: ColumnDef<Product>[] = [
+  const columns = React.useMemo<ColumnDef<Product>[]>(() => [
     {
       id: "select",
       header: ({ table }) => (
@@ -162,8 +171,9 @@ export function ProductsTable({
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row, table }) => {
         const product = row.original;
+        const meta = table.options.meta;
 
         return (
           <DropdownMenu>
@@ -181,7 +191,7 @@ export function ProductsTable({
                   View Details
                 </Link>
               </DropdownMenuItem>
-              {can("edit", "product") && (
+              {meta?.can?.("edit", "product") && (
                 <>
                   <DropdownMenuItem asChild>
                     <Link href={`/dashboard/inventory/products/${product.id}/edit`}>
@@ -189,18 +199,18 @@ export function ProductsTable({
                       Edit Product
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onAdjustStock?.(product)}>
+                  <DropdownMenuItem onClick={() => meta?.onAdjustStock?.(product)}>
                     <PackagePlus className="mr-2 h-4 w-4" />
                     Adjust Stock
                   </DropdownMenuItem>
                 </>
               )}
-              {can("delete", "product") && (
+              {meta?.can?.("delete", "product") && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
                     className="text-destructive"
-                    onClick={() => onDelete?.(product.id)}
+                    onClick={() => meta?.onDelete?.(product)}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Product
@@ -212,8 +222,15 @@ export function ProductsTable({
         );
       },
     },
-  ];
+  ], []);
 
+  const tableMeta = React.useMemo(() => ({
+    onDelete,
+    onAdjustStock,
+    can,
+  }), [onDelete, onAdjustStock, can]);
+
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -224,6 +241,7 @@ export function ProductsTable({
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id.toString(),
+    meta: tableMeta,
   });
 
   React.useEffect(() => {

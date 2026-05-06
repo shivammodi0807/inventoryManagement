@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Bell, CheckCheck, AlertTriangle, Package, ShoppingCart, Info } from "lucide-react";
+import { Bell, CheckCheck, AlertTriangle, Package, ShoppingCart, Info, Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -73,7 +73,7 @@ export function NotificationBell() {
 
       const channel = echo.private(`App.Models.Auth.User.${user.id}`);
 
-      channel.notification((notification: AppNotification["data"] & { id: string }) => {
+      channel.notification(() => {
         // Invalidate queries so the bell count and dropdown update immediately
         queryClient.invalidateQueries({ queryKey: ["notifications"] });
         queryClient.invalidateQueries({ queryKey: ["notifications-unread-count"] });
@@ -93,7 +93,7 @@ export function NotificationBell() {
 
   const autoPoMutation = useMutation({
     mutationFn: quickCreatePurchaseOrder,
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       toast.success("Purchase Order generated successfully!");
       setOpen(false);
       // Optional: router.push(`/dashboard/purchase-orders/${data.data.id}`);
@@ -165,7 +165,7 @@ export function NotificationBell() {
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
               <Bell className="h-8 w-8 text-muted-foreground/40" />
-              <p className="text-sm text-muted-foreground">You're all caught up!</p>
+              <p className="text-sm text-muted-foreground">You&apos;re all caught up!</p>
             </div>
           ) : (
             <div className="divide-y">

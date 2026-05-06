@@ -1,5 +1,6 @@
 
 import { Customer, CustomerFilters, CustomersResponse } from "@/types/customer";
+import { SalesOrder, SalesOrderFilters, SalesOrdersResponse, Invoice, InvoiceFilters, InvoicesResponse } from "@/types/sales";
 import axiosApi from "./axiosApi";
 
 // Customers
@@ -28,53 +29,53 @@ export async function deleteCustomer(id: number): Promise<void> {
 }
 
 // Sales Orders
-export async function getSalesOrders(filters: any = {}): Promise<any> {
+export async function getSalesOrders(filters: SalesOrderFilters = {}): Promise<SalesOrdersResponse> {
   const response = await axiosApi.get("/api/sales/orders", { params: filters });
   return response.data;
 }
 
-export async function getSalesOrder(id: number): Promise<any> {
+export async function getSalesOrder(id: number): Promise<SalesOrder> {
   const response = await axiosApi.get(`/api/sales/orders/${id}`);
   return response.data;
 }
 
-export async function createSalesOrder(data: any): Promise<any> {
+export async function createSalesOrder(data: Partial<SalesOrder>): Promise<SalesOrder> {
   const response = await axiosApi.post("/api/sales/orders", data);
   return response.data;
 }
 
-export async function confirmSalesOrder(id: number): Promise<any> {
+export async function confirmSalesOrder(id: number): Promise<SalesOrder> {
   const response = await axiosApi.post(`/api/sales/orders/${id}/confirm`);
   return response.data;
 }
 
-export async function cancelSalesOrder(id: number): Promise<any> {
+export async function cancelSalesOrder(id: number): Promise<SalesOrder> {
   const response = await axiosApi.post(`/api/sales/orders/${id}/cancel`);
   return response.data;
 }
 
-export async function shipSalesOrder(id: number): Promise<any> {
+export async function shipSalesOrder(id: number): Promise<SalesOrder> {
   const response = await axiosApi.post(`/api/sales/orders/${id}/ship`);
   return response.data;
 }
 
-export async function deliverSalesOrder(id: number): Promise<any> {
+export async function deliverSalesOrder(id: number): Promise<SalesOrder> {
   const response = await axiosApi.post(`/api/sales/orders/${id}/deliver`);
   return response.data;
 }
 
 // Invoices & Payments
-export async function generateInvoice(orderId: number): Promise<any> {
+export async function generateInvoice(orderId: number): Promise<Invoice> {
   const response = await axiosApi.post(`/api/sales/orders/${orderId}/invoice`);
   return response.data;
 }
 
-export async function recordPayment(invoiceId: number, data: any): Promise<any> {
+export async function recordPayment(invoiceId: number, data: { amount: number; payment_method: string; notes?: string }): Promise<unknown> {
   const response = await axiosApi.post(`/api/sales/invoices/${invoiceId}/payments`, data);
   return response.data;
 }
 
-export async function getInvoices(filters: any = {}): Promise<any> {
+export async function getInvoices(filters: InvoiceFilters = {}): Promise<InvoicesResponse> {
   const response = await axiosApi.get("/api/sales/invoices", { params: filters });
   return response.data;
 }

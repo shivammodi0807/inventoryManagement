@@ -14,7 +14,7 @@ import {
 } from "@/hooks/use-purchase-orders";
 import { PurchaseOrderStatus } from "@/types/purchase-order";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -51,23 +51,17 @@ export default function PurchaseOrderDetailPage() {
 
   if (isError) return <ErrorState onRetry={() => refetch()} />;
 
-  const order = data?.data || data;
-
-  const handleAction = async () => {
-    // The mutations are now handled directly by the ConfirmDialog's onConfirm
-    // to avoid double-triggering which caused transition errors.
-    setConfirmDialog({ open: false, type: null });
-  };
+  const order = data?.data;
 
   const isActionLoading = submitMutation.isPending || confirmMutation.isPending || cancelMutation.isPending;
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-12 w-[300px]" />
+        <Skeleton className="h-12 w-75" />
         <div className="grid gap-6 md:grid-cols-3">
-          <Skeleton className="h-[200px] md:col-span-2" />
-          <Skeleton className="h-[200px]" />
+          <Skeleton className="h-50 md:col-span-2" />
+          <Skeleton className="h-50" />
         </div>
       </div>
     );
@@ -90,7 +84,7 @@ export default function PurchaseOrderDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Purchase Order {order.order_number}</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Purchase Order {order.po_number}</h1>
             <div className="flex items-center space-x-2 mt-1">
               <POStatusBadge status={order.status} />
               <span className="text-muted-foreground text-sm">
@@ -166,7 +160,7 @@ export default function PurchaseOrderDetailPage() {
                           </span>
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          ${(Number(item.line_total || 0)).toFixed(2)}
+                          ${(Number(item.total_price || 0)).toFixed(2)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -174,7 +168,7 @@ export default function PurchaseOrderDetailPage() {
                 </Table>
               </div>
               <div className="mt-4 flex justify-end">
-                <div className="w-[300px] space-y-3">
+                <div className="w-75 space-y-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span>${parseFloat(order.total_amount).toFixed(2)}</span>

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ShieldIcon, SearchIcon, FilterIcon } from "lucide-react";
+import { ShieldIcon, SearchIcon } from "lucide-react";
 
 import { useAuth } from "@/hooks/use-auth";
 import { listPermissions } from "@/lib/permissions";

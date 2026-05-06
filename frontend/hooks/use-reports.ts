@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosApi from "@/lib/axiosApi";
+import { AuditLogReportItem, InventoryValuationReport, LowStockReportItem, InventoryForecastItem, SalesPerformanceReport, SupplierPerformanceReport } from "@/types/reports";
 
 export function useInventoryValuation() {
-  return useQuery({
+  return useQuery<InventoryValuationReport>({
     queryKey: ["reports", "inventory-valuation"],
     queryFn: async () => {
       const response = await axiosApi.get("/api/reports/inventory-valuation");
@@ -12,7 +13,7 @@ export function useInventoryValuation() {
 }
 
 export function useSalesPerformance(period: string = "month", from?: string, to?: string) {
-  return useQuery({
+  return useQuery<SalesPerformanceReport>({
     queryKey: ["reports", "sales-performance", period, from, to],
     queryFn: async () => {
       const response = await axiosApi.get("/api/reports/sales-performance", {
@@ -24,7 +25,7 @@ export function useSalesPerformance(period: string = "month", from?: string, to?
 }
 
 export function useLowStockReport() {
-  return useQuery({
+  return useQuery<LowStockReportItem[]>({
     queryKey: ["reports", "low-stock"],
     queryFn: async () => {
       const response = await axiosApi.get("/api/reports/low-stock");
@@ -34,7 +35,7 @@ export function useLowStockReport() {
 }
 
 export function useAuditLogs(from?: string, to?: string) {
-  return useQuery({
+  return useQuery<AuditLogReportItem[]>({
     queryKey: ["reports", "audit-logs", from, to],
     queryFn: async () => {
       const response = await axiosApi.get("/api/reports/audit-logs", {
@@ -46,7 +47,7 @@ export function useAuditLogs(from?: string, to?: string) {
 }
 
 export function useSupplierPerformance() {
-  return useQuery({
+  return useQuery<SupplierPerformanceReport>({
     queryKey: ["reports", "supplier-performance"],
     queryFn: async () => {
       const response = await axiosApi.get("/api/reports/supplier-performance");
@@ -56,7 +57,7 @@ export function useSupplierPerformance() {
 }
 
 export function useInventoryForecast() {
-  return useQuery({
+  return useQuery<InventoryForecastItem[]>({
     queryKey: ["reports", "inventory-forecast"],
     queryFn: async () => {
       const response = await axiosApi.get("/api/reports/inventory-forecast");
@@ -65,7 +66,7 @@ export function useInventoryForecast() {
   });
 }
 
-export function getReportExportUrl(type: string, params: any = {}) {
+export function getReportExportUrl(type: string, params: Record<string, string> = {}) {
   const query = new URLSearchParams(params).toString();
   return `${process.env.NEXT_PUBLIC_API_URL}/api/reports/export/${type}${query ? `?${query}` : ""}`;
 }

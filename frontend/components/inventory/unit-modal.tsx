@@ -7,6 +7,7 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { isAxiosError } from "axios";
 
 import {
   Dialog,
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/field";
 import { createUnit, updateUnit } from "@/lib/inventory";
 import { Unit } from "@/types/inventory";
+import { ApiError } from "@/types";
 
 const unitSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -41,36 +43,41 @@ interface UnitModalProps {
 }
 
 export function UnitModal({ open, onOpenChange, initialData }: UnitModalProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        {open && (
+          <UnitForm 
+            initialData={initialData} 
+            onClose={() => onOpenChange(false)} 
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+interface UnitFormProps {
+  initialData?: Unit | null;
+  onClose: () => void;
+}
+
+function UnitForm({ initialData, onClose }: UnitFormProps) {
   const queryClient = useQueryClient();
   const isEditing = !!initialData;
 
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm<UnitFormValues>({
     resolver: zodResolver(unitSchema),
     defaultValues: {
-      name: "",
-      abbreviation: "",
-      type: "",
+      name: initialData?.name ?? "",
+      abbreviation: initialData?.abbreviation ?? "",
+      type: initialData?.type ?? "",
     },
   });
-
-  React.useEffect(() => {
-    if (open) {
-      reset(initialData ? {
-        name: initialData.name,
-        abbreviation: initialData.abbreviation,
-        type: initialData.type || "",
-      } : {
-        name: "",
-        abbreviation: "",
-        type: "",
-      });
-    }
-  }, [open, initialData, reset]);
 
   const mutation = useMutation({
     mutationFn: (data: UnitFormValues) => 
@@ -80,59 +87,59 @@ export function UnitModal({ open, onOpenChange, initialData }: UnitModalProps) {
     onSuccess: () => {
       toast.success(isEditing ? "Unit updated successfully" : "Unit created successfully");
       queryClient.invalidateQueries({ queryKey: ["units"] });
-      onOpenChange(false);
-      reset();
+      onClose();
     },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || `Failed to ${isEditing ? 'update' : 'create'} unit`);
+    onError: (error) => {
+      let message = `Failed to ${isEditing ? 'update' : 'create'} unit`;
+      if (isAxiosError<ApiError>(error)) {
+        message = error.response?.data?.message || message;
+      }
+      toast.error(message);
     },
   });
 
-  function onSubmit(data: UnitFormValues) {
+  const onSubmit = (data: UnitFormValues) => {
     mutation.mutate(data);
-  }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? "Edit Unit" : "Add Unit"}</DialogTitle>
-          <DialogDescription>
-            {isEditing 
-              ? "Update the details for this unit of measure." 
-              : "Create a new unit of measure for your products."}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <Field>
-            <FieldLabel htmlFor="unit-name">Name</FieldLabel>
-            <Input id="unit-name" placeholder="e.g. Kilogram, Piece" {...register("name")} />
-            <FieldError errors={[errors.name]} />
-          </Field>
-          
-          <Field>
-            <FieldLabel htmlFor="unit-abbreviation">Abbreviation</FieldLabel>
-            <Input id="unit-abbreviation" placeholder="e.g. kg, pc" {...register("abbreviation")} />
-            <FieldError errors={[errors.abbreviation]} />
-          </Field>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <DialogHeader>
+        <DialogTitle>{isEditing ? "Edit Unit" : "Add Unit"}</DialogTitle>
+        <DialogDescription>
+          {isEditing 
+            ? "Update the details for this unit of measure." 
+            : "Create a new unit of measure for your products."}
+        </DialogDescription>
+      </DialogHeader>
+      
+      <Field>
+        <FieldLabel htmlFor="unit-name">Name</FieldLabel>
+        <Input id="unit-name" placeholder="e.g. Kilogram, Piece" {...register("name")} />
+        <FieldError errors={[errors.name]} />
+      </Field>
+      
+      <Field>
+        <FieldLabel htmlFor="unit-abbreviation">Abbreviation</FieldLabel>
+        <Input id="unit-abbreviation" placeholder="e.g. kg, pc" {...register("abbreviation")} />
+        <FieldError errors={[errors.abbreviation]} />
+      </Field>
 
-          <Field>
-            <FieldLabel htmlFor="unit-type">Type (Optional)</FieldLabel>
-            <Input id="unit-type" placeholder="e.g. Weight, Volume, Count" {...register("type")} />
-            <FieldError errors={[errors.type]} />
-          </Field>
+      <Field>
+        <FieldLabel htmlFor="unit-type">Type (Optional)</FieldLabel>
+        <Input id="unit-type" placeholder="e.g. Weight, Volume, Count" {...register("type")} />
+        <FieldError errors={[errors.type]} />
+      </Field>
 
-          <DialogFooter className="mt-6">
-            <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isEditing ? "Update Unit" : "Save Unit"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+      <DialogFooter className="mt-6">
+        <Button variant="outline" type="button" onClick={onClose} disabled={mutation.isPending}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isEditing ? "Update Unit" : "Save Unit"}
+        </Button>
+      </DialogFooter>
+    </form>
   );
 }

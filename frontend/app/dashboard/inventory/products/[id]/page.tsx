@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { Loader2, ArrowLeft, User as UserIcon, Warehouse as WarehouseIcon, Edit, History, Truck, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, User as UserIcon, Warehouse as WarehouseIcon, Edit, History, Truck, Trash2, Plus } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 

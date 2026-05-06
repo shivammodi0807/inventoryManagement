@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray, Controller, Resolver, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
@@ -82,11 +82,10 @@ export default function CreatePurchaseOrderPage() {
     register,
     control,
     handleSubmit,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<POFormValues>({
-    resolver: zodResolver(poSchema) as any,
+    resolver: zodResolver(poSchema) as Resolver<POFormValues>,
     defaultValues: {
       supplier_id: 0,
       order_date: format(new Date(), "yyyy-MM-dd"),
@@ -101,7 +100,7 @@ export default function CreatePurchaseOrderPage() {
     name: "items",
   });
 
-  const watchItems = watch("items");
+  const watchItems = useWatch({ control, name: "items" }) || [];
 
   const calculateTotal = () => {
     return watchItems.reduce((acc, item) => {
@@ -118,8 +117,11 @@ export default function CreatePurchaseOrderPage() {
         exp_delivery: values.exp_delivery || null, // convert empty string to null
       });
       // Redirect to the newly created PO detail page
-      router.push(`/dashboard/purchase-orders/${res.id}`);
-    } catch (err) {
+      const orderId = res?.data?.id;
+      if (orderId) {
+        router.push(`/dashboard/purchase-orders/${orderId}`);
+      }
+    } catch {
       // toast handled in mutation
     }
   };
@@ -138,7 +140,7 @@ export default function CreatePurchaseOrderPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit as any)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-6 md:grid-cols-3">
           <div className="md:col-span-2 space-y-6">
             <Card>

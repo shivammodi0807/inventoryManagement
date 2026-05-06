@@ -58,7 +58,7 @@ export interface StorePurchaseOrderPayload {
   items: StorePurchaseOrderItem[];
 }
 
-export interface UpdatePurchaseOrderPayload extends Partial<StorePurchaseOrderPayload> {}
+export type UpdatePurchaseOrderPayload = Partial<StorePurchaseOrderPayload>;
 
 export interface ReceivePurchaseOrderItem {
   item_id: number;
@@ -68,4 +68,14 @@ export interface ReceivePurchaseOrderItem {
 export interface ReceivePurchaseOrderPayload {
   warehouse_id: number;
   items: ReceivePurchaseOrderItem[];
+}
+
+export interface PurchaseOrdersResponse {
+  data: PurchaseOrder[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
 }

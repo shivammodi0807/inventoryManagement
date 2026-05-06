@@ -9,7 +9,6 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Download, Calendar } from "lucide-react";
-import { Input } from "@/components/ui/input";
 
 interface ReportFilterProps {
   period: string;

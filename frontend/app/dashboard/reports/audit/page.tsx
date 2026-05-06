@@ -18,6 +18,7 @@ import { ChevronLeft, FileText, History } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { format, subDays } from "date-fns";
+import { AuditLogReportItem } from "@/types/reports";
 
 export default function AuditLogsPage() {
   const [period, setPeriod] = useState("month");
@@ -32,7 +33,7 @@ export default function AuditLogsPage() {
   );
 
   const handleDownload = () => {
-    const params: any = {};
+    const params: Record<string, string> = {};
     if (period === "custom") {
         params.from = dateRange.from;
         params.to = dateRange.to;
@@ -115,7 +116,7 @@ export default function AuditLogsPage() {
                   </TableCell>
                 </TableRow>
               ) : (
-                data.map((log: any) => (
+                data.map((log: AuditLogReportItem) => (
                   <TableRow key={log.id}>
                     <TableCell className="text-sm">
                       {format(new Date(log.created_at), "MMM d, yyyy HH:mm")}
@@ -130,7 +131,7 @@ export default function AuditLogsPage() {
                       {log.quantity_change > 0 ? '+' : ''}{log.quantity_change}
                     </TableCell>
                     <TableCell className="text-right font-medium">{log.new_stock}</TableCell>
-                    <TableCell className="text-sm max-w-[200px] truncate" title={log.reason}>
+                    <TableCell className="text-sm max-w-[200px] truncate" title={log.reason ?? undefined}>
                       {log.reason || "N/A"}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">

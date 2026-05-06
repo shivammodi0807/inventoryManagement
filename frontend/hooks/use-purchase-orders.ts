@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { ApiError } from "@/types";
 import {
   getPurchaseOrders,
   getPurchaseOrder,
@@ -16,7 +18,8 @@ import {
   PurchaseOrderFilters, 
   StorePurchaseOrderPayload, 
   UpdatePurchaseOrderPayload,
-  ReceivePurchaseOrderPayload
+  ReceivePurchaseOrderPayload,
+  PurchaseOrder
 } from "@/types/purchase-order";
 
 export function usePurchaseOrders(filters: PurchaseOrderFilters = {}) {
@@ -42,7 +45,7 @@ export function useCreatePurchaseOrder() {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
       toast.success("Purchase order created successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to create purchase order");
     },
   });
@@ -52,13 +55,13 @@ export function useUpdatePurchaseOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdatePurchaseOrderPayload }) => updatePurchaseOrder(id, data),
-    onSuccess: (data) => {
+    onSuccess: (data: { data: PurchaseOrder }) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      const orderId = data?.data?.id || data?.id;
+      const orderId = data.data.id;
       if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order updated successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to update purchase order");
     },
   });
@@ -68,13 +71,13 @@ export function useSubmitPurchaseOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => submitPurchaseOrder(id),
-    onSuccess: (data) => {
+    onSuccess: (data: { data: PurchaseOrder }) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      const orderId = data?.data?.id || data?.id;
+      const orderId = data.data.id;
       if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order submitted successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to submit purchase order");
     },
   });
@@ -84,13 +87,13 @@ export function useConfirmPurchaseOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => confirmPurchaseOrder(id),
-    onSuccess: (data) => {
+    onSuccess: (data: { data: PurchaseOrder }) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      const orderId = data?.data?.id || data?.id;
+      const orderId = data.data.id;
       if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order confirmed successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to confirm purchase order");
     },
   });
@@ -100,13 +103,13 @@ export function useCancelPurchaseOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => cancelPurchaseOrder(id),
-    onSuccess: (data) => {
+    onSuccess: (data: { data: PurchaseOrder }) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      const orderId = data?.data?.id || data?.id;
+      const orderId = data.data.id;
       if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order cancelled successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to cancel purchase order");
     },
   });
@@ -116,15 +119,15 @@ export function useReceivePurchaseOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: ReceivePurchaseOrderPayload }) => receivePurchaseOrder(id, data),
-    onSuccess: (data) => {
+    onSuccess: (data: { data: PurchaseOrder }) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      const orderId = data?.data?.id || data?.id;
+      const orderId = data.data.id;
       if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       // Invalidate stock/products as well since we just received inventory
       queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success("Stock received successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to receive stock");
     },
   });
@@ -157,7 +160,7 @@ export function useBulkCreatePurchaseOrders() {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
       toast.success(data.message || "Purchase orders created successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to create bulk purchase orders");
     },
   });

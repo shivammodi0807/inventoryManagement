@@ -1,0 +1,290 @@
+﻿
+> frontend@0.1.0 lint
+> eslint
+
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\inventory\categories\page.tsx
+  62:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\inventory\products\page.tsx
+  82:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\inventory\units\page.tsx
+  66:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\notifications\page.tsx
+   14:3   warning  'CardDescription' is defined but never used  @typescript-eslint/no-unused-vars
+   15:3   warning  'CardHeader' is defined but never used       @typescript-eslint/no-unused-vars
+   16:3   warning  'CardTitle' is defined but never used        @typescript-eslint/no-unused-vars
+  174:67  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\page.tsx
+   9:3   warning  'Table' is defined but never used        @typescript-eslint/no-unused-vars
+  10:3   warning  'TableBody' is defined but never used    @typescript-eslint/no-unused-vars
+  11:3   warning  'TableCell' is defined but never used    @typescript-eslint/no-unused-vars
+  12:3   warning  'TableHead' is defined but never used    @typescript-eslint/no-unused-vars
+  13:3   warning  'TableHeader' is defined but never used  @typescript-eslint/no-unused-vars
+  14:3   warning  'TableRow' is defined but never used     @typescript-eslint/no-unused-vars
+  16:10  warning  'Badge' is defined but never used        @typescript-eslint/no-unused-vars
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\purchase-orders\[id]\page.tsx
+  17:29  warning  'CardDescription' is defined but never used        @typescript-eslint/no-unused-vars
+  17:69  warning  'CardFooter' is defined but never used             @typescript-eslint/no-unused-vars
+  56:9   warning  'handleAction' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\purchase-orders\new\page.tsx
+   89:40  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+  104:22  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\purchase-orders\new\page.tsx:104:22
+  102 |   });
+  103 |
+> 104 |   const watchItems = watch("items");
+      |                      ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  105 |
+  106 |   const calculateTotal = () => {
+  107 |     return watchItems.reduce((acc, item) => {  react-hooks/incompatible-library
+  121:48  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+  125:14  warning  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  144:48  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\purchase-orders\page.tsx
+   28:29  warning  'CardDescription' is defined but never used  @typescript-eslint/no-unused-vars
+   28:58  warning  'CardTitle' is defined but never used        @typescript-eslint/no-unused-vars
+   33:10  warning  'Pagination' is defined but never used       @typescript-eslint/no-unused-vars
+  139:41  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\reports\audit\page.tsx
+   35:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  118:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\reports\forecast\page.tsx
+   22:10  warning  'LineChart' is defined but never used     @typescript-eslint/no-unused-vars
+   31:35  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   50:38  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  104:41  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:40  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  189:35  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\reports\inventory\page.tsx
+  116:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\reports\low-stock\page.tsx
+  91:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\reports\sales\page.tsx
+    7:3   warning  'Table' is defined but never used         @typescript-eslint/no-unused-vars
+    8:3   warning  'TableBody' is defined but never used     @typescript-eslint/no-unused-vars
+    9:3   warning  'TableCell' is defined but never used     @typescript-eslint/no-unused-vars
+   10:3   warning  'TableHead' is defined but never used     @typescript-eslint/no-unused-vars
+   11:3   warning  'TableHeader' is defined but never used   @typescript-eslint/no-unused-vars
+   12:3   warning  'TableRow' is defined but never used      @typescript-eslint/no-unused-vars
+   20:3   warning  'BarChart' is defined but never used      @typescript-eslint/no-unused-vars
+   21:3   warning  'Bar' is defined but never used           @typescript-eslint/no-unused-vars
+   47:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  142:36  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  157:48  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\reports\suppliers\page.tsx
+   98:84  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   98:92  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   99:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   99:61  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  142:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  176:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\sales\invoices\page.tsx
+  4:10  warning  'FileText' is defined but never used  @typescript-eslint/no-unused-vars
+  4:28  warning  'Filter' is defined but never used    @typescript-eslint/no-unused-vars
+  8:10  warning  'Button' is defined but never used    @typescript-eslint/no-unused-vars
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\sales\orders\[id]\page.tsx
+  183:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  269:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\sales\orders\create\page.tsx
+   63:48  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+   80:14  warning  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   85:22  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\sales\orders\create\page.tsx:85:22
+  83 |   });
+  84 |
+> 85 |   const watchItems = watch("items");
+     |                      ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  86 |   const subtotal = watchItems.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0);
+  87 |   const customerId = watch("customer_id");
+  88 |  react-hooks/incompatible-library
+  115:47  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+  166:50  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+  186:46  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\sales\orders\page.tsx
+  67:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  78:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\settings\permissions\page.tsx
+  5:34  warning  'FilterIcon' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\app\dashboard\suppliers\[id]\page.tsx
+   10:3   warning  'Globe' is defined but never used                   @typescript-eslint/no-unused-vars
+   12:3   warning  'Truck' is defined but never used                   @typescript-eslint/no-unused-vars
+   13:3   warning  'Calendar' is defined but never used                @typescript-eslint/no-unused-vars
+   50:41  warning  'isLoadingPerf' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  216:50  error    Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\auth\password-input.tsx
+  36:3  warning  'className' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\inventory\bulk-link-supplier-modal.tsx
+  124:16  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\inventory\product-form.tsx
+  114:22  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\inventory\product-form.tsx:114:22
+  112 |   });
+  113 |
+> 114 |   const categoryId = watch("category_id");
+      |                      ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  115 |   const unitId = watch("unit_id");
+  116 |   const isActive = watch("is_active");
+  117 |   const isAutoPO = watch("auto_po_generation");  react-hooks/incompatible-library
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\inventory\products-table.tsx
+  217:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\inventory\products-table.tsx:217:17
+  215 |   ];
+  216 |
+> 217 |   const table = useReactTable({
+      |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  218 |     data,
+  219 |     columns,
+  220 |     state: {  react-hooks/incompatible-library
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\inventory\stock-adjust-modal.tsx
+  106:23  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\inventory\stock-adjust-modal.tsx:106:23
+  104 |   });
+  105 |
+> 106 |   const warehouseId = watch("warehouse_id");
+      |                       ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  107 |
+  108 |   const mutation = useMutation({
+  109 |     mutationFn: (values: Values) => adjustStock(product.id, values),  react-hooks/incompatible-library
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\notifications\notification-bell.tsx
+  76:29  warning  '_notification' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\sales\customer-modal.tsx
+  90:20  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\sales\customer-modal.tsx:90:20
+  88 |   });
+  89 |
+> 90 |   const isActive = watch("is_active");
+     |                    ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  91 |
+  92 |   const onSubmit = async (values: CustomerFormValues) => {
+  93 |     try {  react-hooks/incompatible-library
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\sales\customer-table.tsx
+  118:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\sales\customer-table.tsx:118:17
+  116 |   ];
+  117 |
+> 118 |   const table = useReactTable({
+      |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  119 |     data,
+  120 |     columns,
+  121 |     getCoreRowModel: getCoreRowModel(),  react-hooks/incompatible-library
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\sales\payment-modal.tsx
+  90:25  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\sales\payment-modal.tsx:90:25
+  88 |   });
+  89 |
+> 90 |   const paymentMethod = watch("payment_method");
+     |                         ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  91 |
+  92 |   const onSubmit = async (values: PaymentFormValues) => {
+  93 |     try {  react-hooks/incompatible-library
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\sales\sales-order-table.tsx
+  141:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\sales\sales-order-table.tsx:141:17
+  139 |   ], [onConfirm, onCancel, onGenerateInvoice, router]);
+  140 |
+> 141 |   const table = useReactTable({
+      |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  142 |     data,
+  143 |     columns,
+  144 |     getCoreRowModel: getCoreRowModel(),  react-hooks/incompatible-library
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\suppliers\supplier-table.tsx
+  168:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\suppliers\supplier-table.tsx:168:17
+  166 |   ], [onEdit, onDelete]);
+  167 |
+> 168 |   const table = useReactTable({
+      |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  169 |     data,
+  170 |     columns,
+  171 |     onSortingChange: setSorting,  react-hooks/incompatible-library
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\warehouses\warehouse-modal.tsx
+  85:25  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\warehouses\warehouse-modal.tsx:85:25
+  83 |   });
+  84 |
+> 85 |   const isActiveValue = watch("is_active");
+     |                         ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  86 |
+  87 |   const onSubmit = async (values: WarehouseFormValues) => {
+  88 |     try {  react-hooks/incompatible-library
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\warehouses\warehouse-table.tsx
+  145:17  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+C:\Users\shiva\Desktop\project\Qollab\frontend\components\warehouses\warehouse-table.tsx:145:17
+  143 |   ], [onEdit, onDelete, onToggleActive]);
+  144 |
+> 145 |   const table = useReactTable({
+      |                 ^^^^^^^^^^^^^ TanStack Table's `useReactTable()` API returns functions that cannot be memoized safely
+  146 |     data,
+  147 |     columns,
+  148 |     onSortingChange: setSorting,  react-hooks/incompatible-library
+
+Γ£û 85 problems (35 errors, 50 warnings)
+

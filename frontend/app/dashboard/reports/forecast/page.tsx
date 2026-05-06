@@ -3,13 +3,13 @@
 import React from "react";
 import { useInventoryForecast } from "@/hooks/use-reports";
 import { useBulkCreatePurchaseOrders } from "@/hooks/use-purchase-orders";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,7 +19,8 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { InventoryForecastItem } from "@/types/reports";
 
 export default function InventoryForecastPage() {
   const { data, isLoading } = useInventoryForecast();
@@ -28,7 +29,7 @@ export default function InventoryForecastPage() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked && data) {
-      setSelectedIds(data.map((p: any) => p.id));
+      setSelectedIds(data.map((p: InventoryForecastItem) => p.id));
     } else {
       setSelectedIds([]);
     }
@@ -47,9 +48,9 @@ export default function InventoryForecastPage() {
 
     // Smart Suggestion: Order 30 days of stock, minimum 50 units
     const selections = selectedIds.map(id => {
-      const product = data?.find((p: any) => p.id === id);
+      const product = data?.find((p: InventoryForecastItem) => p.id === id);
       const velocity = product?.daily_velocity || 1;
-      const qty = Math.max(50, Math.ceil(velocity * 30)); 
+      const qty = Math.max(50, Math.ceil(velocity * 30));
       return { product_id: id, qty_to_order: qty };
     });
 
@@ -101,8 +102,8 @@ export default function InventoryForecastPage() {
     }
   };
 
-  const criticalCount = data.filter((p: any) => p.status === 'critical').length;
-  const warningCount = data.filter((p: any) => p.status === 'warning').length;
+  const criticalCount = data.filter((p: InventoryForecastItem) => p.status === 'critical').length;
+  const warningCount = data.filter((p: InventoryForecastItem) => p.status === 'warning').length;
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -114,8 +115,8 @@ export default function InventoryForecastPage() {
           <h2 className="text-3xl font-bold tracking-tight">Inventory Forecasting</h2>
         </div>
         {selectedIds.length > 0 && (
-          <Button 
-            onClick={handleBulkReorder} 
+          <Button
+            onClick={handleBulkReorder}
             disabled={bulkReorder.isPending}
             className="bg-blue-600 hover:bg-blue-700 animate-in fade-in slide-in-from-right-2"
           >
@@ -169,7 +170,7 @@ export default function InventoryForecastPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[50px]">
-                  <Checkbox 
+                  <Checkbox
                     checked={selectedIds.length === data.length && data.length > 0}
                     onCheckedChange={(checked) => handleSelectAll(!!checked)}
                   />
@@ -186,10 +187,10 @@ export default function InventoryForecastPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((product: any) => (
+              {data.map((product: InventoryForecastItem) => (
                 <TableRow key={product.id} className={selectedIds.includes(product.id) ? "bg-muted/50" : ""}>
                   <TableCell>
-                    <Checkbox 
+                    <Checkbox
                       checked={selectedIds.includes(product.id)}
                       onCheckedChange={(checked) => handleSelect(product.id, !!checked)}
                     />

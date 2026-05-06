@@ -113,7 +113,7 @@ export default function InventoryValuationPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.breakdown.map((item: any) => {
+              {data.breakdown.map((item) => {
                 const margin = item.total_retail_value > 0 
                   ? ((item.total_retail_value - item.total_cost_value) / item.total_retail_value) * 100 
                   : 0;

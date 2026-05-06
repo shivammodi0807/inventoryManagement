@@ -31,17 +31,17 @@ export function getEcho(): Echo<"reverb"> | null {
     enabledTransports: ["ws", "wss"],
     authorizer: (channel: { name: string }) => {
       return {
-        authorize: (socketId: string, callback: (error: boolean, data: any) => void) => {
+        authorize: (socketId: string, callback: (error: Error | null, data: unknown) => void) => {
           axiosApi
             .post("/api/broadcasting/auth", {
               socket_id: socketId,
               channel_name: channel.name,
             })
             .then((response) => {
-              callback(false, response.data);
+              callback(null, response.data);
             })
             .catch((error) => {
-              callback(true, error);
+              callback(error, null);
             });
         },
       };

@@ -4,10 +4,11 @@ import {
   StorePurchaseOrderPayload,
   UpdatePurchaseOrderPayload,
   ReceivePurchaseOrderPayload,
+  PurchaseOrdersResponse,
 } from "@/types/purchase-order";
 import axiosApi from "./axiosApi";
 
-export async function getPurchaseOrders(filters: PurchaseOrderFilters = {}) {
+export async function getPurchaseOrders(filters: PurchaseOrderFilters = {}): Promise<PurchaseOrdersResponse> {
   const response = await axiosApi.get("/api/purchase-orders", {
     params: filters,
   });

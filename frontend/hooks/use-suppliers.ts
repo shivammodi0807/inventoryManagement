@@ -11,6 +11,8 @@ import {
 } from "@/lib/supplier";
 import { SupplierFilters, Supplier, LinkProductPayload } from "@/types/supplier";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { ApiError } from "@/types";
 
 export function useSuppliers(filters: SupplierFilters = {}) {
   return useQuery({
@@ -35,7 +37,7 @@ export function useCreateSupplier() {
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
       toast.success("Supplier created successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to create supplier");
     },
   });
@@ -51,7 +53,7 @@ export function useUpdateSupplier() {
       queryClient.invalidateQueries({ queryKey: ["supplier", id] });
       toast.success("Supplier updated successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to update supplier");
     },
   });
@@ -65,7 +67,7 @@ export function useDeleteSupplier() {
       queryClient.invalidateQueries({ queryKey: ["suppliers"] });
       toast.success("Supplier deactivated successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to deactivate supplier");
     },
   });
@@ -88,7 +90,7 @@ export function useLinkProduct() {
       queryClient.invalidateQueries({ queryKey: ["supplier", supplierId] });
       toast.success("Product linked successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to link product");
     },
   });
@@ -103,7 +105,7 @@ export function useUnlinkProduct() {
       queryClient.invalidateQueries({ queryKey: ["supplier", supplierId] });
       toast.success("Product unlinked successfully");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to unlink product");
     },
   });
