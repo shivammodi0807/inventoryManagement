@@ -28,7 +28,10 @@ import {
   BellIcon,
   ChevronsUpDownIcon,
   LogOutIcon,
+  MoonIcon,
+  SunIcon,
 } from "lucide-react"
+import { useTheme } from "next-themes"
 
 function getInitials(fullName: string): string {
   const parts = fullName.trim().split(/\s+/).filter(Boolean)
@@ -41,6 +44,7 @@ function getInitials(fullName: string): string {
 export function NavUser() {
   const { isMobile } = useSidebar()
   const { user, logout, logoutLoading } = useAuth()
+  const { theme, setTheme } = useTheme()
 
   if (!user) {
     return (
@@ -118,6 +122,13 @@ export function NavUser() {
                   <BellIcon />
                   Notifications
                 </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+                {theme === "light" ? <MoonIcon /> : <SunIcon />}
+                Toggle Theme
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

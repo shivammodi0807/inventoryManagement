@@ -69,7 +69,8 @@ export function NavMain({
           const hasItems = item.items && item.items.length > 0;
           const isActive =
             pathname === item.url ||
-            (hasItems && item.items?.some((s) => pathname.startsWith(s.url)));
+            pathname.startsWith(`${item.url}/`) ||
+            (hasItems && item.items?.some((s) => pathname === s.url || pathname.startsWith(`${s.url}/`)));
 
           const menuButton = (
             <SidebarMenuButton
@@ -113,7 +114,7 @@ export function NavMain({
                       <SidebarMenuSubItem key={sub.title}>
                         <SidebarMenuSubButton
                           asChild
-                          isActive={pathname === sub.url}
+                          isActive={pathname === sub.url || pathname.startsWith(`${sub.url}/`)}
                         >
                           <Link href={sub.url}>
                             <span>{sub.title}</span>
