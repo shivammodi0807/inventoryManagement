@@ -66,9 +66,38 @@ export function NavMain({
       <SidebarGroupLabel>{label}</SidebarGroupLabel>
       <SidebarMenu>
         {visible.map((item) => {
+          const hasItems = item.items && item.items.length > 0;
           const isActive =
             pathname === item.url ||
-            item.items?.some((s) => pathname.startsWith(s.url));
+            (hasItems && item.items?.some((s) => pathname.startsWith(s.url)));
+
+          const menuButton = (
+            <SidebarMenuButton
+              tooltip={item.title}
+              isActive={isActive}
+              asChild={!hasItems}
+            >
+              {hasItems ? (
+                <>
+                  {item.icon}
+                  <span>{item.title}</span>
+                  <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                </>
+              ) : (
+                <Link href={item.url}>
+                  {item.icon}
+                  <span>{item.title}</span>
+                </Link>
+              )}
+            </SidebarMenuButton>
+          );
+
+          if (!hasItems) {
+            return (
+              <SidebarMenuItem key={item.title}>{menuButton}</SidebarMenuItem>
+            );
+          }
+
           return (
             <Collapsible
               key={item.title}
@@ -77,33 +106,23 @@ export function NavMain({
               className="group/collapsible"
             >
               <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title} isActive={isActive}>
-                    {item.icon}
-                    <span>{item.title}</span>
-                    {item.items && item.items.length > 0 && (
-                      <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    )}
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                {item.items && item.items.length > 0 && (
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {item.items.map((sub) => (
-                        <SidebarMenuSubItem key={sub.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={pathname === sub.url}
-                          >
-                            <Link href={sub.url}>
-                              <span>{sub.title}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                )}
+                <CollapsibleTrigger asChild>{menuButton}</CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {item.items?.map((sub) => (
+                      <SidebarMenuSubItem key={sub.title}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={pathname === sub.url}
+                        >
+                          <Link href={sub.url}>
+                            <span>{sub.title}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
               </SidebarMenuItem>
             </Collapsible>
           );

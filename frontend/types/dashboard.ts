@@ -6,6 +6,7 @@ export interface DashboardKPIs {
   monthly_sales: number;
   pending_sales_count: number;
   total_logs_count: number;
+  stock_out_soon: number;
 }
 
 export interface StockMovement {

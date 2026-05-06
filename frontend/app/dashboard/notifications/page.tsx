@@ -189,25 +189,34 @@ export default function NotificationsPage() {
         <CardContent className="pt-6">
           {isLoading ? (
             <DataTableSkeleton columnCount={1} rowCount={8} />
-          ) : notifications.length === 0 ? (
-            <EmptyState
-              title="No notifications"
-              description="You're all caught up. New alerts will appear here automatically."
-              icon={<Bell className="h-10 w-10 text-muted-foreground" />}
-            />
-          ) : (
-            <div className="flex flex-col gap-2">
-              {notifications
-                .filter((n) => filter === "all" || !n.read_at)
-                .map((n) => (
+          ) : (() => {
+            const filteredNotifications = notifications.filter((n) => filter === "all" || !n.read_at);
+            
+            if (filteredNotifications.length === 0) {
+              return (
+                <EmptyState
+                  title={filter === "unread" ? "No unread notifications" : "No notifications"}
+                  description={filter === "unread" 
+                    ? "You've read all your notifications. Great job!" 
+                    : "You're all caught up. New alerts will appear here automatically."
+                  }
+                  icon={<Bell className="h-10 w-10 text-muted-foreground" />}
+                />
+              );
+            }
+
+            return (
+              <div className="flex flex-col gap-2">
+                {filteredNotifications.map((n) => (
                   <NotificationRow
                     key={n.id}
                     notification={n}
                     onMarkRead={(id) => markAsRead.mutate(id)}
                   />
                 ))}
-            </div>
-          )}
+              </div>
+            );
+          })()}
         </CardContent>
       </Card>
 
