@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
+import * as React from "react";
+import Link from "next/link";
 
-import { NavMain, type NavItem } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
+import { NavMain, type NavItem } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 import {
   GalleryVerticalEndIcon,
   LayoutDashboardIcon,
@@ -26,7 +26,7 @@ import {
   Warehouse as WarehouseIcon,
   ShoppingBag as ShoppingBagIcon,
   BarChart3Icon,
-} from "lucide-react"
+} from "lucide-react";
 
 const platformNav: NavItem[] = [
   {
@@ -80,9 +80,9 @@ const platformNav: NavItem[] = [
     url: "/dashboard/suppliers",
     icon: <TruckIcon />,
     perms: [["view", "supplier"]],
-    items: [
-      { title: "List", url: "/dashboard/suppliers", perm: ["view", "supplier"] },
-    ],
+    // items: [
+    //   { title: "List", url: "/dashboard/suppliers", perm: ["view", "supplier"] },
+    // ],
   },
   {
     title: "Purchase Orders",
@@ -94,13 +94,18 @@ const platformNav: NavItem[] = [
     ],
     items: [
       {
-        title: "List",
+        title: "All Orders",
         url: "/dashboard/purchase-orders",
         perm: ["view", "purchase_order"],
       },
       {
+        title: "Create PO",
+        url: "/dashboard/purchase-orders/new",
+        perm: ["create", "purchase_order"],
+      },
+      {
         title: "Pending",
-        url: "/dashboard/purchase-orders/pending",
+        url: "/dashboard/purchase-orders?status=pending",
         perm: ["view", "purchase_order"],
       },
     ],
@@ -154,8 +159,16 @@ const platformNav: NavItem[] = [
       ["view", "permission"],
     ],
     items: [
-      { title: "Users", url: "/dashboard/settings/users", perm: ["view", "user"] },
-      { title: "Roles", url: "/dashboard/settings/roles", perm: ["view", "role"] },
+      {
+        title: "Users",
+        url: "/dashboard/settings/users",
+        perm: ["view", "user"],
+      },
+      {
+        title: "Roles",
+        url: "/dashboard/settings/roles",
+        perm: ["view", "role"],
+      },
       {
         title: "Permissions",
         url: "/dashboard/settings/permissions",
@@ -163,7 +176,7 @@ const platformNav: NavItem[] = [
       },
     ],
   },
-]
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -196,5 +209,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

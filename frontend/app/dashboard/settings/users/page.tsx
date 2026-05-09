@@ -15,6 +15,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import type { ApiError, User } from "@/types";
 
 export default function UsersPage() {
@@ -26,6 +27,8 @@ export default function UsersPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const usersQuery = useQuery({
     queryKey: ["users", page],
@@ -37,6 +40,8 @@ export default function UsersPage() {
     mutationFn: deleteUser,
     onSuccess: () => {
       setActionError(null);
+      setConfirmOpen(false);
+      setUserToDelete(null);
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
     onError: (err: unknown) => {
@@ -74,8 +79,14 @@ export default function UsersPage() {
       setActionError("You can't delete your own account.");
       return;
     }
-    if (!window.confirm(`Delete ${u.email}? This cannot be undone.`)) return;
-    deleteMutation.mutate(u.id);
+    setUserToDelete(u);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (userToDelete) {
+      deleteMutation.mutate(userToDelete.id);
+    }
   };
 
   return (
@@ -195,6 +206,16 @@ export default function UsersPage() {
           )}
         </CardContent>
       </Card>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
+        title="Delete User"
+        description={`Are you sure you want to delete ${userToDelete?.full_name} (${userToDelete?.email})? This action cannot be undone.`}
+        confirmText="Delete User"
+      />
     </div>
   );
 }

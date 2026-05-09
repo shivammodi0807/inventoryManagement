@@ -57,6 +57,7 @@ class PurchaseOrder extends Model
         return $query->whereIn('status', [
             PurchaseOrderStatus::Submitted->value,
             PurchaseOrderStatus::Confirmed->value,
+            PurchaseOrderStatus::PartiallyReceived->value,
         ]);
     }
 

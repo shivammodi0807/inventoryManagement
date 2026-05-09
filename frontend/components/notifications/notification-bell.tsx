@@ -73,7 +73,18 @@ export function NotificationBell() {
 
       const channel = echo.private(`App.Models.Auth.User.${user.id}`);
 
-      channel.notification(() => {
+      channel.notification((notification: any) => {
+        // Show real-time toast
+        toast.info(notification.title || "New Notification", {
+          description: notification.message,
+          action: {
+            label: "View",
+            onClick: () => {
+              setOpen(true);
+            },
+          },
+        });
+
         // Invalidate queries so the bell count and dropdown update immediately
         queryClient.invalidateQueries({ queryKey: ["notifications"] });
         queryClient.invalidateQueries({ queryKey: ["notifications-unread-count"] });

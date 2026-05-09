@@ -17,7 +17,14 @@ declare module "@tanstack/react-table" {
     can?: (action: string, subject: string) => boolean;
   }
 }
-import { MoreHorizontal, Pencil, History, Trash2, PackagePlus, ImageIcon } from "lucide-react";
+import {
+  MoreHorizontal,
+  Pencil,
+  History,
+  Trash2,
+  PackagePlus,
+  ImageIcon,
+} from "lucide-react";
 import Image from "next/image";
 
 import { Product } from "@/types/inventory";
@@ -55,180 +62,208 @@ interface ProductsTableProps {
   onSelectionChange?: (selectedIds: number[]) => void;
 }
 
-export function ProductsTable({ 
-  data, 
-  onDelete, 
+export function ProductsTable({
+  data,
+  onDelete,
   onAdjustStock,
-  onSelectionChange
+  onSelectionChange,
 }: ProductsTableProps) {
   const { can } = useAuth();
   const [rowSelection, setRowSelection] = React.useState({});
-  const [selectedImage, setSelectedImage] = React.useState<{ url: string; name: string } | null>(null);
+  const [selectedImage, setSelectedImage] = React.useState<{
+    url: string;
+    name: string;
+  } | null>(null);
 
-  const columns = React.useMemo<ColumnDef<Product>[]>(() => [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      id: "image",
-      header: "Image",
-      cell: ({ row }) => {
-        const imageUrl = row.original.image_url;
-        return (
-          <div 
-            className="relative h-10 w-10 cursor-zoom-in overflow-hidden rounded border bg-muted transition-transform hover:scale-105"
-            onClick={() => imageUrl && setSelectedImage({ url: imageUrl, name: row.original.name })}
-          >
-            {imageUrl ? (
-              <Image
-                src={imageUrl}
-                alt={row.original.name}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <ImageIcon className="h-5 w-5 text-muted-foreground" />
-              </div>
-            )}
-          </div>
-        );
+  const columns = React.useMemo<ColumnDef<Product>[]>(
+    () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
       },
-    },
-    {
-      accessorKey: "sku",
-      header: "SKU",
-      cell: ({ row }) => <div className="font-mono text-xs">{row.getValue("sku")}</div>,
-    },
-    {
-      accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => (
-        <div className="font-medium">{row.getValue("name")}</div>
-      ),
-    },
-    {
-      accessorKey: "category",
-      header: "Category",
-      cell: ({ row }) => <div>{row.original.category?.name ?? "Uncategorized"}</div>,
-    },
-    {
-      accessorKey: "unit_price",
-      header: "Price",
-      cell: ({ row }) => {
-        const amount = parseFloat(row.getValue("unit_price"));
-        const formatted = new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-        }).format(amount);
-        return <div className="font-medium">{formatted}</div>;
-      },
-    },
-    {
-      accessorKey: "total_stock",
-      header: "Stock",
-      cell: ({ row }) => (
-        <div className="font-medium">{row.getValue("total_stock") ?? 0}</div>
-      ),
-    },
-    {
-      accessorKey: "stock_status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.stock_status || "normal";
-        const variants: Record<string, "default" | "destructive" | "outline" | "secondary"> = {
-          critical: "destructive",
-          low: "secondary",
-          normal: "outline",
-          overstock: "default",
-        };
-        
-        return (
-          <Badge variant={variants[status] || "outline"} className="capitalize">
-            {status}
-          </Badge>
-        );
-      },
-    },
-    {
-      id: "actions",
-      cell: ({ row, table }) => {
-        const product = row.original;
-        const meta = table.options.meta;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <Link href={`/dashboard/inventory/products/${product.id}`}>
-                  <History className="mr-2 h-4 w-4" />
-                  View Details
-                </Link>
-              </DropdownMenuItem>
-              {meta?.can?.("edit", "product") && (
-                <>
-                  <DropdownMenuItem asChild>
-                    <Link href={`/dashboard/inventory/products/${product.id}/edit`}>
-                      <Pencil className="mr-2 h-4 w-4" />
-                      Edit Product
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => meta?.onAdjustStock?.(product)}>
-                    <PackagePlus className="mr-2 h-4 w-4" />
-                    Adjust Stock
-                  </DropdownMenuItem>
-                </>
+      {
+        id: "image",
+        header: "Image",
+        cell: ({ row }) => {
+          const imageUrl = row.original.image_url;
+          return (
+            <div
+              className="relative h-10 w-10 cursor-zoom-in overflow-hidden rounded border bg-muted transition-transform hover:scale-105"
+              onClick={() =>
+                imageUrl &&
+                setSelectedImage({ url: imageUrl, name: row.original.name })
+              }
+            >
+              {imageUrl ? (
+                <Image
+                  src={imageUrl}
+                  alt={row.original.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                </div>
               )}
-              {meta?.can?.("delete", "product") && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    className="text-destructive"
-                    onClick={() => meta?.onDelete?.(product)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Product
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
+            </div>
+          );
+        },
       },
-    },
-  ], []);
+      {
+        accessorKey: "sku",
+        header: "SKU",
+        cell: ({ row }) => (
+          <div className="font-mono text-xs">{row.getValue("sku")}</div>
+        ),
+      },
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <div className="font-medium">{row.getValue("name")}</div>
+        ),
+      },
+      {
+        accessorKey: "category",
+        header: "Category",
+        cell: ({ row }) => (
+          <div>{row.original.category?.name ?? "Uncategorized"}</div>
+        ),
+      },
+      {
+        accessorKey: "unit_price",
+        header: "Price",
+        cell: ({ row }) => {
+          const amount = parseFloat(row.getValue("unit_price"));
+          const formatted = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(amount);
+          return <div className="font-medium">{formatted}</div>;
+        },
+      },
+      {
+        accessorKey: "total_stock",
+        header: "Stock",
+        cell: ({ row }) => (
+          <div className="font-medium">{row.getValue("total_stock") ?? 0}</div>
+        ),
+      },
+      {
+        accessorKey: "stock_status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.original.stock_status || "normal";
+          const variants: Record<
+            string,
+            "default" | "destructive" | "outline" | "secondary"
+          > = {
+            critical: "destructive",
+            low: "secondary",
+            normal: "outline",
+            overstock: "default",
+          };
 
-  const tableMeta = React.useMemo(() => ({
-    onDelete,
-    onAdjustStock,
-    can,
-  }), [onDelete, onAdjustStock, can]);
+          return (
+            <Badge
+              variant={variants[status] || "outline"}
+              className="capitalize"
+            >
+              {status}
+            </Badge>
+          );
+        },
+      },
+      {
+        id: "actions",
+        cell: ({ row, table }) => {
+          const product = row.original;
+          const meta = table.options.meta;
+
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-40">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <Link href={`/dashboard/inventory/products/${product.id}`}>
+                    <History className="mr-2 h-4 w-4" />
+                    View Details
+                  </Link>
+                </DropdownMenuItem>
+                {meta?.can?.("edit", "product") && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href={`/dashboard/inventory/products/${product.id}/edit`}
+                      >
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit Product
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => meta?.onAdjustStock?.(product)}
+                    >
+                      <PackagePlus className="mr-2 h-4 w-4" />
+                      Adjust Stock
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {meta?.can?.("delete", "product") && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={() => meta?.onDelete?.(product)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete Product
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+      },
+    ],
+    [],
+  );
+
+  const tableMeta = React.useMemo(
+    () => ({
+      onDelete,
+      onAdjustStock,
+      can,
+    }),
+    [onDelete, onAdjustStock, can],
+  );
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -245,7 +280,9 @@ export function ProductsTable({
   });
 
   React.useEffect(() => {
-    const selectedIds = table.getSelectedRowModel().rows.map(row => row.original.id);
+    const selectedIds = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original.id);
     onSelectionChange?.(selectedIds);
   }, [rowSelection, table, onSelectionChange]);
 
@@ -262,7 +299,7 @@ export function ProductsTable({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 );
@@ -294,7 +331,10 @@ export function ProductsTable({
         </TableBody>
       </Table>
 
-      <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
+      <Dialog
+        open={!!selectedImage}
+        onOpenChange={(open) => !open && setSelectedImage(null)}
+      >
         <DialogContent className="max-w-3xl overflow-hidden p-0">
           <DialogHeader className="sr-only">
             <DialogTitle>{selectedImage?.name}</DialogTitle>

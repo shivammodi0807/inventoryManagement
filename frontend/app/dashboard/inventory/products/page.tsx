@@ -180,7 +180,7 @@ export default function ProductsPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
-        <form onSubmit={handleSearch} className="relative flex-1 min-w-[300px]">
+        <form onSubmit={handleSearch} className="relative flex-1 min-w-75">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             name="search"
@@ -194,7 +194,7 @@ export default function ProductsPage() {
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <Select value={categoryId} onValueChange={(v) => updateFilters("category_id", v)}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -208,7 +208,7 @@ export default function ProductsPage() {
           </Select>
 
           <Select value={stockStatus} onValueChange={(v) => updateFilters("stock_status", v)}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45">
               <SelectValue placeholder="Stock Status" />
             </SelectTrigger>
             <SelectContent>

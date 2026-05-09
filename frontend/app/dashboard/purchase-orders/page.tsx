@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Plus, Search, Filter, Calendar } from "lucide-react";
 import { format } from "date-fns";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { usePurchaseOrders } from "@/hooks/use-purchase-orders";
 import { PurchaseOrderStatus } from "@/types/purchase-order";
@@ -32,10 +32,34 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 
 export default function PurchaseOrdersPage() {
-  const [search, setSearch] = React.useState("");
-  const [status, setStatus] = React.useState<string>("all");
-  const [page, setPage] = React.useState(1);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialStatus = searchParams.get("status") || "all";
+
+  const [search, setSearch] = React.useState("");
+  const [status, setStatus] = React.useState<string>(initialStatus);
+  const [page, setPage] = React.useState(1);
+
+  // Sync state with URL if it changes externally (e.g. sidebar click)
+  React.useEffect(() => {
+    const s = searchParams.get("status") || "all";
+    if (s !== status) {
+      setStatus(s);
+      setPage(1);
+    }
+  }, [searchParams]);
+
+  const updateStatus = (newStatus: string) => {
+    setStatus(newStatus);
+    setPage(1);
+    const params = new URLSearchParams(searchParams.toString());
+    if (newStatus === "all") {
+      params.delete("status");
+    } else {
+      params.set("status", newStatus);
+    }
+    router.push(`?${params.toString()}`);
+  };
 
   // Debounce search
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
@@ -46,7 +70,7 @@ export default function PurchaseOrdersPage() {
 
   const { data, isLoading, isError, refetch } = usePurchaseOrders({
     search: debouncedSearch,
-    status: status !== "all" ? (status as PurchaseOrderStatus) : undefined,
+    status: status !== "all" ? (status as any) : undefined,
     page,
     per_page: 15,
   });
@@ -88,12 +112,13 @@ export default function PurchaseOrdersPage() {
             </div>
             <div className="flex items-center space-x-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
-              <Select value={status} onValueChange={(val) => { setStatus(val); setPage(1); }}>
+              <Select value={status} onValueChange={updateStatus}>
                 <SelectTrigger className="w-45">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="pending">Pending Orders</SelectItem>
                   <SelectItem value={PurchaseOrderStatus.Draft}>Draft</SelectItem>
                   <SelectItem value={PurchaseOrderStatus.Submitted}>Submitted</SelectItem>
                   <SelectItem value={PurchaseOrderStatus.Confirmed}>Confirmed</SelectItem>

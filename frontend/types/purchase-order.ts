@@ -37,7 +37,7 @@ export interface PurchaseOrder {
 }
 
 export interface PurchaseOrderFilters {
-  status?: PurchaseOrderStatus;
+  status?: PurchaseOrderStatus | "pending";
   supplier_id?: number;
   search?: string;
   page?: number;

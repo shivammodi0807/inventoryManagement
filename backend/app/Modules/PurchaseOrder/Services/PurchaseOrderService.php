@@ -22,7 +22,11 @@ class PurchaseOrderService
         $query = PurchaseOrder::query()->with(['supplier', 'items']);
 
         if (! empty($filters['status'])) {
-            $query->where('status', $filters['status']);
+            if ($filters['status'] === 'pending') {
+                $query->pending();
+            } else {
+                $query->where('status', $filters['status']);
+            }
         }
 
         if (! empty($filters['supplier_id'])) {

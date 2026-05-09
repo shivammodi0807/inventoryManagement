@@ -4,6 +4,7 @@ import { PaginatedNotifications } from "@/types/notification";
 export async function getNotifications(params?: {
   page?: number;
   per_page?: number;
+  unread_only?: boolean;
 }): Promise<PaginatedNotifications> {
   const res = await axiosApi.get<PaginatedNotifications>("/api/notifications", { params });
   return res.data;

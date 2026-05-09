@@ -136,7 +136,7 @@ export default function NotificationsPage() {
   const [page, setPage] = React.useState(1);
   const [filter, setFilter] = React.useState<"all" | "unread">("all");
 
-  const { data, isLoading } = useNotifications(page, 15);
+  const { data, isLoading } = useNotifications(page, 15, filter === "unread");
   const markAsRead = useMarkAsRead();
   const markAll = useMarkAllAsRead();
 
@@ -187,9 +187,7 @@ export default function NotificationsPage() {
           {isLoading ? (
             <DataTableSkeleton columnCount={1} rowCount={8} />
           ) : (() => {
-            const filteredNotifications = notifications.filter((n) => filter === "all" || !n.read_at);
-            
-            if (filteredNotifications.length === 0) {
+            if (notifications.length === 0) {
               return (
                 <EmptyState
                   title={filter === "unread" ? "No unread notifications" : "No notifications"}
@@ -204,7 +202,7 @@ export default function NotificationsPage() {
 
             return (
               <div className="flex flex-col gap-2">
-                {filteredNotifications.map((n) => (
+                {notifications.map((n) => (
                   <NotificationRow
                     key={n.id}
                     notification={n}

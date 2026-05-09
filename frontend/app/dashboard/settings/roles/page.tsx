@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RoleModal } from "@/components/settings/role-modal";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import type { ApiError, Role } from "@/types";
 
 export default function RolesPage() {
@@ -31,6 +32,8 @@ export default function RolesPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
 
   const rolesQuery = useQuery({
     queryKey: ["roles"],
@@ -42,6 +45,8 @@ export default function RolesPage() {
     mutationFn: deleteRole,
     onSuccess: () => {
       setActionError(null);
+      setConfirmOpen(false);
+      setRoleToDelete(null);
       queryClient.invalidateQueries({ queryKey: ["roles"] });
     },
     onError: (err: unknown) => {
@@ -82,8 +87,14 @@ export default function RolesPage() {
       setActionError("This role is still assigned to users and cannot be deleted.");
       return;
     }
-    if (!window.confirm(`Delete the "${r.name}" role? This cannot be undone.`)) return;
-    deleteMutation.mutate(r.id);
+    setRoleToDelete(r);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (roleToDelete) {
+      deleteMutation.mutate(roleToDelete.id);
+    }
   };
 
   const openCreateModal = () => {
@@ -204,6 +215,16 @@ export default function RolesPage() {
         role={selectedRole}
         open={modalOpen}
         onOpenChange={setModalOpen}
+      />
+
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
+        title="Delete Role"
+        description={`Are you sure you want to delete the "${roleToDelete?.name}" role? This action cannot be undone.`}
+        confirmText="Delete Role"
       />
     </div>
   );

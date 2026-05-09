@@ -7,10 +7,14 @@ import {
 } from "@/lib/notifications";
 import { toast } from "sonner";
 
-export function useNotifications(page = 1, perPage = 20) {
+export function useNotifications(page = 1, perPage = 20, unreadOnly = false) {
   return useQuery({
-    queryKey: ["notifications", { page, perPage }],
-    queryFn: () => getNotifications({ page, per_page: perPage }),
+    queryKey: ["notifications", { page, perPage, unreadOnly }],
+    queryFn: () => getNotifications({ 
+      page, 
+      per_page: perPage,
+      unread_only: unreadOnly
+    }),
     refetchInterval: 30_000, // poll every 30s as fallback
   });
 }
