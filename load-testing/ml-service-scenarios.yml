@@ -1,0 +1,29 @@
+config:
+  target: "http://localhost:8001"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: Warm up
+    - duration: 60
+      arrivalRate: 5
+      rampTo: 20
+      name: Stress test
+  defaults:
+    headers:
+      Content-Type: application/json
+
+scenarios:
+  - name: "Forecasting Predictions"
+    flow:
+      - get:
+          url: "/health"
+      - post:
+          url: "/predict"
+          json:
+            product_id: 1
+            horizon_days: 30
+      - post:
+          url: "/train/demand"
+          json:
+            product_id: 1
+            horizon_days: 30

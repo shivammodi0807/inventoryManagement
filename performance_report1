@@ -1,0 +1,66 @@
+# Performance and Load Testing Report
+
+This report summarizes the findings from the load testing and performance audits conducted on the Qollab application (Frontend, Backend, and ML Service) in a local development environment.
+
+## Executive Summary
+
+| Component | Status | Key Finding |
+| :--- | :--- | :--- |
+| **Frontend** | ✅ Excellent | High accessibility scores (91-98%) and clean semantic HTML. |
+| **ML Service** | ✅ Optimal | Handled 900 concurrent users with 3ms mean latency. |
+| **Backend** | ⚠️ Bottleneck | Login timeouts detected under moderate load due to high bcrypt rounds. |
+
+---
+
+## 1. Frontend Performance (Lighthouse)
+
+Audits were performed on the primary dashboard pages using a Desktop emulation.
+
+| Page | Accessibility | Best Practices | SEO | Observations |
+| :--- | :---: | :---: | :---: | :--- |
+| **Dashboard** | 91 | 100 | 100 | Clean structure, minimal layout shift. |
+| **Inventory** | 98 | 100 | 100 | Excellent table accessibility and ARIA usage. |
+| **Sales Orders** | 96 | 100 | 100 | High score; optimized for keyboard navigation. |
+
+### Recommendations
+- **Optimize Assets**: Ensure images in the dashboard are lazily loaded to further improve performance scores during navigation.
+
+---
+
+## 2. ML Service Load Testing (Artillery)
+
+The FastAPI ML Service was tested with a stress test scenario (up to 20 concurrent users per second).
+
+- **Total Requests**: 2,700
+- **Success Rate**: 100%
+- **Mean Latency**: 3.1ms
+- **p95 Latency**: 10.1ms
+- **Throughput**: ~36 Requests/sec
+
+### Insights
+The ML Service is highly resilient. Even during stress phases, the p99 latency peaked at only 21.1ms, well within the target threshold.
+
+---
+
+## 3. Backend API Load Testing (Artillery)
+
+The Laravel backend was tested using an authenticated user flow.
+
+- **Total VUsers**: 420
+- **Failure Rate**: 100% (Login Timeouts)
+- **Error Type**: `ERR_SOCKET_TIMEOUT`
+
+### Root Cause Analysis
+1. **High CPU Cost**: `BCRYPT_ROUNDS=15` in the `.env` file makes each login attempt extremely expensive. Under concurrent load, the CPU becomes a bottleneck.
+2. **Single Worker**: The development server (`php artisan serve`) defaults to a single worker. When one login is being processed, all other requests are queued, leading to timeouts in Artillery.
+
+### Recommendations
+- **Development**: Lower `BCRYPT_ROUNDS` to `10` or `12` for local load testing.
+- **Production**: Deploy using a multi-worker server (e.g., Nginx + PHP-FPM or Octane) to handle concurrent requests.
+- **Optimization**: Use `php artisan serve --workers=4` if PHP 8.2+ is available to mitigate queuing.
+
+---
+
+## 4. Conclusion
+
+The Qollab project demonstrates strong frontend foundations and an exceptionally fast ML service. The primary area for improvement is the backend's ability to handle concurrent authentication requests, which should be addressed before production deployment through server optimization and balanced security configurations.

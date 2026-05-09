@@ -1,0 +1,45 @@
+config:
+  target: "http://localhost:8000"
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      name: Warm up
+    - duration: 60
+      arrivalRate: 2
+      rampTo: 10
+      name: Ramp up load
+  defaults:
+    headers:
+      Accept: application/json
+      X-Requested-With: XMLHttpRequest
+
+scenarios:
+  - name: "Authenticated User Flow"
+    flow:
+      - get:
+          url: "/sanctum/csrf-cookie"
+      - post:
+          url: "/api/login"
+          json:
+            email: "admin@qollab.com"
+            password: "password"
+      - get:
+          url: "/api/dashboard/stats"
+      - get:
+          url: "/api/products"
+      - get:
+          url: "/api/sales/orders"
+      - post:
+          url: "/api/sales/orders"
+          json:
+            customer_id: 1
+            order_date: "2026-05-10"
+            items:
+              - product_id: 1
+                warehouse_id: 1
+                quantity: 2
+                unit_price: 150.00
+            discount_amount: 0
+            tax_amount: 15.00
+            shipping_address: "123 Test St, LoadTest City"
+            notes: "Automated load test order"

@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import React, { useMemo } from "react";
 import {
   ColumnDef,
   flexRender,
@@ -53,11 +53,13 @@ interface SalesOrderTableProps {
 export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }: SalesOrderTableProps) {
   const router = useRouter();
 
-  const columns = React.useMemo<ColumnDef<SalesOrder>[]>(() => [
+  const columns = useMemo<ColumnDef<SalesOrder>[]>(() => [
     {
       accessorKey: "order_number",
       header: "Order #",
-      cell: ({ row }) => <span className="font-mono font-bold">{row.getValue("order_number")}</span>,
+      cell: ({ row }) => (
+        <span className="font-mono font-bold">{row.getValue("order_number")}</span>
+      ),
     },
     {
       accessorKey: "customer.name",

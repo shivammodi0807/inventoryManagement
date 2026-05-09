@@ -1,0 +1,506 @@
+{
+  "aggregate": {
+    "counters": {
+      "vusers.created_by_name.Authenticated User Flow": 420,
+      "vusers.created": 420,
+      "http.requests": 426,
+      "http.codes.204": 6,
+      "http.responses": 6,
+      "http.downloaded_bytes": 0,
+      "plugins.metrics-by-endpoint./sanctum/csrf-cookie.codes.204": 6,
+      "plugins.metrics-by-endpoint./api/login.errors.ERR_SOCKET_TIMEOUT": 6,
+      "errors.ERR_SOCKET_TIMEOUT": 420,
+      "vusers.failed": 420,
+      "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 414
+    },
+    "rates": {
+      "http.request_rate": 7
+    },
+    "firstCounterAt": 1778345947155,
+    "firstHistogramAt": 1778345949403,
+    "lastCounterAt": 1778346044772,
+    "lastHistogramAt": 1778345950698,
+    "firstMetricAt": 1778345947155,
+    "lastMetricAt": 1778346044772,
+    "period": 1778346040000,
+    "summaries": {
+      "http.response_time": {
+        "min": 1296,
+        "max": 2494,
+        "count": 6,
+        "mean": 1883.5,
+        "p50": 1790.4,
+        "median": 1790.4,
+        "p75": 1978.7,
+        "p90": 2231,
+        "p95": 2231,
+        "p99": 2231,
+        "p999": 2231
+      },
+      "http.response_time.2xx": {
+        "min": 1296,
+        "max": 2494,
+        "count": 6,
+        "mean": 1883.5,
+        "p50": 1790.4,
+        "median": 1790.4,
+        "p75": 1978.7,
+        "p90": 2231,
+        "p95": 2231,
+        "p99": 2231,
+        "p999": 2231
+      },
+      "plugins.metrics-by-endpoint.response_time./sanctum/csrf-cookie": {
+        "min": 1296,
+        "max": 2494,
+        "count": 6,
+        "mean": 1883.5,
+        "p50": 1790.4,
+        "median": 1790.4,
+        "p75": 1978.7,
+        "p90": 2231,
+        "p95": 2231,
+        "p99": 2231,
+        "p999": 2231
+      }
+    },
+    "histograms": {
+      "http.response_time": {
+        "min": 1296,
+        "max": 2494,
+        "count": 6,
+        "mean": 1883.5,
+        "p50": 1790.4,
+        "median": 1790.4,
+        "p75": 1978.7,
+        "p90": 2231,
+        "p95": 2231,
+        "p99": 2231,
+        "p999": 2231
+      },
+      "http.response_time.2xx": {
+        "min": 1296,
+        "max": 2494,
+        "count": 6,
+        "mean": 1883.5,
+        "p50": 1790.4,
+        "median": 1790.4,
+        "p75": 1978.7,
+        "p90": 2231,
+        "p95": 2231,
+        "p99": 2231,
+        "p999": 2231
+      },
+      "plugins.metrics-by-endpoint.response_time./sanctum/csrf-cookie": {
+        "min": 1296,
+        "max": 2494,
+        "count": 6,
+        "mean": 1883.5,
+        "p50": 1790.4,
+        "median": 1790.4,
+        "p75": 1978.7,
+        "p90": 2231,
+        "p95": 2231,
+        "p99": 2231,
+        "p999": 2231
+      }
+    }
+  },
+  "intermediate": [
+    {
+      "counters": {
+        "vusers.created_by_name.Authenticated User Flow": 6,
+        "vusers.created": 6,
+        "http.requests": 9,
+        "http.codes.204": 3,
+        "http.responses": 3,
+        "http.downloaded_bytes": 0,
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.codes.204": 3
+      },
+      "rates": {
+        "http.request_rate": 4
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1778345947155,
+      "firstHistogramAt": 1778345949403,
+      "lastCounterAt": 1778345949952,
+      "lastHistogramAt": 1778345949951,
+      "firstMetricAt": 1778345947155,
+      "lastMetricAt": 1778345949952,
+      "period": "1778345940000",
+      "summaries": {
+        "http.response_time": {
+          "min": 1797,
+          "max": 2494,
+          "count": 3,
+          "mean": 2172.3,
+          "p50": 2231,
+          "median": 2231,
+          "p75": 2231,
+          "p90": 2231,
+          "p95": 2231,
+          "p99": 2231,
+          "p999": 2231
+        },
+        "http.response_time.2xx": {
+          "min": 1797,
+          "max": 2494,
+          "count": 3,
+          "mean": 2172.3,
+          "p50": 2231,
+          "median": 2231,
+          "p75": 2231,
+          "p90": 2231,
+          "p95": 2231,
+          "p99": 2231,
+          "p999": 2231
+        },
+        "plugins.metrics-by-endpoint.response_time./sanctum/csrf-cookie": {
+          "min": 1797,
+          "max": 2494,
+          "count": 3,
+          "mean": 2172.3,
+          "p50": 2231,
+          "median": 2231,
+          "p75": 2231,
+          "p90": 2231,
+          "p95": 2231,
+          "p99": 2231,
+          "p999": 2231
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 1797,
+          "max": 2494,
+          "count": 3,
+          "mean": 2172.3,
+          "p50": 2231,
+          "median": 2231,
+          "p75": 2231,
+          "p90": 2231,
+          "p95": 2231,
+          "p99": 2231,
+          "p999": 2231
+        },
+        "http.response_time.2xx": {
+          "min": 1797,
+          "max": 2494,
+          "count": 3,
+          "mean": 2172.3,
+          "p50": 2231,
+          "median": 2231,
+          "p75": 2231,
+          "p90": 2231,
+          "p95": 2231,
+          "p99": 2231,
+          "p999": 2231
+        },
+        "plugins.metrics-by-endpoint.response_time./sanctum/csrf-cookie": {
+          "min": 1797,
+          "max": 2494,
+          "count": 3,
+          "mean": 2172.3,
+          "p50": 2231,
+          "median": 2231,
+          "p75": 2231,
+          "p90": 2231,
+          "p95": 2231,
+          "p99": 2231,
+          "p999": 2231
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Authenticated User Flow": 20,
+        "vusers.created": 20,
+        "http.requests": 23,
+        "http.codes.204": 3,
+        "http.responses": 3,
+        "http.downloaded_bytes": 0,
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.codes.204": 3,
+        "plugins.metrics-by-endpoint./api/login.errors.ERR_SOCKET_TIMEOUT": 6,
+        "errors.ERR_SOCKET_TIMEOUT": 10,
+        "vusers.failed": 10,
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 4
+      },
+      "rates": {
+        "http.request_rate": 2
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1778345950151,
+      "firstHistogramAt": 1778345950203,
+      "lastCounterAt": 1778345959206,
+      "lastHistogramAt": 1778345950698,
+      "firstMetricAt": 1778345950151,
+      "lastMetricAt": 1778345959206,
+      "period": "1778345950000",
+      "summaries": {
+        "http.response_time": {
+          "min": 1296,
+          "max": 1996,
+          "count": 3,
+          "mean": 1594.7,
+          "p50": 1495.5,
+          "median": 1495.5,
+          "p75": 1495.5,
+          "p90": 1495.5,
+          "p95": 1495.5,
+          "p99": 1495.5,
+          "p999": 1495.5
+        },
+        "http.response_time.2xx": {
+          "min": 1296,
+          "max": 1996,
+          "count": 3,
+          "mean": 1594.7,
+          "p50": 1495.5,
+          "median": 1495.5,
+          "p75": 1495.5,
+          "p90": 1495.5,
+          "p95": 1495.5,
+          "p99": 1495.5,
+          "p999": 1495.5
+        },
+        "plugins.metrics-by-endpoint.response_time./sanctum/csrf-cookie": {
+          "min": 1296,
+          "max": 1996,
+          "count": 3,
+          "mean": 1594.7,
+          "p50": 1495.5,
+          "median": 1495.5,
+          "p75": 1495.5,
+          "p90": 1495.5,
+          "p95": 1495.5,
+          "p99": 1495.5,
+          "p999": 1495.5
+        }
+      },
+      "histograms": {
+        "http.response_time": {
+          "min": 1296,
+          "max": 1996,
+          "count": 3,
+          "mean": 1594.7,
+          "p50": 1495.5,
+          "median": 1495.5,
+          "p75": 1495.5,
+          "p90": 1495.5,
+          "p95": 1495.5,
+          "p99": 1495.5,
+          "p999": 1495.5
+        },
+        "http.response_time.2xx": {
+          "min": 1296,
+          "max": 1996,
+          "count": 3,
+          "mean": 1594.7,
+          "p50": 1495.5,
+          "median": 1495.5,
+          "p75": 1495.5,
+          "p90": 1495.5,
+          "p95": 1495.5,
+          "p99": 1495.5,
+          "p999": 1495.5
+        },
+        "plugins.metrics-by-endpoint.response_time./sanctum/csrf-cookie": {
+          "min": 1296,
+          "max": 1996,
+          "count": 3,
+          "mean": 1594.7,
+          "p50": 1495.5,
+          "median": 1495.5,
+          "p75": 1495.5,
+          "p90": 1495.5,
+          "p95": 1495.5,
+          "p99": 1495.5,
+          "p999": 1495.5
+        }
+      }
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Authenticated User Flow": 20,
+        "vusers.created": 20,
+        "http.requests": 20,
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 20,
+        "errors.ERR_SOCKET_TIMEOUT": 20,
+        "vusers.failed": 20
+      },
+      "rates": {
+        "http.request_rate": 2
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1778345960151,
+      "lastCounterAt": 1778345969205,
+      "firstMetricAt": 1778345960151,
+      "lastMetricAt": 1778345969205,
+      "period": "1778345960000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Authenticated User Flow": 20,
+        "vusers.created": 20,
+        "http.requests": 20,
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 20,
+        "errors.ERR_SOCKET_TIMEOUT": 20,
+        "vusers.failed": 20
+      },
+      "rates": {
+        "http.request_rate": 2
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1778345970151,
+      "lastCounterAt": 1778345979238,
+      "firstMetricAt": 1778345970151,
+      "lastMetricAt": 1778345979238,
+      "period": "1778345970000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 21,
+        "errors.ERR_SOCKET_TIMEOUT": 21,
+        "vusers.failed": 21,
+        "vusers.created_by_name.Authenticated User Flow": 30,
+        "vusers.created": 30,
+        "http.requests": 30
+      },
+      "rates": {
+        "http.request_rate": 4
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1778345980163,
+      "lastCounterAt": 1778345989383,
+      "firstMetricAt": 1778345980163,
+      "lastMetricAt": 1778345989383,
+      "period": "1778345980000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 33,
+        "errors.ERR_SOCKET_TIMEOUT": 33,
+        "vusers.failed": 33,
+        "vusers.created_by_name.Authenticated User Flow": 44,
+        "vusers.created": 44,
+        "http.requests": 44
+      },
+      "rates": {
+        "http.request_rate": 5
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1778345990190,
+      "lastCounterAt": 1778345999539,
+      "firstMetricAt": 1778345990190,
+      "lastMetricAt": 1778345999539,
+      "period": "1778345990000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 46,
+        "errors.ERR_SOCKET_TIMEOUT": 46,
+        "vusers.failed": 46,
+        "vusers.created_by_name.Authenticated User Flow": 57,
+        "vusers.created": 57,
+        "http.requests": 57
+      },
+      "rates": {
+        "http.request_rate": 6
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1778346000225,
+      "lastCounterAt": 1778346009565,
+      "firstMetricAt": 1778346000225,
+      "lastMetricAt": 1778346009565,
+      "period": "1778346000000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "vusers.created_by_name.Authenticated User Flow": 72,
+        "vusers.created": 72,
+        "http.requests": 72,
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 60,
+        "errors.ERR_SOCKET_TIMEOUT": 60,
+        "vusers.failed": 60
+      },
+      "rates": {
+        "http.request_rate": 7
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1778346010279,
+      "lastCounterAt": 1778346019807,
+      "firstMetricAt": 1778346010279,
+      "lastMetricAt": 1778346019807,
+      "period": "1778346010000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 75,
+        "errors.ERR_SOCKET_TIMEOUT": 75,
+        "vusers.failed": 75,
+        "vusers.created_by_name.Authenticated User Flow": 86,
+        "vusers.created": 86,
+        "http.requests": 86
+      },
+      "rates": {
+        "http.request_rate": 9
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1778346020279,
+      "lastCounterAt": 1778346029997,
+      "firstMetricAt": 1778346020279,
+      "lastMetricAt": 1778346029997,
+      "period": "1778346020000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 87,
+        "errors.ERR_SOCKET_TIMEOUT": 87,
+        "vusers.failed": 87,
+        "vusers.created_by_name.Authenticated User Flow": 65,
+        "vusers.created": 65,
+        "http.requests": 65
+      },
+      "rates": {
+        "http.request_rate": 10
+      },
+      "http.request_rate": null,
+      "firstCounterAt": 1778346030325,
+      "lastCounterAt": 1778346039884,
+      "firstMetricAt": 1778346030325,
+      "lastMetricAt": 1778346039884,
+      "period": "1778346030000",
+      "summaries": {},
+      "histograms": {}
+    },
+    {
+      "counters": {
+        "plugins.metrics-by-endpoint./sanctum/csrf-cookie.errors.ERR_SOCKET_TIMEOUT": 48,
+        "errors.ERR_SOCKET_TIMEOUT": 48,
+        "vusers.failed": 48
+      },
+      "rates": {},
+      "firstCounterAt": 1778346040008,
+      "lastCounterAt": 1778346044772,
+      "firstMetricAt": 1778346040008,
+      "lastMetricAt": 1778346044772,
+      "period": "1778346040000",
+      "summaries": {},
+      "histograms": {}
+    }
+  ]
+}
