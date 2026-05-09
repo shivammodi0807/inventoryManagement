@@ -110,7 +110,7 @@ export default function CreateSalesOrderPage() {
         <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-3xl font-semibold tracking-tight">
           Create Sales Order
         </h1>
       </div>
@@ -282,7 +282,7 @@ export default function CreateSalesOrderPage() {
                   <span>${subtotal.toLocaleString()}</span>
                 </div>
                 <Separator />
-                <div className="flex justify-between font-bold text-lg">
+                <div className="flex justify-between font-semibold text-lg">
                   <span>Grand Total:</span>
                   <span>${subtotal.toLocaleString()}</span>
                 </div>

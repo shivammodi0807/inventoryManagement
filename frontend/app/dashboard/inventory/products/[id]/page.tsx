@@ -117,7 +117,7 @@ export default function ProductDetailPage() {
                   </div>
                 )}
                 <div>
-                  <h1 className="text-3xl font-bold tracking-tight">{product?.name}</h1>
+                  <h1 className="text-3xl font-semibold tracking-tight">{product?.name}</h1>
                   <p className="text-muted-foreground">SKU: {product?.sku}</p>
                 </div>
               </div>
@@ -311,7 +311,7 @@ export default function ProductDetailPage() {
                           <TableCell className="text-right text-muted-foreground">
                             {sl.stock_reserved}
                           </TableCell>
-                          <TableCell className="text-right font-bold">
+                          <TableCell className="text-right font-semibold">
                             {available}
                           </TableCell>
                           <TableCell>
@@ -380,7 +380,7 @@ export default function ProductDetailPage() {
                           {log.quantity_change > 0 ? "+" : ""}
                           {log.quantity_change}
                         </TableCell>
-                        <TableCell className="text-right font-bold">
+                        <TableCell className="text-right font-semibold">
                           {log.quantity_after}
                         </TableCell>
                         <TableCell>

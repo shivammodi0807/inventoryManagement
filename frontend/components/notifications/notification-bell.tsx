@@ -73,10 +73,10 @@ export function NotificationBell() {
 
       const channel = echo.private(`App.Models.Auth.User.${user.id}`);
 
-      channel.notification((notification: any) => {
+      channel.notification((notification: AppNotification) => {
         // Show real-time toast
-        toast.info(notification.title || "New Notification", {
-          description: notification.message,
+        toast.info(notification.data.title || "New Notification", {
+          description: notification.data.message,
           action: {
             label: "View",
             onClick: () => {
@@ -139,7 +139,7 @@ export function NotificationBell() {
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semiboldbold text-destructive-foreground">
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}

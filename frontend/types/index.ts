@@ -73,6 +73,7 @@ export interface Product {
 }
 
 export type { Supplier, SupplierFilters, ProductSupplier, LinkProductPayload } from "./supplier";
+export type { Warehouse } from "./warehouse";
 
 
 export interface SupplierPerformance {

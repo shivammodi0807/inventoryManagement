@@ -1,7 +1,5 @@
 "use client";
-
-import * as React from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray, Controller, FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
@@ -10,6 +8,16 @@ import { useReceivePurchaseOrder } from "@/hooks/use-purchase-orders";
 import { useWarehouses } from "@/hooks/use-warehouses";
 import { PurchaseOrder } from "@/types/purchase-order";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+interface ReceiveItem {
+  id: string;
+  product_name: string;
+  product_sku: string;
+  qty_ordered: number;
+  qty_received_previously: number;
+  qty_received: number;
+}
 import {
   Dialog,
   DialogContent,
@@ -18,7 +26,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -62,11 +69,11 @@ export function ReceivePOModal({ order, open, onOpenChange }: ReceivePOModalProp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px]">
         {open && order && (
-          <ReceivePOForm 
-            order={order} 
+          <ReceivePOForm
+            order={order}
             warehouses={warehouses || []}
             isLoadingWarehouses={isLoadingWarehouses}
-            onClose={() => onOpenChange(false)} 
+            onClose={() => onOpenChange(false)}
           />
         )}
       </DialogContent>
@@ -88,7 +95,7 @@ function ReceivePOForm({ order, warehouses, isLoadingWarehouses, onClose }: Rece
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ReceiveFormValues>({
+  } = useForm({
     resolver: zodResolver(receiveSchema),
     defaultValues: {
       warehouse_id: warehouses[0]?.id || 0,
@@ -108,7 +115,8 @@ function ReceivePOForm({ order, warehouses, isLoadingWarehouses, onClose }: Rece
     name: "items",
   });
 
-  const onSubmit = async (values: ReceiveFormValues) => {
+  const onSubmit = async (data: FieldValues) => {
+    const values = data as ReceiveFormValues;
     try {
       const validItems = values.items
         .filter(item => item.qty_received > 0)
@@ -179,30 +187,35 @@ function ReceivePOForm({ order, warehouses, isLoadingWarehouses, onClose }: Rece
                 <TableHead className="text-right w-[150px]">To Receive</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
-              {fields.map((field, index) => (
-                <TableRow key={field.id}>
-                  <TableCell>
-                    <div className="font-medium">{field.product_name}</div>
-                    <div className="text-xs text-muted-foreground">{field.product_sku}</div>
-                  </TableCell>
-                  <TableCell className="text-right">{field.qty_ordered}</TableCell>
-                  <TableCell className="text-right">{field.qty_received_previously}</TableCell>
-                  <TableCell className="text-right">
-                    <Controller
-                      name={`items.${index}.qty_received`}
-                      control={control}
-                      render={({ field: inputField }) => (
-                        <Input
-                          type="number"
-                          className="text-right h-8"
-                          {...inputField}
-                        />
-                      )}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
+              {fields.map((field, index) => {
+                const item = field as unknown as ReceiveItem;
+                return (
+                  <TableRow key={field.id}>
+                    <TableCell>
+                      <div className="font-medium">{item.product_name}</div>
+                      <div className="text-xs text-muted-foreground">{item.product_sku}</div>
+                    </TableCell>
+                    <TableCell className="text-right">{item.qty_ordered}</TableCell>
+                    <TableCell className="text-right">{item.qty_received_previously}</TableCell>
+                    <TableCell className="text-right">
+                      <Controller
+                        name={`items.${index}.qty_received`}
+                        control={control}
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        render={({ field: inputField }: any) => (
+                          <Input
+                            type="number"
+                            className="text-right h-8"
+                            {...inputField}
+                          />
+                        )}
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

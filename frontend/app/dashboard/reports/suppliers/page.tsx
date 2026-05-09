@@ -69,7 +69,7 @@ export default function SupplierPerformancePage() {
           <Button variant="ghost" size="icon" asChild>
             <Link href="/dashboard/reports"><ChevronLeft className="h-4 w-4" /></Link>
           </Button>
-          <h2 className="text-3xl font-bold tracking-tight">Supplier Performance</h2>
+          <h2 className="text-3xl font-semibold tracking-tight">Supplier Performance</h2>
         </div>
         <Button variant="outline" asChild>
           <a href={exportUrl} download>
@@ -86,7 +86,7 @@ export default function SupplierPerformancePage() {
             <Clock className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Math.round(summary.avg_reliability)}%</div>
+            <div className="text-2xl font-semibold">{Math.round(summary.avg_reliability)}%</div>
             <Progress value={summary.avg_reliability} className="h-2 mt-2" />
           </CardContent>
         </Card>
@@ -96,7 +96,7 @@ export default function SupplierPerformancePage() {
             <CheckCircle className="h-4 w-4 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Math.round(suppliers.reduce((acc: number, s: SupplierPerformanceItem) => acc + s.fulfillment_rate, 0) / suppliers.length || 0)}%</div>
+            <div className="text-2xl font-semibold">{Math.round(suppliers.reduce((acc: number, s: SupplierPerformanceItem) => acc + s.fulfillment_rate, 0) / suppliers.length || 0)}%</div>
             <Progress value={suppliers.reduce((acc: number, s: SupplierPerformanceItem) => acc + s.fulfillment_rate, 0) / suppliers.length || 0} className="h-2 mt-2" />
           </CardContent>
         </Card>
@@ -106,7 +106,7 @@ export default function SupplierPerformancePage() {
             <BarChart className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{summary.avg_lead_time.toFixed(1)} days</div>
+            <div className="text-2xl font-semibold">{summary.avg_lead_time.toFixed(1)} days</div>
             <p className="text-xs text-muted-foreground mt-1">From PO to receipt</p>
           </CardContent>
         </Card>
@@ -116,7 +116,7 @@ export default function SupplierPerformancePage() {
             <Truck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{summary.total_vendors}</div>
+            <div className="text-2xl font-semibold">{summary.total_vendors}</div>
             <p className="text-xs text-muted-foreground mt-1">Managed vendors</p>
           </CardContent>
         </Card>

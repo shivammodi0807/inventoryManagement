@@ -73,7 +73,9 @@ class ReportController extends Controller
     {
         $from = $request->query('from');
         $to = $request->query('to');
-        return response()->json($this->service->getInventoryLogs($from, $to));
+        $perPage = $request->query('per_page', 15);
+        
+        return response()->json($this->service->getInventoryLogs($from, $to, $perPage));
     }
 
     /**

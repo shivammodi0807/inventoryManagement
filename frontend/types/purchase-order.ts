@@ -23,7 +23,9 @@ export interface PurchaseOrderItem {
 
 export interface PurchaseOrder {
   id: number;
-  po_number: string;
+  order_number: string;
+  po_number?: string;
+
   supplier_id: number;
   status: PurchaseOrderStatus;
   order_date: string;

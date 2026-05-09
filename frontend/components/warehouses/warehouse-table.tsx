@@ -42,19 +42,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 
 interface WarehouseTableProps {
   data: Warehouse[];
   onEdit: (warehouse: Warehouse) => void;
   onDelete: (warehouse: Warehouse) => void;
   onToggleActive: (warehouse: Warehouse) => void;
+  searchQuery?: string;
 }
 
-export function WarehouseTable({ data, onEdit, onDelete, onToggleActive }: WarehouseTableProps) {
+export function WarehouseTable({ 
+  data, 
+  onEdit, 
+  onDelete, 
+  onToggleActive,
+  searchQuery = "" 
+}: WarehouseTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [globalFilter, setGlobalFilter] = React.useState(searchQuery);
+
+  React.useEffect(() => {
+    setGlobalFilter(searchQuery);
+  }, [searchQuery]);
 
   const columns = React.useMemo<ColumnDef<Warehouse>[]>(() => [
     {
@@ -179,14 +189,7 @@ export function WarehouseTable({ data, onEdit, onDelete, onToggleActive }: Wareh
 
   return (
     <div className="space-y-4">
-      <Input
-        id="warehouse-search"
-        placeholder="Search warehouses..."
-        value={globalFilter}
-        onChange={(e) => setGlobalFilter(e.target.value)}
-        className="max-w-sm"
-      />
-      <div className="rounded-md border">
+      <div className="rounded-xl border border-border/40 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -22,7 +22,7 @@ export default function Error({
         <div className="rounded-full bg-destructive/10 p-4 text-destructive">
           <AlertCircle className="h-10 w-10" />
         </div>
-        <h2 className="text-2xl font-bold tracking-tight">Something went wrong!</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Something went wrong!</h2>
         <p className="max-w-[500px] text-muted-foreground">
           An unexpected error occurred. We&apos;ve logged the details and are working to fix it.
           In the meantime, you can try refreshing the page.

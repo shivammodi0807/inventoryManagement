@@ -20,22 +20,27 @@ export default function DashboardLayout({
     <TooltipProvider>
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b px-4">
+        <SidebarInset className="bg-background/50">
+          <header className="flex h-16 w-full shrink-0 items-center justify-between gap-2 border-b border-border/40 px-6 bg-background isolate sticky top-0 z-50 shadow-sm">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="-ml-1" />
               <Separator
                 orientation="vertical"
-                className="mr-2 data-[orientation=vertical]:h-4"
+                className="mx-3 data-[orientation=vertical]:h-4 bg-border/60"
               />
-              <DynamicBreadcrumbs />
+              <div className="pl-1">
+                <DynamicBreadcrumbs />
+              </div>
             </div>
-            {/* Right side of header */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-4">
               <NotificationBell />
             </div>
           </header>
-          <div className="p-6 flex-1 bg-gray-50/50">{children}</div>
+          <main className="p-8 flex-1">
+            <div className="mx-auto max-w-7xl space-y-8">
+              {children}
+            </div>
+          </main>
         </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>

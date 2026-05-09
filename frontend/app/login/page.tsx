@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import Link from "next/link"
-import { GalleryVerticalEndIcon } from "lucide-react"
+import { Sparkle } from "lucide-react"
 
 import { LoginForm } from "@/components/auth/login-form"
 
@@ -13,7 +13,7 @@ export default function LoginPage() {
           className="flex items-center gap-2 self-center font-medium"
         >
           <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <GalleryVerticalEndIcon className="size-4" />
+            <Sparkle className="size-5" />
           </div>
           Qollab
         </Link>

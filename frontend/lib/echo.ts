@@ -29,19 +29,21 @@ export function getEcho(): Echo<"reverb"> | null {
     wssPort: isTLS ? port : undefined,
     forceTLS: isTLS,
     enabledTransports: ["ws", "wss"],
-    authorizer: (channel: { name: string }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    authorizer: (channel: any) => {
       return {
-        authorize: (socketId: string, callback: (error: Error | null, data: unknown) => void) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        authorize: (socketId: string, callback: any) => {
           axiosApi
             .post("/api/broadcasting/auth", {
               socket_id: socketId,
               channel_name: channel.name,
             })
             .then((response) => {
-              callback(null, response.data);
+              callback(false, response.data);
             })
             .catch((error) => {
-              callback(error, null);
+              callback(true, error);
             });
         },
       };

@@ -29,4 +29,5 @@ export interface PaginatedNotifications {
   last_page: number;
   per_page: number;
   total: number;
+  total_unread?: number;
 }

@@ -1,13 +1,13 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { GalleryVerticalEndIcon } from "lucide-react";
+import { Sparkle } from "lucide-react";
 
 export function GlobalLoading() {
   return (
     <div className="flex h-svh w-full flex-col items-center justify-center gap-4">
       <div className="flex size-12 items-center justify-center rounded-md bg-primary text-primary-foreground animate-pulse">
-        <GalleryVerticalEndIcon className="size-8" />
+        <Sparkle className="size-8" />
       </div>
       <div className="flex flex-col items-center gap-2">
         <Skeleton className="h-4 w-24" />

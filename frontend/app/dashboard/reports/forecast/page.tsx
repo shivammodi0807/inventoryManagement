@@ -14,13 +14,14 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, TrendingUp, AlertTriangle, Clock, Calendar, ArrowRight, ShoppingCart, BrainCircuit, BarChart2 } from "lucide-react";
+import { ChevronLeft, AlertTriangle, Clock, Calendar, ArrowRight, ShoppingCart, BrainCircuit, BarChart2, Zap, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 import { InventoryForecastItem } from "@/types/reports";
+import { cn } from "@/lib/utils";
 
 export default function InventoryForecastPage() {
   const { data, isLoading } = useInventoryForecast();
@@ -46,7 +47,6 @@ export default function InventoryForecastPage() {
   const handleBulkReorder = () => {
     if (selectedIds.length === 0) return;
 
-    // Smart Suggestion: Order 30 days of stock, minimum 50 units
     const selections = selectedIds.map(id => {
       const product = data?.find((p: InventoryForecastItem) => p.id === id);
       const velocity = product?.daily_velocity || 1;
@@ -61,13 +61,16 @@ export default function InventoryForecastPage() {
 
   if (isLoading) {
     return (
-      <div className="p-8 space-y-4">
-        <Skeleton className="h-8 w-[300px]" />
-        <Skeleton className="h-16 w-full" />
-        <div className="grid gap-4 md:grid-cols-3">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-24" />)}
+      <div className="flex flex-col gap-8 pb-8">
+        <div className="space-y-1 px-2">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-4 w-96" />
         </div>
-        <Skeleton className="h-[400px]" />
+        <div className="grid gap-6 md:grid-cols-3">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 rounded-2xl" />)}
+        </div>
+        <Skeleton className="h-[500px] rounded-2xl" />
       </div>
     );
   }
@@ -75,30 +78,30 @@ export default function InventoryForecastPage() {
   if (!data || !Array.isArray(data)) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] space-y-4">
-        <TrendingUp className="h-12 w-12 text-muted-foreground opacity-20" />
-        <div className="text-xl font-medium text-muted-foreground">Unable to load forecast data</div>
-        <Button variant="outline" onClick={() => window.location.reload()}>Try Again</Button>
+        <BrainCircuit className="h-12 w-12 text-muted-foreground opacity-20" />
+        <div className="text-xl font-semibold text-muted-foreground">Unable to initialize forecasting engine</div>
+        <Button variant="outline" onClick={() => window.location.reload()} className="rounded-xl font-semiboldbold">Try Again</Button>
       </div>
     );
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'critical': return 'bg-red-50 text-red-700 border-red-200';
-      case 'warning': return 'bg-amber-50 text-amber-700 border-amber-200';
-      case 'low': return 'bg-blue-50 text-blue-700 border-blue-200';
-      case 'out_of_stock': return 'bg-slate-900 text-white border-slate-900';
-      default: return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'critical': return 'bg-destructive/10 text-destructive border-destructive/20';
+      case 'warning': return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+      case 'low': return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
+      case 'out_of_stock': return 'bg-slate-950 text-white border-slate-950';
+      default: return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'critical': return 'Critical (< 7 days)';
-      case 'warning': return 'Warning (< 14 days)';
-      case 'low': return 'Low (< 30 days)';
-      case 'out_of_stock': return 'Out of Stock';
-      default: return 'Healthy';
+      case 'critical': return 'Critical (< 7 Days)';
+      case 'warning': return 'Imminent (< 14 Days)';
+      case 'low': return 'Low (< 30 Days)';
+      case 'out_of_stock': return 'Stock Depleted';
+      default: return 'Optimal Runway';
     }
   };
 
@@ -106,161 +109,255 @@ export default function InventoryForecastPage() {
   const warningCount = data.filter((p: InventoryForecastItem) => p.status === 'warning').length;
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/dashboard/reports"><ChevronLeft className="h-4 w-4" /></Link>
-          </Button>
-          <h2 className="text-3xl font-bold tracking-tight">Inventory Forecasting</h2>
+    <div className="flex flex-col gap-8 pb-8">
+      {/* Premium Header */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between px-2">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-primary">
+            <ChevronLeft className="h-5 w-5 cursor-pointer hover:text-primary/70" onClick={() => window.history.back()} />
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary/80">Intelligence Reports</span>
+          </div>
+          <h1 className="text-4xl font-semibold tracking-tight text-foreground">Predictive Runway</h1>
+          <p className="text-base text-muted-foreground font-medium">
+            AI-driven demand projections and stock depletion trajectory analysis.
+          </p>
         </div>
-        {selectedIds.length > 0 && (
-          <Button
-            onClick={handleBulkReorder}
-            disabled={bulkReorder.isPending}
-            className="bg-blue-600 hover:bg-blue-700 animate-in fade-in slide-in-from-right-2"
-          >
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Bulk Reorder ({selectedIds.length})
-          </Button>
-        )}
+        <div className="flex items-center gap-3">
+          {selectedIds.length > 0 && (
+            <Button
+              onClick={handleBulkReorder}
+              disabled={bulkReorder.isPending}
+              className="h-12 px-6 rounded-xl bg-primary shadow-xl shadow-primary/20 hover:shadow-primary/30 font-semiboldbold gap-2 animate-in fade-in slide-in-from-right-4 duration-300"
+            >
+              <ShoppingCart className="size-4" />
+              Execute Bulk Procurement ({selectedIds.length})
+            </Button>
+          )}
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {/* ... existing KPI cards ... */}
-        <Card className={criticalCount > 0 ? "border-red-200 bg-red-50/30" : ""}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Critical Stock-outs</CardTitle>
-            <AlertTriangle className={`h-4 w-4 ${criticalCount > 0 ? "text-red-600" : "text-muted-foreground"}`} />
+      {/* Forecasting KPI Strip */}
+      <div className="grid gap-6 md:grid-cols-3">
+        <Card className={cn(
+          "premium-card border-none shadow-premium relative overflow-hidden group hover:scale-[1.02] transition-all duration-300",
+          criticalCount > 0 ? "bg-destructive/5" : ""
+        )}>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Risk Vector: Critical</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{criticalCount}</div>
-            <p className="text-xs text-muted-foreground mt-1">Expected to run out within 7 days</p>
+            <div className="flex items-end justify-between">
+              <div>
+                <div className={cn("text-3xl font-semibold tabular-nums", criticalCount > 0 ? "text-destructive" : "text-foreground")}>
+                  {criticalCount}
+                </div>
+                <p className="text-[10px] text-muted-foreground/70 font-semibold uppercase tracking-widest mt-1">Depletion &lt; 7 Days</p>
+              </div>
+              <div className={cn(
+                "p-2.5 rounded-xl border transition-all duration-500 group-hover:scale-110 group-hover:rotate-6",
+                criticalCount > 0 ? "bg-destructive/10 text-destructive border-destructive/20" : "bg-secondary text-muted-foreground border-border/40"
+              )}>
+                <AlertTriangle className="size-5" />
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card className={warningCount > 0 ? "border-amber-200 bg-amber-50/30" : ""}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Replenishment</CardTitle>
-            <Clock className="h-4 w-4 text-amber-600" />
+
+        <Card className="premium-card border-none shadow-premium relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Imminent Depletion</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{warningCount}</div>
-            <p className="text-xs text-muted-foreground mt-1">Expected to run out within 14 days</p>
+            <div className="flex items-end justify-between">
+              <div>
+                <div className="text-3xl font-semibold text-foreground tabular-nums">{warningCount}</div>
+                <p className="text-[10px] text-muted-foreground/70 font-semibold uppercase tracking-widest mt-1">Depletion &lt; 14 Days</p>
+              </div>
+              <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                <Clock className="size-5" />
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Analysis Window</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
+
+        <Card className="premium-card border-none shadow-premium relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Forecasting Horizon</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">30 Days</div>
-            <p className="text-xs text-muted-foreground mt-1">Based on recent sales velocity</p>
+            <div className="flex items-end justify-between">
+              <div>
+                <div className="text-3xl font-semibold text-foreground tabular-nums">30 Days</div>
+                <p className="text-[10px] text-muted-foreground/70 font-semibold uppercase tracking-widest mt-1">Rolling Temporal Window</p>
+              </div>
+              <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-600 border border-blue-500/20 transition-all duration-500 group-hover:scale-110 group-hover:rotate-6">
+                <Calendar className="size-5" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2"><BrainCircuit className="h-5 w-5 text-indigo-600" /> AI Predictive Runway Analysis</CardTitle>
-          <CardDescription>Machine Learning demand forecasting using Meta Prophet and Scikit-Learn lead time estimation.</CardDescription>
+      {/* AI Analysis Grid */}
+      <Card className="premium-card border-none shadow-premium overflow-hidden bg-background">
+        <CardHeader className="border-b border-border/40 bg-secondary/10 pb-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-xl font-semibold tracking-tight flex items-center gap-2">
+                <BrainCircuit className="size-5 text-primary" />
+                AI Analysis Registry
+              </CardTitle>
+              <CardDescription className="text-sm text-muted-foreground font-medium">Machine learning demand projections based on historical velocity</CardDescription>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 text-indigo-600 text-[10px] font-semibold uppercase tracking-widest rounded-lg border border-indigo-500/20">
+              <Sparkles className="size-3" /> Quantum Engine V2
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">
-                  <Checkbox
-                    checked={selectedIds.length === data.length && data.length > 0}
-                    onCheckedChange={(checked) => handleSelectAll(!!checked)}
-                  />
-                </TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead className="text-right">Current Stock</TableHead>
-                <TableHead className="text-right">Safety Stock</TableHead>
-                <TableHead className="text-right">AI Demand (30d)</TableHead>
-                <TableHead className="text-right">Days Remaining</TableHead>
-                <TableHead>Estimated Stock-out</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead></TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((product: InventoryForecastItem) => (
-                <TableRow key={product.id} className={selectedIds.includes(product.id) ? "bg-muted/50" : ""}>
-                  <TableCell>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-secondary/20">
+                <TableRow className="hover:bg-transparent border-border/40">
+                  <TableHead className="w-[60px] px-6">
                     <Checkbox
-                      checked={selectedIds.includes(product.id)}
-                      onCheckedChange={(checked) => handleSelect(product.id, !!checked)}
+                      checked={selectedIds.length === data.length && data.length > 0}
+                      onCheckedChange={(checked) => handleSelectAll(!!checked)}
+                      className="border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                     />
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-medium">{product.name}</div>
-                    <div className="text-xs text-muted-foreground">{product.sku}</div>
-                  </TableCell>
-                  <TableCell className="text-right font-mono">{product.current_stock}</TableCell>
-                  <TableCell className="text-right font-mono text-indigo-700 bg-indigo-50/50">
-                    {product.ai_safety_stock || 'N/A'}
-                  </TableCell>
-                  <TableCell className="text-right text-muted-foreground">
-                    {product.ai_predicted_demand_30d} units
-                  </TableCell>
-                  <TableCell className="text-right font-bold">
-                    {product.days_remaining === 999 ? "∞" : product.days_remaining}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground italic">
-                    {product.estimated_stock_out}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusColor(product.status)}>
-                      {getStatusLabel(product.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {(product.status === 'critical' || product.status === 'warning' || product.status === 'out_of_stock') && (
-                      <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 h-8 gap-1" asChild>
-                        <Link href={`/dashboard/inventory/${product.id}`}>
-                          Restock <ArrowRight className="h-3 w-3" />
-                        </Link>
-                      </Button>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {product.chart_data && product.chart_data.length > 0 && (
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="h-8 gap-1">
-                            <BarChart2 className="h-3 w-3" /> Forecast
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-4xl">
-                          <DialogHeader>
-                            <DialogTitle>Demand Forecast for {product.name}</DialogTitle>
-                            <DialogDescription>Prophet time-series prediction for the next 30 days with confidence intervals.</DialogDescription>
-                          </DialogHeader>
-                          <div className="h-[400px] mt-4 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <AreaChart data={product.chart_data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="date" />
-                                <YAxis />
-                                <RechartsTooltip />
-                                <Legend />
-                                <Area type="monotone" dataKey="upper" stackId="1" stroke="none" fill="#8884d8" fillOpacity={0.1} name="Upper Bound" />
-                                <Area type="monotone" dataKey="lower" stackId="2" stroke="none" fill="#82ca9d" fillOpacity={0.1} name="Lower Bound" />
-                                <Line type="monotone" dataKey="demand" stroke="#4f46e5" strokeWidth={3} dot={false} name="Predicted Demand" />
-                              </AreaChart>
-                            </ResponsiveContainer>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    )}
-                  </TableCell>
+                  </TableHead>
+                  <TableHead className="py-5 font-semibold text-[11px] uppercase tracking-widest">Resource Target</TableHead>
+                  <TableHead className="text-right font-semibold text-[11px] uppercase tracking-widest">Global Stock</TableHead>
+                  <TableHead className="text-right font-semibold text-[11px] uppercase tracking-widest">Safety Buffer</TableHead>
+                  <TableHead className="text-right font-semibold text-[11px] uppercase tracking-widest">AI Demand (30D)</TableHead>
+                  <TableHead className="text-right font-semibold text-[11px] uppercase tracking-widest">Days Rem.</TableHead>
+                  <TableHead className="font-semibold text-[11px] uppercase tracking-widest">Risk Profile</TableHead>
+                  <TableHead className="text-right px-6 font-semibold text-[11px] uppercase tracking-widest">Strategic Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {data.map((product: InventoryForecastItem) => (
+                  <TableRow key={product.id} className={cn(
+                    "hover:bg-secondary/20 border-border/40 transition-colors group",
+                    selectedIds.includes(product.id) ? "bg-primary/[0.03]" : ""
+                  )}>
+                    <TableCell className="px-6">
+                      <Checkbox
+                        checked={selectedIds.includes(product.id)}
+                        onCheckedChange={(checked) => handleSelect(product.id, !!checked)}
+                        className="border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-semibold text-foreground tracking-tight leading-none">{product.name}</span>
+                        <span className="text-[10px] font-semibold text-muted-foreground/40 uppercase tracking-widest mt-1">{product.sku}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right font-semibold tabular-nums text-foreground/80">
+                      {product.current_stock.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span className="px-2 py-1 rounded-lg bg-indigo-500/5 text-indigo-600 font-semibold tabular-nums border border-indigo-500/10">
+                        {product.ai_safety_stock || '—'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right font-semibold text-muted-foreground tabular-nums">
+                      {product.ai_predicted_demand_30d}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span className={cn(
+                        "font-semibold tabular-nums text-base",
+                        product.days_remaining < 7 ? "text-destructive" :
+                          product.days_remaining < 14 ? "text-amber-600" : "text-foreground"
+                      )}>
+                        {product.days_remaining === 999 ? "∞" : product.days_remaining}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={cn("px-2 py-0.5 rounded-lg font-semibold text-[9px] uppercase tracking-widest border shadow-none", getStatusColor(product.status))}>
+                        {getStatusLabel(product.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right px-6 space-x-2 whitespace-nowrap">
+                      {product.chart_data && product.chart_data.length > 0 && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-9 px-3 rounded-lg font-semibold gap-1.5 border-border/60 hover:bg-background transition-all">
+                              <BarChart2 className="size-3.5" /> Projection
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl premium-card border-none shadow-2xl p-8">
+                            <DialogHeader>
+                              <div className="flex items-center gap-3 mb-2">
+                                <div className="p-2.5 rounded-2xl bg-primary/10 text-primary">
+                                  <Zap className="size-5" />
+                                </div>
+                                <div>
+                                  <DialogTitle className="text-2xl font-semibold tracking-tight">Demand Projection: {product.name}</DialogTitle>
+                                  <DialogDescription className="text-base text-muted-foreground font-medium">Prophet time-series prediction with 95% confidence intervals.</DialogDescription>
+                                </div>
+                              </div>
+                            </DialogHeader>
+                            <div className="h-[400px] mt-8 w-full">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={product.chart_data}>
+                                  <defs>
+                                    <linearGradient id="colorDemand" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1} />
+                                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                                    </linearGradient>
+                                  </defs>
+                                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.4} />
+                                  <XAxis
+                                    dataKey="date"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10, fontWeight: 600 }}
+                                    dy={10}
+                                  />
+                                  <YAxis
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10, fontWeight: 600 }}
+                                  />
+                                  <RechartsTooltip
+                                    content={({ active, payload, label }) => {
+                                      if (active && payload && payload.length) {
+                                        return (
+                                          <div className="premium-card p-3 border-border/40 shadow-premium bg-background/95 backdrop-blur-md">
+                                            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 mb-2">{label}</p>
+                                            <p className="text-sm font-semibold text-foreground">Demand: <span className="text-primary">{Number(payload[2].value).toFixed(1)}</span></p>
+                                            <p className="text-[10px] text-muted-foreground font-semibold mt-1">Range: {Number(payload[1].value).toFixed(1)} - {Number(payload[0].value).toFixed(1)}</p>
+                                          </div>
+                                        );
+                                      }
+                                      return null;
+                                    }}
+                                  />
+                                  <Area type="monotone" dataKey="upper" stackId="1" stroke="none" fill="hsl(var(--primary))" fillOpacity={0.05} name="Upper" />
+                                  <Area type="monotone" dataKey="lower" stackId="2" stroke="none" fill="hsl(var(--primary))" fillOpacity={0.05} name="Lower" />
+                                  <Line type="monotone" dataKey="demand" stroke="hsl(var(--primary))" strokeWidth={3} dot={false} name="Predicted" />
+                                  <Area type="monotone" dataKey="demand" stroke="none" fill="url(#colorDemand)" />
+                                </AreaChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                      {(product.status === 'critical' || product.status === 'warning' || product.status === 'out_of_stock') && (
+                        <Button variant="ghost" size="sm" className="h-9 rounded-lg font-semibold text-primary hover:text-primary hover:bg-primary/5 group/btn" asChild>
+                          <Link href={`/dashboard/purchase-orders/new?product_id=${product.id}`} className="flex items-center gap-1.5">
+                            Restock <ArrowRight className="size-3.5 group-hover/btn:translate-x-1 transition-transform" />
+                          </Link>
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

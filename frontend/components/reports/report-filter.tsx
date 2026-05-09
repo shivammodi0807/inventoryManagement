@@ -9,6 +9,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Download, Calendar } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ReportFilterProps {
   period: string;
@@ -17,11 +18,20 @@ interface ReportFilterProps {
   isLoading?: boolean;
   dateRange?: { from: string; to: string };
   setDateRange?: (range: { from: string; to: string }) => void;
+  className?: string;
 }
 
-export function ReportFilter({ period, setPeriod, onDownload, isLoading, dateRange, setDateRange }: ReportFilterProps) {
+export function ReportFilter({ 
+  period, 
+  setPeriod, 
+  onDownload, 
+  isLoading, 
+  dateRange, 
+  setDateRange,
+  className 
+}: ReportFilterProps) {
   return (
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between p-4 bg-muted/30 rounded-lg">
+    <div className={cn("flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between p-4 bg-muted/30 rounded-lg", className)}>
       <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-muted-foreground">Reporting Period:</span>

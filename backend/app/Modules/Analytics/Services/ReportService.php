@@ -111,9 +111,9 @@ class ReportService
         $forecasts = $this->getInventoryForecast();
         
         // Filter for low stock statuses
-        $lowStockItems = array_filter($forecasts, function ($item) {
+        $lowStockItems = array_values(array_filter($forecasts, function ($item) {
             return in_array($item['status'], ['out_of_stock', 'critical', 'warning', 'low']);
-        });
+        }));
         
         $productIds = array_column($lowStockItems, 'id');
         
@@ -145,9 +145,9 @@ class ReportService
     }
 
     /**
-     * Get inventory logs with optional date filtering.
+     * Get inventory logs with optional date filtering and pagination.
      */
-    public function getInventoryLogs(?string $from = null, ?string $to = null, int $limit = 500): array
+    public function getInventoryLogs(?string $from = null, ?string $to = null, ?int $perPage = null)
     {
         $query = DB::table('inventory_logs')
             ->join('products', 'inventory_logs.product_id', '=', 'products.id')
@@ -160,20 +160,22 @@ class ReportService
             ]);
         }
 
-        return $query->select(
-                'inventory_logs.id',
-                'products.name as product_name',
-                'users.full_name as user_name',
-                'inventory_logs.type as change_type',
-                'inventory_logs.quantity_change',
-                'inventory_logs.quantity_after as new_stock',
-                'inventory_logs.notes as reason',
-                'inventory_logs.created_at'
-            )
-            ->orderByDesc('inventory_logs.created_at')
-            ->limit($limit)
-            ->get()
-            ->toArray();
+        $query->select(
+            'inventory_logs.id',
+            'products.name as product_name',
+            'users.full_name as user_name',
+            'inventory_logs.type as change_type',
+            'inventory_logs.quantity_change',
+            'inventory_logs.quantity_after as new_stock',
+            'inventory_logs.notes as reason',
+            'inventory_logs.created_at'
+        )->orderByDesc('inventory_logs.created_at');
+
+        if ($perPage) {
+            return $query->paginate($perPage);
+        }
+
+        return $query->get()->toArray();
     }
 
 

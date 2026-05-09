@@ -14,7 +14,7 @@ export default function NotFound() {
         <div className="rounded-full bg-primary/10 p-4 text-primary">
           <Search className="h-10 w-10" />
         </div>
-        <h2 className="text-3xl font-bold tracking-tight">Page Not Found</h2>
+        <h2 className="text-3xl font-semibold tracking-tight">Page Not Found</h2>
         <p className="max-w-[500px] text-muted-foreground">
           Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been moved
           or deleted, or you might have mistyped the URL.

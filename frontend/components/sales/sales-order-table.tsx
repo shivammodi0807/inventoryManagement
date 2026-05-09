@@ -18,7 +18,7 @@ declare module "@tanstack/react-table" {
     onGenerateInvoice?: (id: number) => void;
   }
 }
-import { MoreHorizontal, Eye, CheckCircle, XCircle, FileText, Download } from "lucide-react";
+import { MoreHorizontal, Eye, CheckCircle, XCircle, FileText, Download, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 
@@ -42,6 +42,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getInvoicePdfUrl } from "@/lib/sales";
 import { SalesOrder } from "@/types/sales";
+import { cn } from "@/lib/utils";
 
 interface SalesOrderTableProps {
   data: SalesOrder[];
@@ -56,27 +57,45 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
   const columns = useMemo<ColumnDef<SalesOrder>[]>(() => [
     {
       accessorKey: "order_number",
-      header: "Order #",
+      header: "Order Reference",
       cell: ({ row }) => (
-        <span className="font-mono font-bold">{row.getValue("order_number")}</span>
+        <div className="flex flex-col">
+          <span className="font-semiboldbold tracking-tight text-foreground">{row.getValue("order_number")}</span>
+          <span className="text-[10px] uppercase font-semibold text-muted-foreground/60 tracking-widest">Standard Order</span>
+        </div>
       ),
     },
     {
       accessorKey: "customer.name",
       header: "Customer",
-      cell: ({ row }) => <div>{row.original.customer?.name}</div>,
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/5 text-[10px] font-semiboldbold text-primary border border-primary/10">
+            {row.original.customer?.name?.charAt(0) || "C"}
+          </div>
+          <span className="font-medium">{row.original.customer?.name}</span>
+        </div>
+      ),
     },
     {
       accessorKey: "order_date",
-      header: "Date",
-      cell: ({ row }) => format(new Date(row.getValue("order_date")), "MMM dd, yyyy"),
+      header: "Order Date",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Calendar className="h-3.5 w-3.5 opacity-50" />
+          <span className="text-sm">{format(new Date(row.getValue("order_date")), "MMM dd, yyyy")}</span>
+        </div>
+      ),
     },
     {
       accessorKey: "grand_total",
-      header: "Total",
+      header: "Total Amount",
       cell: ({ row }) => (
-        <div className="font-semibold">
-          ${Number(row.getValue("grand_total")).toLocaleString()}
+        <div className="flex flex-col">
+          <span className="font-semibold text-foreground tabular-nums">
+            ${Number(row.getValue("grand_total")).toLocaleString()}
+          </span>
+          <span className="text-[10px] text-muted-foreground font-medium">USD</span>
         </div>
       ),
     },
@@ -85,14 +104,47 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
       header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
-        const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-          pending: "secondary",
-          confirmed: "default",
-          shipped: "default",
-          delivered: "default",
-          cancelled: "destructive",
+        
+        const statusConfig: Record<string, { label: string; className: string; dot: string }> = {
+          pending: { 
+            label: "Pending", 
+            className: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+            dot: "bg-amber-500"
+          },
+          confirmed: { 
+            label: "Confirmed", 
+            className: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+            dot: "bg-blue-500"
+          },
+          shipped: { 
+            label: "Shipped", 
+            className: "bg-indigo-500/10 text-indigo-600 border-indigo-500/20",
+            dot: "bg-indigo-500"
+          },
+          delivered: { 
+            label: "Delivered", 
+            className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+            dot: "bg-emerald-500"
+          },
+          cancelled: { 
+            label: "Cancelled", 
+            className: "bg-destructive/10 text-destructive border-destructive/20",
+            dot: "bg-destructive"
+          },
         };
-        return <Badge variant={variants[status] || "outline"}>{status.toUpperCase()}</Badge>;
+
+        const config = statusConfig[status] || { 
+          label: status.toUpperCase(), 
+          className: "bg-muted text-muted-foreground",
+          dot: "bg-muted-foreground"
+        };
+
+        return (
+          <Badge className={cn("px-2 py-0.5 rounded-full font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1.5 border shadow-none", config.className)}>
+            <span className={cn("h-1.5 w-1.5 rounded-full animate-pulse", config.dot)} />
+            {config.label}
+          </Badge>
+        );
       },
     },
     {
@@ -103,43 +155,43 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-primary/5 rounded-lg">
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => router.push(`/dashboard/sales/orders/${order.id}`)}>
-                <Eye className="mr-2 h-4 w-4" /> View Details
+            <DropdownMenuContent align="end" className="w-52 rounded-xl p-1.5 shadow-premium border-border/40">
+              <DropdownMenuLabel className="text-[10px] uppercase font-semibold text-muted-foreground/60 px-2 py-1.5">Management</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => router.push(`/dashboard/sales/orders/${order.id}`)} className="rounded-lg gap-2 cursor-pointer">
+                <Eye className="h-4 w-4 opacity-70" /> View Details
               </DropdownMenuItem>
 
               {order.status === "pending" && (
                 <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => meta?.onConfirm?.(order.id)}>
-                    <CheckCircle className="mr-2 h-4 w-4 text-green-500" /> Confirm Order
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem onClick={() => meta?.onConfirm?.(order.id)} className="rounded-lg gap-2 cursor-pointer text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50">
+                    <CheckCircle className="h-4 w-4" /> Confirm Order
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => meta?.onCancel?.(order.id)} className="text-destructive">
-                    <XCircle className="mr-2 h-4 w-4" /> Cancel Order
+                  <DropdownMenuItem onClick={() => meta?.onCancel?.(order.id)} className="rounded-lg gap-2 cursor-pointer text-destructive focus:bg-destructive/5">
+                    <XCircle className="h-4 w-4" /> Cancel Order
                   </DropdownMenuItem>
                 </>
               )}
 
               {order.status === "confirmed" && !order.invoice && (
                 <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => meta?.onGenerateInvoice?.(order.id)}>
-                    <FileText className="mr-2 h-4 w-4" /> Generate Invoice
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem onClick={() => meta?.onGenerateInvoice?.(order.id)} className="rounded-lg gap-2 cursor-pointer focus:bg-primary/5 focus:text-primary">
+                    <FileText className="h-4 w-4 opacity-70" /> Generate Invoice
                   </DropdownMenuItem>
                 </>
               )}
 
               {order.invoice && (
                 <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <a href={getInvoicePdfUrl(order.invoice.id)} target="_blank" rel="noopener noreferrer">
-                      <Download className="mr-2 h-4 w-4" /> Download Invoice
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem asChild className="rounded-lg gap-2 cursor-pointer">
+                    <a href={getInvoicePdfUrl(order.invoice.id)} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                      <Download className="h-4 w-4 opacity-70" /> Download Invoice
                     </a>
                   </DropdownMenuItem>
                 </>
@@ -167,56 +219,78 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
   });
 
   return (
-    <div className="rounded-md border bg-card">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+    <div className="space-y-4">
+      <div className="rounded-2xl border-none bg-background shadow-premium overflow-hidden">
+        <Table>
+          <TableHeader className="bg-secondary/30">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="hover:bg-transparent border-none">
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} className="text-xs font-semibold uppercase tracking-wider h-12 text-muted-foreground/70 first:pl-6 last:pr-6">
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
                 ))}
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No sales orders found.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-      <div className="flex items-center justify-end space-x-2 p-4 border-t">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow 
+                  key={row.id} 
+                  className="group hover:bg-primary/[0.02] transition-colors border-b border-border/40 last:border-0"
+                  onClick={() => router.push(`/dashboard/sales/orders/${row.original.id}`)}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="py-4 first:pl-6 last:pr-6">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground font-medium italic">
+                  No sales orders found in the system.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex items-center justify-between px-2 py-4">
+        <div className="text-sm text-muted-foreground font-medium">
+          Showing <span className="font-semibold text-foreground">{table.getRowModel().rows.length}</span> of <span className="font-semibold text-foreground">{data.length}</span> orders
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              table.previousPage();
+            }}
+            disabled={!table.getCanPreviousPage()}
+            className="rounded-xl h-9 border-border/40 hover:bg-primary/5 hover:text-primary transition-all font-semibold"
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              table.nextPage();
+            }}
+            disabled={!table.getCanNextPage()}
+            className="rounded-xl h-9 border-border/40 hover:bg-primary/5 hover:text-primary transition-all font-semibold"
+          >
+            Next
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
       </div>
     </div>
   );

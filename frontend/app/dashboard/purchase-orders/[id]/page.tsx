@@ -5,14 +5,14 @@ import { useParams, useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ArrowLeft, Building2, Calendar, FileText, CheckCircle2, Send, XCircle, Package } from "lucide-react";
 
-import { 
-  usePurchaseOrder, 
-  useSubmitPurchaseOrder, 
-  useConfirmPurchaseOrder, 
+import {
+  usePurchaseOrder,
+  useSubmitPurchaseOrder,
+  useConfirmPurchaseOrder,
   useCancelPurchaseOrder,
   useExportPurchaseOrder
 } from "@/hooks/use-purchase-orders";
-import { PurchaseOrderStatus } from "@/types/purchase-order";
+import { PurchaseOrder, PurchaseOrderStatus } from "@/types/purchase-order";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -29,14 +29,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { POStatusBadge } from "@/components/purchase-orders/po-status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { ReceivePOModal } from "@/components/purchase-orders/receive-po-modal";
+import { EmptyState } from "@/components/shared/empty-state";
+
+
+
 
 export default function PurchaseOrderDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = parseInt(params.id as string);
 
-  const { data, isLoading, isError, refetch } = usePurchaseOrder(id);
-  
+  const { data, isLoading, isError, refetch, error } = usePurchaseOrder(id);
+
+
+
+
   const submitMutation = useSubmitPurchaseOrder();
   const confirmMutation = useConfirmPurchaseOrder();
   const cancelMutation = useCancelPurchaseOrder();
@@ -49,25 +56,39 @@ export default function PurchaseOrderDetailPage() {
 
   const [receiveModalOpen, setReceiveModalOpen] = React.useState(false);
 
-  if (isError) return <ErrorState onRetry={() => refetch()} />;
+  // Extract order handling both wrapped { data: ... } and direct formats
+  const order = (data?.data || data) as PurchaseOrder | undefined;
 
-  const order = data?.data;
 
-  const isActionLoading = submitMutation.isPending || confirmMutation.isPending || cancelMutation.isPending;
+  if (isError) return <ErrorState title="System Interruption" message={error?.message || "We encountered an unexpected error while retrieving your data."} onRetry={() => refetch()} />;
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-12 w-75" />
-        <div className="grid gap-6 md:grid-cols-3">
-          <Skeleton className="h-50 md:col-span-2" />
-          <Skeleton className="h-50" />
+      <div className="p-8 space-y-8 animate-pulse">
+        <Skeleton className="h-10 w-[400px] rounded-xl" />
+        <div className="grid gap-8 md:grid-cols-3">
+          <Skeleton className="h-[250px] md:col-span-2 rounded-2xl" />
+          <Skeleton className="h-[250px] rounded-2xl" />
         </div>
       </div>
     );
   }
 
-  if (!order) return null;
+  if (!order || (!order.id && !order.order_number)) {
+    return (
+      <EmptyState
+        title="Purchase Order Not Found"
+        description="The purchase order you are looking for does not exist or has been removed."
+        action={{
+          label: "Back to Purchase Orders",
+          onClick: () => router.push("/dashboard/purchase-orders"),
+        }}
+      />
+    );
+  }
+
+  const isActionLoading = submitMutation.isPending || confirmMutation.isPending || cancelMutation.isPending;
+
 
   const isDraft = order.status === PurchaseOrderStatus.Draft;
   const isSubmitted = order.status === PurchaseOrderStatus.Submitted;
@@ -84,7 +105,7 @@ export default function PurchaseOrderDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Purchase Order {order.po_number}</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Purchase Order {order.po_number}</h1>
             <div className="flex items-center space-x-2 mt-1">
               <POStatusBadge status={order.status} />
               <span className="text-muted-foreground text-sm">
@@ -96,15 +117,15 @@ export default function PurchaseOrderDetailPage() {
 
         <div className="flex items-center space-x-2">
           {isCancellable && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="text-destructive hover:bg-destructive/10 hover:text-destructive"
               onClick={() => setConfirmDialog({ open: true, type: "cancel" })}
             >
               <XCircle className="mr-2 h-4 w-4" /> Cancel PO
             </Button>
           )}
-          
+
           <Button variant="outline" onClick={() => exportMutation.mutate(id)} disabled={exportMutation.isPending}>
             <FileText className="mr-2 h-4 w-4" /> Export PDF
           </Button>
@@ -178,7 +199,7 @@ export default function PurchaseOrderDetailPage() {
                     <span>$0.00</span>
                   </div>
                   <Separator />
-                  <div className="flex justify-between font-bold text-lg">
+                  <div className="flex justify-between font-semibold text-lg">
                     <span>Total Amount</span>
                     <span>${parseFloat(order.total_amount).toFixed(2)}</span>
                   </div>
@@ -205,11 +226,11 @@ export default function PurchaseOrderDetailPage() {
               <Separator />
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground flex items-center"><Calendar className="h-4 w-4 mr-2"/> Order Date</span>
+                  <span className="text-muted-foreground flex items-center"><Calendar className="h-4 w-4 mr-2" /> Order Date</span>
                   <span className="font-medium">{format(new Date(order.order_date), "MMM d, yyyy")}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground flex items-center"><Calendar className="h-4 w-4 mr-2"/> Exp. Delivery</span>
+                  <span className="text-muted-foreground flex items-center"><Calendar className="h-4 w-4 mr-2" /> Exp. Delivery</span>
                   <span className="font-medium">
                     {order.exp_delivery ? format(new Date(order.exp_delivery), "MMM d, yyyy") : "Not Set"}
                   </span>
@@ -237,18 +258,18 @@ export default function PurchaseOrderDetailPage() {
         onOpenChange={(open) => !open && setConfirmDialog({ open: false, type: null })}
         title={
           confirmDialog.type === "submit" ? "Submit Purchase Order" :
-          confirmDialog.type === "confirm" ? "Confirm Purchase Order" :
-          "Cancel Purchase Order"
+            confirmDialog.type === "confirm" ? "Confirm Purchase Order" :
+              "Cancel Purchase Order"
         }
         description={
           confirmDialog.type === "submit" ? "This will change the status to 'Submitted'. Are you sure?" :
-          confirmDialog.type === "confirm" ? "This confirms the order has been acknowledged by the supplier and stock is expected." :
-          "Are you sure you want to cancel this order? This action cannot be undone."
+            confirmDialog.type === "confirm" ? "This confirms the order has been acknowledged by the supplier and stock is expected." :
+              "Are you sure you want to cancel this order? This action cannot be undone."
         }
         confirmText={
           confirmDialog.type === "submit" ? "Submit Order" :
-          confirmDialog.type === "confirm" ? "Confirm Order" :
-          "Cancel Order"
+            confirmDialog.type === "confirm" ? "Confirm Order" :
+              "Cancel Order"
         }
         variant={confirmDialog.type === "cancel" ? "destructive" : "default"}
         onConfirm={async () => {

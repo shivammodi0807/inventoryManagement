@@ -56,6 +56,7 @@ export interface Invoice {
   total_amount: string | number;
   paid_amount: string | number;
   balance_due: string | number;
+  sales_order?: SalesOrder;
   payments?: Payment[];
   created_at?: string;
   updated_at?: string;

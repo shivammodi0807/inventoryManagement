@@ -99,7 +99,7 @@ export default function SalesOrderDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Order {order.order_number}</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Order {order.order_number}</h1>
             <div className="flex items-center space-x-2 mt-1">
               <Badge variant={statusVariants[order.status] || "outline"}>
                 {order.status.toUpperCase()}
@@ -214,7 +214,7 @@ export default function SalesOrderDetailPage() {
                     <span>${Number(order.tax_total).toFixed(2)}</span>
                   </div>
                   <Separator />
-                  <div className="flex justify-between font-bold text-xl">
+                  <div className="flex justify-between font-semibold text-xl">
                     <span>Total</span>
                     <span>${Number(order.grand_total).toFixed(2)}</span>
                   </div>
@@ -296,7 +296,7 @@ export default function SalesOrderDetailPage() {
                   <User className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <div className="font-bold">{order.customer?.name}</div>
+                  <div className="font-semibold">{order.customer?.name}</div>
                   <div className="text-sm text-muted-foreground">{order.customer?.email}</div>
                   <div className="text-sm text-muted-foreground">{order.customer?.phone}</div>
                 </div>

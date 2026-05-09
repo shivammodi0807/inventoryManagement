@@ -2,6 +2,7 @@
 
 import { AlertCircle, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ErrorStateProps {
   title?: string;
@@ -11,29 +12,31 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = "Something went wrong",
-  message = "An error occurred while loading the data. Please try again.",
+  title = "System Interruption",
+  message = "We encountered an unexpected error while retrieving your data. Our team has been notified.",
   onRetry,
   className = "",
 }: ErrorStateProps) {
   return (
-    <div className={`flex flex-col items-center justify-center rounded-lg border border-destructive/20 bg-destructive/5 p-8 text-center ${className}`}>
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-        <AlertCircle className="h-6 w-6" />
+    <div className={cn(
+      "flex flex-col items-center justify-center rounded-3xl border border-destructive/20 bg-destructive/5 p-12 text-center transition-all",
+      className
+    )}>
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10 text-destructive shadow-sm animate-bounce duration-1000">
+        <AlertCircle className="h-8 w-8" />
       </div>
-      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
-      <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
+      <h3 className="mt-6 text-xl font-semibold tracking-tight text-destructive">{title}</h3>
+      <p className="mt-2 text-base text-muted-foreground max-w-sm mx-auto leading-relaxed">
         {message}
       </p>
       {onRetry && (
         <Button 
           variant="outline" 
-          size="sm" 
           onClick={onRetry} 
-          className="mt-6 border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+          className="mt-8 border-destructive/30 hover:bg-destructive hover:text-destructive-foreground transition-all font-semibold rounded-xl px-6 h-11 shadow-sm"
         >
           <RefreshCcw className="mr-2 h-4 w-4" />
-          Try Again
+          Reconnect System
         </Button>
       )}
     </div>

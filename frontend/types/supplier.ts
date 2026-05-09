@@ -43,3 +43,11 @@ export interface LinkProductPayload {
   is_preferred?: boolean;
   min_order_qty?: number;
 }
+
+export interface SuppliersResponse {
+  data: Supplier[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+}

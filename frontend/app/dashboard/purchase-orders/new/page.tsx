@@ -133,7 +133,7 @@ export default function CreatePurchaseOrderPage() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Purchase Order</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">Create Purchase Order</h1>
           <p className="text-muted-foreground mt-1">
             Draft a new purchase order to send to a supplier.
           </p>
@@ -271,7 +271,7 @@ export default function CreatePurchaseOrderPage() {
                   
                   <div className="text-right">
                     <span className="text-muted-foreground mr-4">Total Amount:</span>
-                    <span className="text-xl font-bold">${calculateTotal().toFixed(2)}</span>
+                    <span className="text-xl font-semibold">${calculateTotal().toFixed(2)}</span>
                   </div>
                 </div>
               </CardContent>

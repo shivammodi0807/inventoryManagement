@@ -16,7 +16,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import {
-  GalleryVerticalEndIcon,
   LayoutDashboardIcon,
   PackageIcon,
   TruckIcon,
@@ -26,19 +25,19 @@ import {
   Warehouse as WarehouseIcon,
   ShoppingBag as ShoppingBagIcon,
   BarChart3Icon,
+  Sparkles,
 } from "lucide-react";
 
 const platformNav: NavItem[] = [
   {
     title: "Dashboard",
     url: "/dashboard",
-    icon: <LayoutDashboardIcon />,
-    // Always visible to anyone authenticated. No perms requirement.
+    icon: <LayoutDashboardIcon className="size-4" />,
   },
   {
     title: "Inventory",
     url: "/dashboard/inventory",
-    icon: <PackageIcon />,
+    icon: <PackageIcon className="size-4" />,
     perms: [
       ["view", "product"],
       ["view", "category"],
@@ -65,7 +64,7 @@ const platformNav: NavItem[] = [
   {
     title: "Warehouses",
     url: "/dashboard/warehouses",
-    icon: <WarehouseIcon />,
+    icon: <WarehouseIcon className="size-4" />,
     perms: [["view", "warehouse"]],
     items: [
       {
@@ -78,16 +77,13 @@ const platformNav: NavItem[] = [
   {
     title: "Suppliers",
     url: "/dashboard/suppliers",
-    icon: <TruckIcon />,
+    icon: <TruckIcon className="size-4" />,
     perms: [["view", "supplier"]],
-    // items: [
-    //   { title: "List", url: "/dashboard/suppliers", perm: ["view", "supplier"] },
-    // ],
   },
   {
     title: "Purchase Orders",
     url: "/dashboard/purchase-orders",
-    icon: <ClipboardListIcon />,
+    icon: <ClipboardListIcon className="size-4" />,
     perms: [
       ["view", "purchase_order"],
       ["receive", "purchase_order"],
@@ -113,7 +109,7 @@ const platformNav: NavItem[] = [
   {
     title: "Sales",
     url: "/dashboard/sales",
-    icon: <ShoppingBagIcon />,
+    icon: <ShoppingBagIcon className="size-4" />,
     items: [
       {
         title: "Customers",
@@ -132,7 +128,7 @@ const platformNav: NavItem[] = [
   {
     title: "Reports",
     url: "/dashboard/reports",
-    icon: <BarChart3Icon />,
+    icon: <BarChart3Icon className="size-4" />,
     items: [
       { title: "Overview", url: "/dashboard/reports" },
       { title: "Inventory Valuation", url: "/dashboard/reports/inventory" },
@@ -146,13 +142,12 @@ const platformNav: NavItem[] = [
   {
     title: "Notifications",
     url: "/dashboard/notifications",
-    icon: <BellIcon />,
-    // Everyone can read their own notifications; no explicit permission.
+    icon: <BellIcon className="size-4" />,
   },
   {
     title: "Settings",
     url: "/dashboard/settings",
-    icon: <Settings2Icon />,
+    icon: <Settings2Icon className="size-4" />,
     perms: [
       ["view", "user"],
       ["view", "role"],
@@ -180,31 +175,32 @@ const platformNav: NavItem[] = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
+    <Sidebar collapsible="icon" className="border-r border-border/50" {...props}>
+      <SidebarHeader className="h-16 flex items-center justify-center border-b border-border/50">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
               asChild
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="hover:bg-transparent"
             >
-              <Link href="/dashboard">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <GalleryVerticalEndIcon className="size-4" />
+              <Link href="/dashboard" className="flex items-center gap-3">
+                <div className="flex aspect-square size-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/20 text-primary-foreground">
+                  <Sparkles className="size-5 fill-current" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Qollab</span>
+                  <span className="font-semibold text-lg tracking-tight">Qollab</span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Inventory Pro</span>
                 </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="py-4">
         <NavMain items={platformNav} />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-border/50 p-4">
         <NavUser />
       </SidebarFooter>
       <SidebarRail />

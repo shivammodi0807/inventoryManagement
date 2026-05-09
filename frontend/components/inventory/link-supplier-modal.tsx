@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
@@ -80,7 +80,7 @@ function LinkSupplierForm({ productId, suppliers, isLoadingSuppliers, onClose }:
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<LinkSupplierFormValues>({
+  } = useForm({
     resolver: zodResolver(linkSupplierSchema),
     defaultValues: {
       supplier_id: 0,
@@ -92,9 +92,10 @@ function LinkSupplierForm({ productId, suppliers, isLoadingSuppliers, onClose }:
     },
   });
 
-  const onSubmit = async (values: LinkSupplierFormValues) => {
+  const onSubmit = async (values: FieldValues) => {
+    const formValues = values as LinkSupplierFormValues;
     try {
-      const { supplier_id, ...data } = values;
+      const { supplier_id, ...data } = formValues;
       await linkMutation.mutateAsync({
         supplierId: supplier_id,
         data: {

@@ -1,93 +1,144 @@
 "use client";
 
 import React from "react";
-import { 
-  BarChart3, 
-  Package2, 
-  TrendingUp, 
-  AlertCircle, 
+import {
+  BarChart3,
+  Package2,
+  TrendingUp,
+  AlertCircle,
   ArrowRight,
-  FileText
+  FileText,
+  PieChart,
+  Activity,
+  Zap
 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export default function ReportsPage() {
   const reportCards = [
     {
       title: "Inventory Valuation",
-      description: "Breakdown of current stock value by category and warehouse. Essential for asset tracking.",
-      icon: <Package2 className="h-8 w-8 text-emerald-500" />,
+      description: "Monetary breakdown of current stock assets by taxonomy and logistics node.",
+      icon: <Package2 className="h-6 w-6" />,
       href: "/dashboard/reports/inventory",
-      color: "border-emerald-100 bg-emerald-50/30",
+      color: "emerald",
+      tag: "Asset Analysis"
     },
     {
       title: "Sales Performance",
-      description: "Analyze revenue trends, top products, and order volumes over different periods.",
-      icon: <TrendingUp className="h-8 w-8 text-blue-500" />,
+      description: "Revenue trajectory, top-performing SKUs, and order fulfillment metrics.",
+      icon: <TrendingUp className="h-6 w-6" />,
       href: "/dashboard/reports/sales",
-      color: "border-blue-100 bg-blue-50/30",
+      color: "blue",
+      tag: "Revenue IQ"
     },
     {
-      title: "Low Stock Analysis",
-      description: "Detailed view of items needing replenishment with preferred supplier information.",
-      icon: <AlertCircle className="h-8 w-8 text-amber-500" />,
+      title: "Low Stock Matrix",
+      description: "Strategic identifying of items below safety threshold requiring immediate restock.",
+      icon: <AlertCircle className="h-6 w-6" />,
       href: "/dashboard/reports/low-stock",
-      color: "border-amber-100 bg-amber-50/30",
+      color: "amber",
+      tag: "Supply Risk"
     },
     {
-      title: "Audit Logs",
-      description: "History of all inventory adjustments, receipts, and sales for compliance tracking.",
-      icon: <FileText className="h-8 w-8 text-slate-500" />,
+      title: "Operational Audit",
+      description: "Chronological ledger of system events, adjustments, and chain of custody.",
+      icon: <FileText className="h-6 w-6" />,
       href: "/dashboard/reports/audit",
-      color: "border-slate-100 bg-slate-50/30",
+      color: "slate",
+      tag: "Compliance"
     },
     {
       title: "Supplier Performance",
-      description: "Track vendor reliability, lead times, and quality ratings for strategic sourcing.",
-      icon: <BarChart3 className="h-8 w-8 text-indigo-500" />,
+      description: "Vendor reliability scoring, lead-time variance, and sourcing strategic analysis.",
+      icon: <BarChart3 className="h-6 w-6" />,
       href: "/dashboard/suppliers/performance",
-      color: "border-indigo-100 bg-indigo-50/30",
+      color: "indigo",
+      tag: "Partner Index"
     },
     {
-      title: "Inventory Forecasting",
-      description: "Predictive stock runway analysis. Know exactly when you will run out of stock.",
-      icon: <TrendingUp className="h-8 w-8 text-violet-500" />,
+      title: "Inventory Forecast",
+      description: "Predictive runway analysis and demand projections for future procurement.",
+      icon: <Zap className="h-6 w-6" />,
       href: "/dashboard/reports/forecast",
-      color: "border-violet-100 bg-violet-50/30",
+      color: "violet",
+      tag: "Predictive"
     },
   ];
 
+  const colorMap: Record<string, string> = {
+    emerald: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 group-hover:bg-emerald-500/20",
+    blue: "bg-blue-500/10 text-blue-600 border-blue-500/20 group-hover:bg-blue-500/20",
+    amber: "bg-amber-500/10 text-amber-600 border-amber-500/20 group-hover:bg-amber-500/20",
+    slate: "bg-slate-500/10 text-slate-600 border-slate-500/20 group-hover:bg-slate-500/20",
+    indigo: "bg-indigo-500/10 text-indigo-600 border-indigo-500/20 group-hover:bg-indigo-500/20",
+    violet: "bg-violet-500/10 text-violet-600 border-violet-500/20 group-hover:bg-violet-500/20",
+  };
+
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Reporting & Analytics</h2>
+    <div className="flex flex-col gap-8 pb-8">
+      {/* Premium Header */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between px-2">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-primary">
+            <PieChart className="h-5 w-5" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary/80">Intelligence Hub</span>
+          </div>
+          <h1 className="text-4xl font-semibold tracking-tight text-foreground">Reporting & Analytics</h1>
+          <p className="text-base text-muted-foreground font-medium">
+            Strategic insight engines for data-driven supply chain management.
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 mt-8">
+      {/* Grid Section */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
         {reportCards.map((report) => (
-          <Card key={report.title} className={`hover:shadow-md transition-all border-2 ${report.color}`}>
-            <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-              <div className="mr-4 rounded-lg bg-white p-2 shadow-sm">
-                {report.icon}
+          <Link key={report.title} href={report.href} className="group">
+            <Card className="premium-card border-none shadow-premium h-full group-hover:scale-[1.01] transition-all duration-300 relative overflow-hidden bg-background">
+              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                {React.cloneElement(report.icon as React.ReactElement<{ className?: string }>, { className: "size-24" })}
               </div>
-              <div className="flex-1">
-                <CardTitle className="text-xl font-bold">{report.title}</CardTitle>
-                <CardDescription className="text-slate-600 mt-1">
+              <CardHeader className="flex flex-row items-start gap-4 pb-4">
+                <div className={cn(
+                  "p-3 rounded-2xl border transition-all duration-500 group-hover:scale-110 group-hover:rotate-3",
+                  colorMap[report.color]
+                )}>
+                  {report.icon}
+                </div>
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <Badge variant="outline" className="font-semibold text-[9px] uppercase tracking-widest border-none bg-secondary/50 text-muted-foreground/60">
+                      {report.tag}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-xl font-semibold tracking-tight text-foreground group-hover:text-primary transition-colors">
+                    {report.title}
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <CardDescription className="text-sm text-muted-foreground font-medium leading-relaxed">
                   {report.description}
                 </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <Button asChild variant="ghost" className="p-0 text-primary hover:bg-transparent">
-                <Link href={report.href} className="flex items-center">
-                  View Report <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+                <div className="flex items-center text-[11px] font-semibold uppercase tracking-[0.2em] text-primary pt-2">
+                  Launch Analytical Engine <ArrowRight className="ml-2 size-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
+      </div>
+
+      {/* Footer Insight */}
+      <div className="flex items-center justify-center py-6 px-4 bg-secondary/20 rounded-2xl border border-border/40 mx-2">
+        <div className="flex items-center gap-3 text-muted-foreground/60">
+          <Activity className="size-4" />
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em]">System Intelligence Layer V3.01 — Operational</p>
+        </div>
       </div>
     </div>
   );

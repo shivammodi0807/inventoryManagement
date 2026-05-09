@@ -43,7 +43,7 @@ export default function EditProductPage() {
   return (
     <div className="flex flex-col gap-6 p-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Edit Product</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">Edit Product</h1>
         <p className="text-muted-foreground">
           Update the details for <strong>{product.sku}</strong>.
         </p>

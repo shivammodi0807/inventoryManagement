@@ -42,7 +42,7 @@ const paymentSchema = z.object({
 type PaymentFormValues = z.infer<typeof paymentSchema>;
 
 interface PaymentModalProps {
-  invoice: Invoice | null;
+  invoice: Invoice | null | undefined;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

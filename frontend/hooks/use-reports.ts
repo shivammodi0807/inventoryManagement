@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosApi from "@/lib/axiosApi";
-import { AuditLogReportItem, InventoryValuationReport, LowStockReportItem, InventoryForecastItem, SalesPerformanceReport, SupplierPerformanceReport } from "@/types/reports";
+import { AuditLogReportItem, AuditLogsResponse, InventoryValuationReport, LowStockReportItem, InventoryForecastItem, SalesPerformanceReport, SupplierPerformanceReport } from "@/types/reports";
 
 export function useInventoryValuation() {
   return useQuery<InventoryValuationReport>({
@@ -34,12 +34,12 @@ export function useLowStockReport() {
   });
 }
 
-export function useAuditLogs(from?: string, to?: string) {
-  return useQuery<AuditLogReportItem[]>({
-    queryKey: ["reports", "audit-logs", from, to],
+export function useAuditLogs(from?: string, to?: string, page: number = 1, perPage: number = 15) {
+  return useQuery<AuditLogsResponse>({
+    queryKey: ["reports", "audit-logs", from, to, page, perPage],
     queryFn: async () => {
       const response = await axiosApi.get("/api/reports/audit-logs", {
-        params: { from, to }
+        params: { from, to, page, per_page: perPage }
       });
       return response.data;
     },

@@ -70,14 +70,14 @@ export default function SupplierDetailPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{supplier.name}</h1>
+          <h1 className="text-3xl font-semiboldbold tracking-tight">{supplier.name}</h1>
           <p className="text-muted-foreground">Supplier Details & Catalog</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Badge variant={supplier.is_active ? "default" : "destructive"}>
             {supplier.is_active ? "Active" : "Inactive"}
           </Badge>
-          <div className="flex items-center gap-1 bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-sm font-bold">
+          <div className="flex items-center gap-1 bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-sm font-semibold">
             <Star className="h-3 w-3 fill-yellow-700" />
             {parseFloat(supplier.rating).toFixed(1)}
           </div>
@@ -137,30 +137,30 @@ export default function SupplierDetailPage() {
               <div className="flex flex-col gap-1 p-4 bg-muted/50 rounded-lg">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Package className="h-4 w-4" />
-                  <span className="text-xs uppercase font-bold">Total Orders</span>
+                  <span className="text-xs uppercase font-semibold">Total Orders</span>
                 </div>
-                <div className="text-2xl font-bold">{performance?.total_closed_orders ?? 0}</div>
+                <div className="text-2xl font-semibold">{performance?.total_closed_orders ?? 0}</div>
               </div>
               <div className="flex flex-col gap-1 p-4 bg-muted/50 rounded-lg">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  <span className="text-xs uppercase font-bold">On-Time Rate</span>
+                  <span className="text-xs uppercase font-semibold">On-Time Rate</span>
                 </div>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-semibold">
                   {performance?.on_time_rate ? `${(performance.on_time_rate * 100).toFixed(0)}%` : "N/A"}
                 </div>
               </div>
               <div className="flex flex-col gap-1 p-4 bg-muted/50 rounded-lg">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Clock className="h-4 w-4 text-blue-500" />
-                  <span className="text-xs uppercase font-bold">On-Time Deliveries</span>
+                  <span className="text-xs uppercase font-semibold">On-Time Deliveries</span>
                 </div>
-                <div className="text-2xl font-bold">{performance?.on_time_deliveries ?? 0}</div>
+                <div className="text-2xl font-semibold">{performance?.on_time_deliveries ?? 0}</div>
               </div>
             </div>
 
             <div className="mt-8">
-              <h4 className="text-sm font-bold uppercase text-muted-foreground mb-4">Supplier Insights</h4>
+              <h4 className="text-sm font-semibold uppercase text-muted-foreground mb-4">Supplier Insights</h4>
               <div className="space-y-4">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Preferred status</span>
