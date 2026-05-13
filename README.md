@@ -238,7 +238,7 @@ cp .env.example .env
 | `SESSION_SECURE_COOKIE` | HTTPS-only cookies | `false` | Yes | Set `true` in production |
 | `SANCTUM_STATEFUL_DOMAINS` | Domains receiving session cookies | `localhost:3000,127.0.0.1:3000` | Yes | Must include frontend host |
 | `BROADCAST_CONNECTION` | Broadcast driver | `reverb` | Yes | Set to `log` to disable WebSockets |
-| `REVERB_APP_ID` | Reverb application ID | `837874` | Yes | Any numeric ID |
+| `REVERB_APP_ID` | Reverb application ID | `100001` | Yes | Any numeric ID |
 | `REVERB_APP_KEY` | Reverb app key | _(random string)_ | Yes | Generate with `openssl rand -hex 16` |
 | `REVERB_APP_SECRET` | Reverb app secret | _(random string)_ | Yes | Generate with `openssl rand -hex 16` |
 | `ML_SERVICE_URL` | FastAPI ML service URL | `http://localhost:8001` | Optional | Change if ML service runs elsewhere |
