@@ -31,6 +31,21 @@ class Invoice extends Model
         'amount_due' => 'decimal:2',
     ];
 
+    protected $appends = [
+        'paid_amount',
+        'balance_due',
+    ];
+
+    public function getPaidAmountAttribute(): float
+    {
+        return (float) $this->amount_paid;
+    }
+
+    public function getBalanceDueAttribute(): float
+    {
+        return (float) $this->amount_due;
+    }
+
     public function salesOrder(): BelongsTo
     {
         return $this->belongsTo(SalesOrder::class);

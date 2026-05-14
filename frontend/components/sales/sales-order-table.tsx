@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getInvoicePdfUrl } from "@/lib/sales";
+import { useExportInvoice } from "@/hooks/use-sales-orders";
 import { SalesOrder } from "@/types/sales";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +53,7 @@ interface SalesOrderTableProps {
 
 export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }: SalesOrderTableProps) {
   const router = useRouter();
+  const exportInvoiceMutation = useExportInvoice();
 
   const columns = useMemo<ColumnDef<SalesOrder>[]>(() => [
     {
@@ -189,10 +190,8 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
               {order.invoice && (
                 <>
                   <DropdownMenuSeparator className="my-1" />
-                  <DropdownMenuItem asChild className="rounded-lg gap-2 cursor-pointer">
-                    <a href={getInvoicePdfUrl(order.invoice.id)} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                      <Download className="h-4 w-4 opacity-70" /> Download Invoice
-                    </a>
+                  <DropdownMenuItem onClick={() => exportInvoiceMutation.mutate(order.invoice.id)} className="rounded-lg gap-2 cursor-pointer text-primary focus:text-primary">
+                    <Download className="h-4 w-4 opacity-70" /> Download Invoice
                   </DropdownMenuItem>
                 </>
               )}

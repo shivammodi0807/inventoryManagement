@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getInvoicePdfUrl } from "@/lib/sales";
+import { useExportInvoice } from "@/hooks/use-sales-orders";
 import { Invoice } from "@/types/sales";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +32,8 @@ interface InvoiceTableProps {
 }
 
 export function InvoiceTable({ data }: InvoiceTableProps) {
+  const exportInvoiceMutation = useExportInvoice();
+
   const statusConfig: Record<string, { label: string, color: string }> = {
     unpaid: { label: "Unpaid", color: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
     partial: { label: "Partial", color: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
@@ -152,10 +154,8 @@ export function InvoiceTable({ data }: InvoiceTableProps) {
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild className="rounded-lg cursor-pointer font-semibold text-xs text-primary focus:text-primary">
-                          <a href={getInvoicePdfUrl(invoice.id)} target="_blank" rel="noopener noreferrer" className="gap-2">
-                            <Download className="size-3.5" /> Export Document
-                          </a>
+                        <DropdownMenuItem onClick={() => exportInvoiceMutation.mutate(invoice.id)} className="rounded-lg cursor-pointer font-semibold text-xs text-primary focus:text-primary">
+                          <Download className="size-3.5" /> Export Document
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

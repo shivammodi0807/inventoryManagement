@@ -75,6 +75,13 @@ export async function recordPayment(invoiceId: number, data: { amount: number; p
   return response.data;
 }
 
+export async function exportInvoice(invoiceId: number) {
+  const response = await axiosApi.get(`/api/sales/invoices/${invoiceId}/export`, {
+    responseType: "blob",
+  });
+  return response.data;
+}
+
 export async function getInvoices(filters: InvoiceFilters = {}): Promise<InvoicesResponse> {
   const response = await axiosApi.get("/api/sales/invoices", { params: filters });
   return response.data;

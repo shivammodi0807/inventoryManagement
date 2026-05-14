@@ -9,6 +9,7 @@ import {
   deliverSalesOrder,
   generateInvoice,
   recordPayment,
+  exportInvoice,
   getInvoices
 } from "@/lib/sales";
 import { toast } from "sonner";
@@ -122,6 +123,26 @@ export function useGenerateInvoice() {
     },
     onError: (error: AxiosError<ApiError>) => {
       toast.error(error.response?.data?.message || "Failed to generate invoice");
+    },
+  });
+}
+
+export function useExportInvoice() {
+  return useMutation({
+    mutationFn: exportInvoice,
+    onSuccess: (blob, invoiceId) => {
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `INV-${invoiceId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success("Invoice downloaded successfully");
+    },
+    onError: (error: AxiosError<ApiError>) => {
+      toast.error(error.response?.data?.message || "Failed to download invoice");
     },
   });
 }

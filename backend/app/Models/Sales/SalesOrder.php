@@ -38,6 +38,21 @@ class SalesOrder extends Model
         'grand_total' => 'decimal:2',
     ];
 
+    protected $appends = [
+        'subtotal',
+        'tax_total',
+    ];
+
+    public function getSubtotalAttribute(): float
+    {
+        return (float) $this->total_amount;
+    }
+
+    public function getTaxTotalAttribute(): float
+    {
+        return (float) $this->tax_amount;
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);

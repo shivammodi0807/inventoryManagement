@@ -22,7 +22,8 @@ import {
   useCancelSalesOrder,
   useShipSalesOrder,
   useDeliverSalesOrder,
-  useGenerateInvoice 
+  useGenerateInvoice,
+  useExportInvoice,
 } from "@/hooks/use-sales-orders";
 import { SalesOrderItem, Payment } from "@/types/sales";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,6 @@ import { ErrorState } from "@/components/shared/error-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { PaymentModal } from "@/components/sales/payment-modal";
-import { getInvoicePdfUrl } from "@/lib/sales";
 
 export default function SalesOrderDetailPage() {
   const params = useParams();
@@ -53,6 +53,7 @@ export default function SalesOrderDetailPage() {
   const confirmMutation = useConfirmSalesOrder();
   const cancelMutation = useCancelSalesOrder();
   const generateInvoiceMutation = useGenerateInvoice();
+  const exportInvoiceMutation = useExportInvoice();
   const shipMutation = useShipSalesOrder();
   const deliverMutation = useDeliverSalesOrder();
 
@@ -147,10 +148,11 @@ export default function SalesOrderDetailPage() {
 
           {order.invoice && (
             <>
-              <Button variant="outline" asChild>
-                <a href={getInvoicePdfUrl(order.invoice.id)} target="_blank" rel="noopener noreferrer">
-                  <Download className="mr-2 h-4 w-4" /> Download Invoice
-                </a>
+              <Button
+                variant="outline"
+                onClick={() => order?.invoice?.id && exportInvoiceMutation.mutate(order.invoice.id)}
+              >
+                <Download className="mr-2 h-4 w-4" /> Download Invoice
               </Button>
               {order.invoice.status !== "paid" && (
                 <Button onClick={() => setPaymentModalOpen(true)}>
