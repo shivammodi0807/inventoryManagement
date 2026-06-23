@@ -21,9 +21,11 @@ php artisan migrate --seed && php artisan storage:link
 cd ../frontend && cp .env.example .env.local && npm install
 # Edit .env.local: set NEXT_PUBLIC_REVERB_APP_KEY to match backend
 
-# 3. Run (two terminals minimum)
-cd ../backend && composer dev     # Terminal 1 — API + queue + Vite
-cd ../frontend && npm run dev     # Terminal 2 — Next.js on :3000
+# 3. Run (three terminals minimum)
+cd ../backend && php artisan serve     # Terminal 1 — Api servers
+cd ../backend && php artisan reverb:start     # Terminal 2 — websocket connection
+
+cd ../frontend && npm run dev     # Terminal 3 — Next.js on :3000
 
 # 4. Optional: ML service
 cd ../ml-service && python -m venv venv && .\venv\Scripts\Activate.ps1
@@ -33,13 +35,13 @@ uvicorn main:app --port 8001 --reload
 
 ### Ports at a Glance
 
-| Service | Default Port |
-|---|---|
-| Laravel API | `http://localhost:8000` |
-| Next.js Frontend | `http://localhost:3000` |
-| Laravel Reverb (WebSocket) | `ws://localhost:8080` |
-| FastAPI ML Service | `http://localhost:8001` |
-| MySQL | `localhost:3306` |
+| Service                    | Default Port            |
+| -------------------------- | ----------------------- |
+| Laravel API                | `http://localhost:8000` |
+| Next.js Frontend           | `http://localhost:3000` |
+| Laravel Reverb (WebSocket) | `ws://localhost:8080`   |
+| FastAPI ML Service         | `http://localhost:8001` |
+| MySQL                      | `localhost:3306`        |
 
 ---
 
@@ -104,32 +106,32 @@ flowchart LR
 
 ## Tech Stack
 
-| Layer | Technology | Version |
-|---|---|---|
-| **Frontend Framework** | Next.js (App Router) | 16.2.3 |
-| **UI Library** | React | 19.2.4 |
-| **Styling** | Tailwind CSS | 4.x |
-| **Component Library** | shadcn/ui (Radix Nova) | 4.3.0 |
-| **State Management** | Zustand | 5.x |
-| **Data Fetching** | TanStack React Query | 5.x |
-| **Tables** | TanStack React Table | 8.x |
-| **Forms** | React Hook Form + Zod | 7.x / 4.x |
-| **Charts** | Recharts | 3.x |
-| **E2E Testing** | Playwright | 1.59.x |
-| **Backend Framework** | Laravel | 12.x |
-| **PHP** | PHP | ≥ 8.2 |
-| **Authentication** | Laravel Sanctum (SPA cookies) | 4.x |
-| **WebSockets** | Laravel Reverb | 1.10.x |
-| **PDF Generation** | barryvdh/laravel-dompdf | 3.x |
-| **Backend Testing** | Pest PHP | 3.x |
-| **Database** | MySQL | 8.0+ |
-| **Queue Driver** | Database | — |
-| **ML Framework** | FastAPI | ≥ 0.110 |
-| **Demand Forecasting** | Facebook Prophet | ≥ 1.1.5 |
-| **Lead-Time Prediction** | scikit-learn (Random Forest) | ≥ 1.4.1 |
-| **ML Data** | pandas | ≥ 2.2.1 |
-| **Python** | Python | ≥ 3.10 |
-| **Load Testing** | Artillery | — |
+| Layer                    | Technology                    | Version   |
+| ------------------------ | ----------------------------- | --------- |
+| **Frontend Framework**   | Next.js (App Router)          | 16.2.3    |
+| **UI Library**           | React                         | 19.2.4    |
+| **Styling**              | Tailwind CSS                  | 4.x       |
+| **Component Library**    | shadcn/ui (Radix Nova)        | 4.3.0     |
+| **State Management**     | Zustand                       | 5.x       |
+| **Data Fetching**        | TanStack React Query          | 5.x       |
+| **Tables**               | TanStack React Table          | 8.x       |
+| **Forms**                | React Hook Form + Zod         | 7.x / 4.x |
+| **Charts**               | Recharts                      | 3.x       |
+| **E2E Testing**          | Playwright                    | 1.59.x    |
+| **Backend Framework**    | Laravel                       | 12.x      |
+| **PHP**                  | PHP                           | ≥ 8.2     |
+| **Authentication**       | Laravel Sanctum (SPA cookies) | 4.x       |
+| **WebSockets**           | Laravel Reverb                | 1.10.x    |
+| **PDF Generation**       | barryvdh/laravel-dompdf       | 3.x       |
+| **Backend Testing**      | Pest PHP                      | 3.x       |
+| **Database**             | MySQL                         | 8.0+      |
+| **Queue Driver**         | Database                      | —         |
+| **ML Framework**         | FastAPI                       | ≥ 0.110   |
+| **Demand Forecasting**   | Facebook Prophet              | ≥ 1.1.5   |
+| **Lead-Time Prediction** | scikit-learn (Random Forest)  | ≥ 1.4.1   |
+| **ML Data**              | pandas                        | ≥ 2.2.1   |
+| **Python**               | Python                        | ≥ 3.10    |
+| **Load Testing**         | Artillery                     | —         |
 
 ---
 
@@ -137,16 +139,16 @@ flowchart LR
 
 Install the following tools before proceeding. Verify each with the command shown.
 
-| Tool | Min. Version | Verify Command | Download |
-|---|---|---|---|
-| **Node.js** | 20.x LTS | `node --version` | [nodejs.org](https://nodejs.org/) |
-| **npm** | 10.x | `npm --version` | Bundled with Node.js |
-| **PHP** | 8.2 | `php --version` | [php.net](https://www.php.net/downloads) |
-| **Composer** | 2.x | `composer --version` | [getcomposer.org](https://getcomposer.org/) |
-| **MySQL** | 8.0 | `mysql --version` | [dev.mysql.com](https://dev.mysql.com/downloads/) |
-| **Python** | 3.10 | `python --version` | [python.org](https://www.python.org/downloads/) |
-| **pip** | 22.x | `pip --version` | Bundled with Python |
-| **Git** | 2.x | `git --version` | [git-scm.com](https://git-scm.com/) |
+| Tool         | Min. Version | Verify Command       | Download                                          |
+| ------------ | ------------ | -------------------- | ------------------------------------------------- |
+| **Node.js**  | 20.x LTS     | `node --version`     | [nodejs.org](https://nodejs.org/)                 |
+| **npm**      | 10.x         | `npm --version`      | Bundled with Node.js                              |
+| **PHP**      | 8.2          | `php --version`      | [php.net](https://www.php.net/downloads)          |
+| **Composer** | 2.x          | `composer --version` | [getcomposer.org](https://getcomposer.org/)       |
+| **MySQL**    | 8.0          | `mysql --version`    | [dev.mysql.com](https://dev.mysql.com/downloads/) |
+| **Python**   | 3.10         | `python --version`   | [python.org](https://www.python.org/downloads/)   |
+| **pip**      | 22.x         | `pip --version`      | Bundled with Python                               |
+| **Git**      | 2.x          | `git --version`      | [git-scm.com](https://git-scm.com/)               |
 
 > **Windows users**: Use WSL2, Git Bash, or PowerShell. The commands below use Unix-style syntax — adjust path separators where needed.
 >
@@ -224,28 +226,28 @@ cd backend
 cp .env.example .env
 ```
 
-| Variable | Description | Example Value | Required | Where to Obtain |
-|---|---|---|---|---|
-| `APP_NAME` | Application display name | `Qollab` | Yes | Set to your project name |
-| `APP_KEY` | Encryption key (auto-generated) | `base64:...` | Yes | Generated by `php artisan key:generate` |
-| `APP_URL` | Backend base URL | `http://localhost:8000` | Yes | Must include `:8000` for signed URLs |
-| `APP_DEBUG` | Enable debug mode | `true` | Yes | Set `false` in production |
-| `FRONTEND_URL` | Next.js SPA origin (CORS) | `http://localhost:3000` | Yes | Must match your frontend URL |
-| `DB_DATABASE` | Database name | `QollabInventory` | Yes | Create this DB manually |
-| `DB_USERNAME` | Database user | `root` | Yes | Your MySQL user |
-| `DB_PASSWORD` | Database password | _(empty for local)_ | Yes | Your MySQL password |
-| `SESSION_DOMAIN` | Cookie domain scope | _(empty)_ | Yes | **Must be empty** for localhost cross-port auth |
-| `SESSION_SECURE_COOKIE` | HTTPS-only cookies | `false` | Yes | Set `true` in production |
-| `SANCTUM_STATEFUL_DOMAINS` | Domains receiving session cookies | `localhost:3000,127.0.0.1:3000` | Yes | Must include frontend host |
-| `BROADCAST_CONNECTION` | Broadcast driver | `reverb` | Yes | Set to `log` to disable WebSockets |
-| `REVERB_APP_ID` | Reverb application ID | `100001` | Yes | Any numeric ID |
-| `REVERB_APP_KEY` | Reverb app key | _(random string)_ | Yes | Generate with `openssl rand -hex 16` |
-| `REVERB_APP_SECRET` | Reverb app secret | _(random string)_ | Yes | Generate with `openssl rand -hex 16` |
-| `ML_SERVICE_URL` | FastAPI ML service URL | `http://localhost:8001` | Optional | Change if ML service runs elsewhere |
-| `MAIL_MAILER` | Mail driver | `log` | Optional | Use `smtp` for real email |
-| `MAIL_HOST` | SMTP host (if using smtp) | `smtp.gmail.com` | Optional | Your SMTP provider |
-| `MAIL_USERNAME` | SMTP username | `your-email@gmail.com` | Optional | Your email |
-| `MAIL_PASSWORD` | SMTP password | `your-app-password` | Optional | Google: App Passwords (requires 2FA) |
+| Variable                   | Description                       | Example Value                   | Required | Where to Obtain                                 |
+| -------------------------- | --------------------------------- | ------------------------------- | -------- | ----------------------------------------------- |
+| `APP_NAME`                 | Application display name          | `Qollab`                        | Yes      | Set to your project name                        |
+| `APP_KEY`                  | Encryption key (auto-generated)   | `base64:...`                    | Yes      | Generated by `php artisan key:generate`         |
+| `APP_URL`                  | Backend base URL                  | `http://localhost:8000`         | Yes      | Must include `:8000` for signed URLs            |
+| `APP_DEBUG`                | Enable debug mode                 | `true`                          | Yes      | Set `false` in production                       |
+| `FRONTEND_URL`             | Next.js SPA origin (CORS)         | `http://localhost:3000`         | Yes      | Must match your frontend URL                    |
+| `DB_DATABASE`              | Database name                     | `QollabInventory`               | Yes      | Create this DB manually                         |
+| `DB_USERNAME`              | Database user                     | `root`                          | Yes      | Your MySQL user                                 |
+| `DB_PASSWORD`              | Database password                 | _(empty for local)_             | Yes      | Your MySQL password                             |
+| `SESSION_DOMAIN`           | Cookie domain scope               | _(empty)_                       | Yes      | **Must be empty** for localhost cross-port auth |
+| `SESSION_SECURE_COOKIE`    | HTTPS-only cookies                | `false`                         | Yes      | Set `true` in production                        |
+| `SANCTUM_STATEFUL_DOMAINS` | Domains receiving session cookies | `localhost:3000,127.0.0.1:3000` | Yes      | Must include frontend host                      |
+| `BROADCAST_CONNECTION`     | Broadcast driver                  | `reverb`                        | Yes      | Set to `log` to disable WebSockets              |
+| `REVERB_APP_ID`            | Reverb application ID             | `100001`                        | Yes      | Any numeric ID                                  |
+| `REVERB_APP_KEY`           | Reverb app key                    | _(random string)_               | Yes      | Generate with `openssl rand -hex 16`            |
+| `REVERB_APP_SECRET`        | Reverb app secret                 | _(random string)_               | Yes      | Generate with `openssl rand -hex 16`            |
+| `ML_SERVICE_URL`           | FastAPI ML service URL            | `http://localhost:8001`         | Optional | Change if ML service runs elsewhere             |
+| `MAIL_MAILER`              | Mail driver                       | `log`                           | Optional | Use `smtp` for real email                       |
+| `MAIL_HOST`                | SMTP host (if using smtp)         | `smtp.gmail.com`                | Optional | Your SMTP provider                              |
+| `MAIL_USERNAME`            | SMTP username                     | `your-email@gmail.com`          | Optional | Your email                                      |
+| `MAIL_PASSWORD`            | SMTP password                     | `your-app-password`             | Optional | Google: App Passwords (requires 2FA)            |
 
 ```env
 # backend/.env — minimal required overrides
@@ -286,13 +288,13 @@ NEXT_PUBLIC_REVERB_PORT="8080"
 NEXT_PUBLIC_REVERB_SCHEME="http"
 ```
 
-| Variable | Description | Example Value | Required |
-|---|---|---|---|
-| `NEXT_PUBLIC_API_URL` | Laravel API base URL | `http://localhost:8000` | Yes |
-| `NEXT_PUBLIC_REVERB_APP_KEY` | Must match `REVERB_APP_KEY` in backend | _(same as backend)_ | Yes |
-| `NEXT_PUBLIC_REVERB_HOST` | Reverb host | `localhost` | Yes |
-| `NEXT_PUBLIC_REVERB_PORT` | Reverb port | `8080` | Yes |
-| `NEXT_PUBLIC_REVERB_SCHEME` | `http` or `https` | `http` | Yes |
+| Variable                     | Description                            | Example Value           | Required |
+| ---------------------------- | -------------------------------------- | ----------------------- | -------- |
+| `NEXT_PUBLIC_API_URL`        | Laravel API base URL                   | `http://localhost:8000` | Yes      |
+| `NEXT_PUBLIC_REVERB_APP_KEY` | Must match `REVERB_APP_KEY` in backend | _(same as backend)_     | Yes      |
+| `NEXT_PUBLIC_REVERB_HOST`    | Reverb host                            | `localhost`             | Yes      |
+| `NEXT_PUBLIC_REVERB_PORT`    | Reverb port                            | `8080`                  | Yes      |
+| `NEXT_PUBLIC_REVERB_SCHEME`  | `http` or `https`                      | `http`                  | Yes      |
 
 #### ML Service
 
@@ -337,6 +339,7 @@ php artisan migrate:fresh --seed
 ```
 
 **Seeder execution order** (defined in `DatabaseSeeder.php`):
+
 1. `RoleSeeder` — Creates Admin, Guest, Manager, Staff roles
 2. `PermissionSeeder` — Creates granular permissions per resource
 3. `RolePermissionSeeder` — Maps permissions to roles
@@ -348,6 +351,7 @@ php artisan migrate:fresh --seed
 9. `ProductSeeder` — Sample products with stock levels
 
 > **Note**: `HistoricalDataSeeder` exists but is **not** called by `DatabaseSeeder`. Run it manually if you need historical sales/order data for ML training:
+>
 > ```bash
 > php artisan db:seed --class=HistoricalDataSeeder
 > ```
@@ -377,11 +381,13 @@ pip install -r requirements.txt
 **Dependencies installed**: FastAPI, Uvicorn, pandas, Prophet, scikit-learn, Pydantic, mysql-connector-python, python-dotenv.
 
 > **Note on Prophet**: Prophet uses `cmdstanpy` as its backend. If installation fails:
+>
 > ```bash
 > pip install cmdstanpy
 > python -c "import cmdstanpy; cmdstanpy.install_cmdstan()"
 > pip install prophet
 > ```
+>
 > On Windows, you may need to install [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) first.
 
 No model weights need to be downloaded — models are trained at runtime from database data and saved as `.pkl` files in `ml-service/trained_models/`.
@@ -435,11 +441,13 @@ php artisan schedule:work
 ```
 
 > **Shortcut**: The backend `composer dev` script starts three sub-processes concurrently — the API server, queue worker, and Vite asset watcher. **It does not start Reverb or the scheduler** — those must be launched separately if needed.
+>
 > ```bash
 > cd backend
 > composer dev           # Starts server + queue + Vite
 > php artisan reverb:start  # Separate terminal for WebSockets
 > ```
+>
 > You still need to start the frontend and ML service in their own terminals.
 
 #### Option B — Docker Compose
@@ -452,22 +460,22 @@ Docker Compose is not currently configured for this project.
 
 **Backend** (`composer.json` scripts):
 
-| Command | Description |
-|---|---|
-| `composer dev` | Starts API server + queue worker + Vite concurrently |
+| Command          | Description                                                     |
+| ---------------- | --------------------------------------------------------------- |
+| `composer dev`   | Starts API server + queue worker + Vite concurrently            |
 | `composer setup` | Full setup: install, env copy, key:generate, migrate, npm build |
-| `composer test` | Runs Pest PHP test suite |
+| `composer test`  | Runs Pest PHP test suite                                        |
 
 **Frontend** (`package.json` scripts):
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Starts Next.js dev server on port 3000 |
-| `npm run build` | Production build |
-| `npm run start` | Serves production build |
-| `npm run lint` | Runs ESLint |
-| `npm run test:e2e` | Runs Playwright E2E tests |
-| `npm run test:e2e:ui` | Opens Playwright UI mode |
+| Command               | Description                            |
+| --------------------- | -------------------------------------- |
+| `npm run dev`         | Starts Next.js dev server on port 3000 |
+| `npm run build`       | Production build                       |
+| `npm run start`       | Serves production build                |
+| `npm run lint`        | Runs ESLint                            |
+| `npm run test:e2e`    | Runs Playwright E2E tests              |
+| `npm run test:e2e:ui` | Opens Playwright UI mode               |
 
 ---
 
@@ -475,11 +483,11 @@ Docker Compose is not currently configured for this project.
 
 These accounts are created by `UserSeeder` when you run `php artisan db:seed`:
 
-| Role | Email | Password |
-|---|---|---|
-| **Admin** | `admin@qollab.com` | `password` |
+| Role        | Email                | Password   |
+| ----------- | -------------------- | ---------- |
+| **Admin**   | `admin@qollab.com`   | `password` |
 | **Manager** | `manager@qollab.com` | `password` |
-| **Staff** | `staff@qollab.com` | `password` |
+| **Staff**   | `staff@qollab.com`   | `password` |
 
 All seeded accounts have pre-verified email addresses and can log in immediately.
 
@@ -497,76 +505,76 @@ The backend exposes a RESTful API prefixed with `/api`. Authentication uses Lara
 
 **Authentication & Users**
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `POST` | `/api/login` | Authenticate user (session cookie) | No |
-| `POST` | `/api/register` | Self-service signup (Guest role) | No |
-| `POST` | `/api/logout` | Destroy session | Yes |
-| `GET` | `/api/user` | Current user profile | Yes |
-| `POST` | `/api/password/forgot` | Request password reset email | No |
-| `POST` | `/api/password/reset` | Reset password with token | No |
-| `POST` | `/api/email/verify/{id}/{hash}` | Verify email (signed URL) | No |
-| `GET` | `/api/users` | List users (admin) | Yes |
-| `GET` | `/api/roles` | List roles | Yes |
+| Method | Endpoint                        | Description                        | Auth |
+| ------ | ------------------------------- | ---------------------------------- | ---- |
+| `POST` | `/api/login`                    | Authenticate user (session cookie) | No   |
+| `POST` | `/api/register`                 | Self-service signup (Guest role)   | No   |
+| `POST` | `/api/logout`                   | Destroy session                    | Yes  |
+| `GET`  | `/api/user`                     | Current user profile               | Yes  |
+| `POST` | `/api/password/forgot`          | Request password reset email       | No   |
+| `POST` | `/api/password/reset`           | Reset password with token          | No   |
+| `POST` | `/api/email/verify/{id}/{hash}` | Verify email (signed URL)          | No   |
+| `GET`  | `/api/users`                    | List users (admin)                 | Yes  |
+| `GET`  | `/api/roles`                    | List roles                         | Yes  |
 
 **Inventory**
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/api/products` | List products (paginated) | Yes |
-| `POST` | `/api/products` | Create product | Yes |
-| `GET` | `/api/products/low-stock` | Products below reorder point | Yes |
-| `POST` | `/api/products/{id}/adjust` | Adjust stock levels | Yes |
-| `POST` | `/api/products/{id}/receive` | Receive stock | Yes |
-| `GET` | `/api/warehouses` | List warehouses | Yes |
-| `GET` | `/api/categories` | List categories | Yes |
+| Method | Endpoint                     | Description                  | Auth |
+| ------ | ---------------------------- | ---------------------------- | ---- |
+| `GET`  | `/api/products`              | List products (paginated)    | Yes  |
+| `POST` | `/api/products`              | Create product               | Yes  |
+| `GET`  | `/api/products/low-stock`    | Products below reorder point | Yes  |
+| `POST` | `/api/products/{id}/adjust`  | Adjust stock levels          | Yes  |
+| `POST` | `/api/products/{id}/receive` | Receive stock                | Yes  |
+| `GET`  | `/api/warehouses`            | List warehouses              | Yes  |
+| `GET`  | `/api/categories`            | List categories              | Yes  |
 
 **Procurement**
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/api/purchase-orders` | List purchase orders | Yes |
-| `POST` | `/api/purchase-orders` | Create purchase order | Yes |
-| `POST` | `/api/purchase-orders/quick-create` | Quick-create from low-stock | Yes |
-| `POST` | `/api/purchase-orders/bulk` | Bulk-create POs | Yes |
-| `PATCH` | `/api/purchase-orders/{id}/submit` | Submit for approval | Yes |
-| `PATCH` | `/api/purchase-orders/{id}/confirm` | Approve PO | Yes |
-| `POST` | `/api/purchase-orders/{id}/receive` | Receive stock from PO | Yes |
-| `GET` | `/api/purchase-orders/{id}/export` | Export PO as PDF | Yes |
+| Method  | Endpoint                            | Description                 | Auth |
+| ------- | ----------------------------------- | --------------------------- | ---- |
+| `GET`   | `/api/purchase-orders`              | List purchase orders        | Yes  |
+| `POST`  | `/api/purchase-orders`              | Create purchase order       | Yes  |
+| `POST`  | `/api/purchase-orders/quick-create` | Quick-create from low-stock | Yes  |
+| `POST`  | `/api/purchase-orders/bulk`         | Bulk-create POs             | Yes  |
+| `PATCH` | `/api/purchase-orders/{id}/submit`  | Submit for approval         | Yes  |
+| `PATCH` | `/api/purchase-orders/{id}/confirm` | Approve PO                  | Yes  |
+| `POST`  | `/api/purchase-orders/{id}/receive` | Receive stock from PO       | Yes  |
+| `GET`   | `/api/purchase-orders/{id}/export`  | Export PO as PDF            | Yes  |
 
 **Sales**
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/api/sales/orders` | List sales orders | Yes |
-| `POST` | `/api/sales/orders` | Create sales order | Yes |
-| `POST` | `/api/sales/orders/{id}/confirm` | Confirm order | Yes |
-| `POST` | `/api/sales/orders/{id}/ship` | Mark as shipped | Yes |
-| `POST` | `/api/sales/orders/{id}/deliver` | Mark as delivered | Yes |
-| `POST` | `/api/sales/orders/{orderId}/invoice` | Generate invoice | Yes |
-| `GET` | `/api/sales/invoices/{id}/export` | Export invoice as PDF | Yes |
+| Method | Endpoint                              | Description           | Auth |
+| ------ | ------------------------------------- | --------------------- | ---- |
+| `GET`  | `/api/sales/orders`                   | List sales orders     | Yes  |
+| `POST` | `/api/sales/orders`                   | Create sales order    | Yes  |
+| `POST` | `/api/sales/orders/{id}/confirm`      | Confirm order         | Yes  |
+| `POST` | `/api/sales/orders/{id}/ship`         | Mark as shipped       | Yes  |
+| `POST` | `/api/sales/orders/{id}/deliver`      | Mark as delivered     | Yes  |
+| `POST` | `/api/sales/orders/{orderId}/invoice` | Generate invoice      | Yes  |
+| `GET`  | `/api/sales/invoices/{id}/export`     | Export invoice as PDF | Yes  |
 
 **Suppliers, Notifications & Reports**
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/api/suppliers` | List suppliers | Yes |
-| `GET` | `/api/suppliers/{id}/performance` | Supplier performance metrics | Yes |
-| `GET` | `/api/notifications` | List notifications | Yes |
-| `GET` | `/api/dashboard/stats` | Dashboard summary KPIs | Yes |
-| `GET` | `/api/reports/inventory-valuation` | Inventory valuation report | Yes |
-| `GET` | `/api/reports/sales-performance` | Sales performance report | Yes |
-| `GET` | `/api/reports/inventory-forecast` | AI-driven forecast report | Yes |
-| `GET` | `/api/reports/export/{type}` | Export report as CSV/PDF | Yes |
+| Method | Endpoint                           | Description                  | Auth |
+| ------ | ---------------------------------- | ---------------------------- | ---- |
+| `GET`  | `/api/suppliers`                   | List suppliers               | Yes  |
+| `GET`  | `/api/suppliers/{id}/performance`  | Supplier performance metrics | Yes  |
+| `GET`  | `/api/notifications`               | List notifications           | Yes  |
+| `GET`  | `/api/dashboard/stats`             | Dashboard summary KPIs       | Yes  |
+| `GET`  | `/api/reports/inventory-valuation` | Inventory valuation report   | Yes  |
+| `GET`  | `/api/reports/sales-performance`   | Sales performance report     | Yes  |
+| `GET`  | `/api/reports/inventory-forecast`  | AI-driven forecast report    | Yes  |
+| `GET`  | `/api/reports/export/{type}`       | Export report as CSV/PDF     | Yes  |
 
 ### ML Service Endpoints
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/health` | Health check |
-| `POST` | `/train/demand` | Train demand forecasting model for a product |
-| `POST` | `/train/lead-time` | Train lead-time model for a supplier |
-| `POST` | `/predict` | Get demand predictions for a product |
+| Method | Endpoint           | Description                                  |
+| ------ | ------------------ | -------------------------------------------- |
+| `GET`  | `/health`          | Health check                                 |
+| `POST` | `/train/demand`    | Train demand forecasting model for a product |
+| `POST` | `/train/lead-time` | Train lead-time model for a supplier         |
+| `POST` | `/predict`         | Get demand predictions for a product         |
 
 ### Permission System
 
@@ -574,12 +582,12 @@ All protected endpoints use a `permission:action,resource` middleware. Actions a
 
 The four seeded roles have these default access levels:
 
-| Role | Access Level |
-|---|---|
-| **Admin** | Full access to all resources (sealed — cannot be deleted) |
-| **Manager** | CRUD on inventory, suppliers, purchase orders; read on all |
-| **Staff** | Read-only access to operational data |
-| **Guest** | Default for new signups — no permissions until admin grants them |
+| Role        | Access Level                                                     |
+| ----------- | ---------------------------------------------------------------- |
+| **Admin**   | Full access to all resources (sealed — cannot be deleted)        |
+| **Manager** | CRUD on inventory, suppliers, purchase orders; read on all       |
+| **Staff**   | Read-only access to operational data                             |
+| **Guest**   | Default for new signups — no permissions until admin grants them |
 
 ---
 
@@ -587,9 +595,9 @@ The four seeded roles have these default access levels:
 
 The application uses Laravel's scheduler and database queue:
 
-| Schedule | Command / Job | Description |
-|---|---|---|
-| Daily at 08:00 | `inventory:check-forecasts` | Scans for products predicted to stock out within 7 days and notifies Admins/Managers |
+| Schedule       | Command / Job                        | Description                                                                               |
+| -------------- | ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| Daily at 08:00 | `inventory:check-forecasts`          | Scans for products predicted to stock out within 7 days and notifies Admins/Managers      |
 | Daily at 02:00 | `TrainPredictiveModels` (queued job) | Retrains demand and lead-time models for all active products/suppliers via the ML service |
 
 To run the scheduler locally:
@@ -613,18 +621,18 @@ The `TrainPredictiveModels` job (dispatched daily at 02:00 via the scheduler) it
 
 ## Troubleshooting
 
-| # | Error | Cause | Fix |
-|---|---|---|---|
-| 1 | `SQLSTATE[HY000] [1049] Unknown database 'QollabInventory'` | Database not created | `mysql -u root -p -e "CREATE DATABASE QollabInventory;"` |
-| 2 | `CSRF token mismatch` | Frontend not sending cookies properly | Ensure `SANCTUM_STATEFUL_DOMAINS` includes `localhost:3000` and `SESSION_DOMAIN` is empty or `localhost` |
-| 3 | `CORS: No 'Access-Control-Allow-Origin'` | `FRONTEND_URL` mismatch | Set `FRONTEND_URL=http://localhost:3000` in backend `.env` |
-| 4 | `419 Page Expired` on login | Missing CSRF cookie | Ensure frontend calls `GET /sanctum/csrf-cookie` before `POST /api/login` |
-| 5 | `Vite manifest not found` | Backend Vite assets not built | Run `cd backend && npm run build` |
-| 6 | `Connection refused` on port 8080 | Reverb not running | Run `php artisan reverb:start` or set `BROADCAST_CONNECTION=log` to disable |
-| 7 | `ModuleNotFoundError: No module named 'prophet'` | Prophet not installed | Run `pip install prophet` inside the venv. On Windows, install C++ Build Tools first |
-| 8 | `ERROR: No matching distribution found for prophet` | Python version too old or missing dependencies | Use Python 3.10+. Try: `pip install pystan==2.19.1.1 && pip install prophet` |
-| 9 | Frontend shows blank page / 500 | API unreachable | Verify `NEXT_PUBLIC_API_URL` matches the running backend URL |
-| 10 | `Permission denied` errors in dashboard | User role lacks permission | Log in as `admin@qollab.com` or grant permissions via Settings → Roles |
+| #   | Error                                                       | Cause                                          | Fix                                                                                                      |
+| --- | ----------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| 1   | `SQLSTATE[HY000] [1049] Unknown database 'QollabInventory'` | Database not created                           | `mysql -u root -p -e "CREATE DATABASE QollabInventory;"`                                                 |
+| 2   | `CSRF token mismatch`                                       | Frontend not sending cookies properly          | Ensure `SANCTUM_STATEFUL_DOMAINS` includes `localhost:3000` and `SESSION_DOMAIN` is empty or `localhost` |
+| 3   | `CORS: No 'Access-Control-Allow-Origin'`                    | `FRONTEND_URL` mismatch                        | Set `FRONTEND_URL=http://localhost:3000` in backend `.env`                                               |
+| 4   | `419 Page Expired` on login                                 | Missing CSRF cookie                            | Ensure frontend calls `GET /sanctum/csrf-cookie` before `POST /api/login`                                |
+| 5   | `Vite manifest not found`                                   | Backend Vite assets not built                  | Run `cd backend && npm run build`                                                                        |
+| 6   | `Connection refused` on port 8080                           | Reverb not running                             | Run `php artisan reverb:start` or set `BROADCAST_CONNECTION=log` to disable                              |
+| 7   | `ModuleNotFoundError: No module named 'prophet'`            | Prophet not installed                          | Run `pip install prophet` inside the venv. On Windows, install C++ Build Tools first                     |
+| 8   | `ERROR: No matching distribution found for prophet`         | Python version too old or missing dependencies | Use Python 3.10+. Try: `pip install pystan==2.19.1.1 && pip install prophet`                             |
+| 9   | Frontend shows blank page / 500                             | API unreachable                                | Verify `NEXT_PUBLIC_API_URL` matches the running backend URL                                             |
+| 10  | `Permission denied` errors in dashboard                     | User role lacks permission                     | Log in as `admin@qollab.com` or grant permissions via Settings → Roles                                   |
 
 ---
 
@@ -657,6 +665,7 @@ npm run test:e2e:ui
 ```
 
 Playwright is configured with three test projects:
+
 - **guest** — Unauthenticated user tests (`*.guest.spec.ts`)
 - **admin** — Admin user tests (`*.admin.spec.ts`)
 - **staff** — Staff user tests (`*.staff.spec.ts`)
@@ -727,6 +736,7 @@ npm run start   # or deploy the .next/ output to Vercel / Node server
 ### Reverse Proxy (Nginx)
 
 A reverse proxy is recommended to serve the backend, frontend, and WebSocket connections under a single domain. Key points:
+
 - Proxy `/api/*` and `/sanctum/*` to the Laravel backend (port 8000)
 - Proxy WebSocket upgrades on port 8080 for Reverb
 - Serve the Next.js app on the root domain or a subdomain
@@ -743,6 +753,7 @@ A reverse proxy is recommended to serve the backend, frontend, and WebSocket con
 5. **Open** a Pull Request against `main`
 
 Please ensure:
+
 - All existing tests pass (`composer test` and `npm run test:e2e`)
 - New features include appropriate tests
 - PHP code is formatted with Pint: `cd backend && ./vendor/bin/pint`
