@@ -4,6 +4,7 @@ namespace App\Modules\Inventory\Services;
 
 use App\Models\Inventory\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -23,7 +24,7 @@ class ProductService
         string $sortOrder = 'asc',
         int $perPage = 15
     ): LengthAwarePaginator {
-        $query = Product::with(['category', 'unit']);
+        $query = Product::with(['category', 'unit', 'stockLevels']);
 
         if (! empty($filters['search'])) {
             $query->search($filters['search']);
@@ -46,7 +47,7 @@ class ProductService
         }
 
         if (isset($filters['is_active'])) {
-            (bool) $filters['is_active']
+            filter_var($filters['is_active'], FILTER_VALIDATE_BOOLEAN)
                 ? $query->active()
                 : $query->where('is_active', false);
         }
@@ -75,6 +76,39 @@ class ProductService
         $sortOrder = strtolower($sortOrder) === 'desc' ? 'desc' : 'asc';
 
         return $query->orderBy($sortBy, $sortOrder)->paginate($perPage);
+    }
+
+    /**
+     * Get global product stats for KPIs.
+     */
+    public function getProductStats(): array
+    {
+        $query = DB::table('products as p')
+            ->leftJoin('stock_levels as s', 'p.id', '=', 's.product_id')
+            ->whereNull('p.deleted_at')
+            ->groupBy('p.id', 'p.reorder_point')
+            ->selectRaw('
+                p.id,
+                p.reorder_point,
+                COALESCE(SUM(s.current_stock), 0) as current_stock
+            ');
+
+        $stats = DB::table(DB::raw("({$query->toSql()}) as t"))
+            ->mergeBindings($query)
+            ->selectRaw('
+                COUNT(*) as total_products,
+                SUM(CASE WHEN t.current_stock <= (t.reorder_point * 0.5) THEN 1 ELSE 0 END) as critical,
+                SUM(CASE WHEN t.current_stock <= t.reorder_point AND t.current_stock > (t.reorder_point * 0.5) THEN 1 ELSE 0 END) as low,
+                SUM(CASE WHEN t.current_stock > t.reorder_point THEN 1 ELSE 0 END) as normal
+            ')
+            ->first();
+
+        return [
+            'total' => (int) $stats->total_products,
+            'critical' => (int) $stats->critical,
+            'low' => (int) $stats->low,
+            'normal' => (int) $stats->normal,
+        ];
     }
 
     /**

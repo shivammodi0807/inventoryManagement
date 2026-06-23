@@ -19,6 +19,8 @@ Route::prefix('sales')->middleware('auth:sanctum')->group(function () {
     Route::post('orders/{id}/deliver', [SalesOrderController::class, 'deliver']);
 
     // Invoices
+    Route::get('invoices/stats', [InvoiceController::class, 'stats']);
+    Route::get('invoices', [InvoiceController::class, 'index']);
     Route::post('orders/{orderId}/invoice', [InvoiceController::class, 'generate']);
     Route::get('invoices/{id}/export', [InvoiceController::class, 'export']);
     Route::post('invoices/{id}/payments', [InvoiceController::class, 'recordPayment']);

@@ -196,11 +196,11 @@ export default function CategoriesPage() {
                                 <MoreHorizontal className="size-5" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48 rounded-xl border-border/40 shadow-premium p-1.5">
+                            <DropdownMenuContent align="end" className="w-40 rounded-xl border-border/40 shadow-premium p-1.5">
                               <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 px-2 py-2">Lifecycle Actions</DropdownMenuLabel>
                               {can("edit", "category") && (
                                 <DropdownMenuItem onClick={() => handleEdit(category)} className="rounded-lg font-semibold gap-2 py-2.5">
-                                  <Pencil className="size-4" /> Edit Category
+                                  <Pencil className="size-4" /> Edit
                                 </DropdownMenuItem>
                               )}
                               {can("delete", "category") && (
@@ -210,7 +210,7 @@ export default function CategoriesPage() {
                                     className="text-destructive focus:bg-destructive/10 focus:text-destructive rounded-lg font-semibold gap-2 py-2.5"
                                     onClick={() => setDeletingId(category.id)}
                                   >
-                                    <Trash2 className="size-4" /> Purge Category
+                                    <Trash2 className="size-4" /> Delete
                                   </DropdownMenuItem>
                                 </>
                               )}
@@ -246,8 +246,8 @@ export default function CategoriesPage() {
         open={deletingId !== null}
         onOpenChange={(open) => !open && setDeletingId(null)}
         onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
-        title="Confirm Category Purge"
-        description="Are you sure you want to purge this taxonomic cluster? This action is irreversible and may orphan multiple product assets."
+        title="Confirm Category Delete"
+        description="Are you sure you want to delete this taxonomic cluster? This action is irreversible and may orphan multiple product assets."
         isLoading={deleteMutation.isPending}
       />
     </div>

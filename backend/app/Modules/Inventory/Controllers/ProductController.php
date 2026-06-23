@@ -32,6 +32,15 @@ class ProductController extends Controller
     }
 
     /**
+     * Display global stats for dashboard KPIs.
+     */
+    public function stats(): JsonResponse
+    {
+        $stats = $this->productService->getProductStats();
+        return response()->json($stats);
+    }
+
+    /**
      * Display a listing of products (paginated).
      */
     public function index(Request $request): AnonymousResourceCollection

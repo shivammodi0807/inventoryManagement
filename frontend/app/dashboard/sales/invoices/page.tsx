@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Search, FileText, TrendingUp, Clock, AlertCircle, Filter } from "lucide-react";
-import { useInvoices } from "@/hooks/use-sales-orders";
+import { useInvoices, useInvoiceStats } from "@/hooks/use-sales-orders";
 import { InvoiceTable } from "@/components/sales/invoice-table";
 import { Input } from "@/components/ui/input";
 import {
@@ -30,6 +30,8 @@ export default function InvoicesPage() {
     per_page: perPage,
   });
 
+  const { data: stats } = useInvoiceStats();
+
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -39,8 +41,6 @@ export default function InvoicesPage() {
   }, [search]);
 
   const invoices = data?.data || [];
-  const unpaidCount = invoices.filter(i => i.status === 'unpaid').length;
-  const overdueCount = invoices.filter(i => i.status === 'overdue').length;
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -74,7 +74,7 @@ export default function InvoicesPage() {
         <div className="premium-card p-6 flex items-center justify-between group hover:border-primary/30 transition-all cursor-default">
           <div className="space-y-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Total Issued</p>
-            <h3 className="text-3xl font-semibold tabular-nums">{data?.total ?? 0}</h3>
+            <h3 className="text-3xl font-semibold tabular-nums">{stats?.total ?? 0}</h3>
             <div className="flex items-center gap-1 text-emerald-500 text-[10px] font-semibold bg-emerald-500/10 px-1.5 py-0.5 rounded-full w-fit">
               <TrendingUp className="h-3 w-3" />
               <span>Revenue Tracking</span>
@@ -88,7 +88,7 @@ export default function InvoicesPage() {
         <div className="premium-card p-6 flex items-center justify-between group hover:border-amber-500/30 transition-all cursor-default">
           <div className="space-y-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Pending Collection</p>
-            <h3 className="text-3xl font-semibold tabular-nums text-amber-600">{unpaidCount}</h3>
+            <h3 className="text-3xl font-semibold tabular-nums text-amber-600">{stats?.unpaid ?? 0}</h3>
             <p className="text-[10px] text-muted-foreground font-semibold italic">Awaiting Settlement</p>
           </div>
           <div className="h-12 w-12 rounded-2xl bg-amber-500/5 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform border border-amber-500/10">
@@ -99,7 +99,7 @@ export default function InvoicesPage() {
         <div className="premium-card p-6 flex items-center justify-between group hover:border-rose-500/30 transition-all cursor-default">
           <div className="space-y-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Risk Threshold</p>
-            <h3 className="text-3xl font-semibold tabular-nums text-rose-600">{overdueCount}</h3>
+            <h3 className="text-3xl font-semibold tabular-nums text-rose-600">{stats?.overdue ?? 0}</h3>
             <p className="text-[10px] text-rose-500/70 font-semibold uppercase tracking-tighter animate-pulse">Critical Overdue</p>
           </div>
           <div className="h-12 w-12 rounded-2xl bg-rose-500/5 flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform border border-rose-500/10">

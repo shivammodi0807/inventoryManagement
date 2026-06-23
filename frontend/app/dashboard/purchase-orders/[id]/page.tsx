@@ -57,7 +57,7 @@ export default function PurchaseOrderDetailPage() {
   const [receiveModalOpen, setReceiveModalOpen] = React.useState(false);
 
   // Extract order handling both wrapped { data: ... } and direct formats
-  const order = (data?.data || data) as PurchaseOrder | undefined;
+  const order = (data && typeof data === 'object' && 'data' in data ? (data as { data: PurchaseOrder }).data : data) as PurchaseOrder | undefined;
 
 
   if (isError) return <ErrorState title="System Interruption" message={error?.message || "We encountered an unexpected error while retrieving your data."} onRetry={() => refetch()} />;

@@ -14,6 +14,27 @@ class InvoiceController extends Controller
     public function __construct(private InvoiceService $service) {}
 
     /**
+     * Get paginated invoices.
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $filters = $request->only(['search', 'status']);
+        $perPage = (int) $request->query('per_page', 15);
+        
+        $invoices = $this->service->getInvoices($filters, $perPage);
+        return response()->json($invoices);
+    }
+
+    /**
+     * Get global invoice stats for dashboard KPIs.
+     */
+    public function stats(): JsonResponse
+    {
+        $stats = $this->service->getInvoiceStats();
+        return response()->json($stats);
+    }
+
+    /**
      * Generate an invoice for a specific Sales Order.
      */
     public function generate(int $orderId): JsonResponse

@@ -83,6 +83,7 @@ export default function CreatePurchaseOrderPage() {
     control,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<POFormValues>({
     resolver: zodResolver(poSchema) as Resolver<POFormValues>,
@@ -112,15 +113,19 @@ export default function CreatePurchaseOrderPage() {
 
   const onSubmit = async (values: POFormValues) => {
     try {
-      const res = await createMutation.mutateAsync({
+      await createMutation.mutateAsync({
         ...values,
         exp_delivery: values.exp_delivery || null, // convert empty string to null
       });
-      // Redirect to the newly created PO detail page
-      const orderId = res?.data?.id;
-      if (orderId) {
-        router.push(`/dashboard/purchase-orders/${orderId}`);
-      }
+      
+      // Clear the form for the next entry
+      reset({
+        supplier_id: 0,
+        order_date: format(new Date(), "yyyy-MM-dd"),
+        exp_delivery: "",
+        description: "",
+        items: [{ product_id: 0, qty_ordered: 1, cost_price: 0 }],
+      });
     } catch {
       // toast handled in mutation
     }

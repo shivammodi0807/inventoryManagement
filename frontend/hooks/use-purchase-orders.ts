@@ -55,9 +55,9 @@ export function useUpdatePurchaseOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdatePurchaseOrderPayload }) => updatePurchaseOrder(id, data),
-    onSuccess: (data: { data: PurchaseOrder }) => {
+    onSuccess: (data: PurchaseOrder) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      const orderId = data.data.id;
+      const orderId = data.id;
       if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order updated successfully");
     },
@@ -71,9 +71,9 @@ export function useSubmitPurchaseOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => submitPurchaseOrder(id),
-    onSuccess: (data: { data: PurchaseOrder }) => {
+    onSuccess: (data: PurchaseOrder) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      const orderId = data.data.id;
+      const orderId = data.id;
       if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order submitted successfully");
     },
@@ -87,9 +87,9 @@ export function useConfirmPurchaseOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => confirmPurchaseOrder(id),
-    onSuccess: (data: { data: PurchaseOrder }) => {
+    onSuccess: (data: PurchaseOrder) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      const orderId = data.data.id;
+      const orderId = data.id;
       if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order confirmed successfully");
     },
@@ -103,9 +103,9 @@ export function useCancelPurchaseOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => cancelPurchaseOrder(id),
-    onSuccess: (data: { data: PurchaseOrder }) => {
+    onSuccess: (data: PurchaseOrder) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      const orderId = data.data.id;
+      const orderId = data.id;
       if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       toast.success("Purchase order cancelled successfully");
     },
@@ -119,9 +119,9 @@ export function useReceivePurchaseOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: ReceivePurchaseOrderPayload }) => receivePurchaseOrder(id, data),
-    onSuccess: (data: { data: PurchaseOrder }) => {
+    onSuccess: (data: PurchaseOrder) => {
       queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
-      const orderId = data.data.id;
+      const orderId = data.id;
       if (orderId) queryClient.invalidateQueries({ queryKey: ["purchase-order", orderId] });
       // Invalidate stock/products as well since we just received inventory
       queryClient.invalidateQueries({ queryKey: ["products"] });

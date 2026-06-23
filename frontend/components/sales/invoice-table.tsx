@@ -84,7 +84,7 @@ export function InvoiceTable({ data }: InvoiceTableProps) {
                     </div>
                   </TableCell>
                   <TableCell className="py-5 px-6">
-                    <Link 
+                    <Link
                       href={`/dashboard/sales/orders/${invoice.sales_order_id}`}
                       className="flex items-center gap-2 group/link"
                     >
@@ -123,10 +123,10 @@ export function InvoiceTable({ data }: InvoiceTableProps) {
                     <div className="flex flex-col items-end">
                       <div className={cn(
                         "flex items-center text-sm font-semibold tabular-nums",
-                        Number(invoice.balance_due) > 0 ? "text-rose-600" : "text-emerald-600"
+                        Number(invoice.amount_due) > 0 ? "text-rose-600" : "text-emerald-600"
                       )}>
                         <Wallet className="size-3 mr-1 opacity-50" />
-                        {Number(invoice.balance_due).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        {Number(invoice.amount_due).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </div>
                       <p className="text-[9px] font-semibold text-muted-foreground/40 uppercase tracking-tighter">Receivable</p>
                     </div>
@@ -150,7 +150,7 @@ export function InvoiceTable({ data }: InvoiceTableProps) {
                         <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">Management</DropdownMenuLabel>
                         <DropdownMenuItem asChild className="rounded-lg cursor-pointer font-semibold text-xs">
                           <Link href={`/dashboard/sales/orders/${invoice.sales_order_id}`} className="gap-2">
-                            <ExternalLink className="size-3.5 text-primary" /> System Trace
+                            <ExternalLink className="size-3.5 text-primary" /> View Order
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />

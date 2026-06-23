@@ -72,13 +72,15 @@ class PurchaseOrder extends Model
             }
 
             $year = now()->year;
+            $prefix = "PO-{$year}-";
+            
             $last = static::withTrashed()
-                ->whereYear('created_at', $year)
+                ->where('order_number', 'like', $prefix . '%')
                 ->orderByDesc('id')
                 ->first();
 
             $next = 1;
-            if ($last && preg_match('/(\d+)$/', $last->order_number, $m)) {
+            if ($last && preg_match('/-(\d+)$/', $last->order_number, $m)) {
                 $next = (int) $m[1] + 1;
             }
 

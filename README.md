@@ -21,9 +21,10 @@ php artisan migrate --seed && php artisan storage:link
 cd ../frontend && cp .env.example .env.local && npm install
 # Edit .env.local: set NEXT_PUBLIC_REVERB_APP_KEY to match backend
 
-# 3. Run (three terminals minimum)
+# 3. Run (four terminals minimum)
 cd ../backend && php artisan serve     # Terminal 1 — Api servers
 cd ../backend && php artisan reverb:start     # Terminal 2 — websocket connection
+cd ../backend && php artisan queue:work     # Terminal 3 — queue worker
 
 cd ../frontend && npm run dev     # Terminal 3 — Next.js on :3000
 

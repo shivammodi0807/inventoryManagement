@@ -10,7 +10,8 @@ import {
   generateInvoice,
   recordPayment,
   exportInvoice,
-  getInvoices
+  getInvoices,
+  getInvoiceStats
 } from "@/lib/sales";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -28,6 +29,13 @@ export function useInvoices(filters: InvoiceFilters = {}) {
   return useQuery({
     queryKey: ["invoices", filters],
     queryFn: () => getInvoices(filters),
+  });
+}
+
+export function useInvoiceStats() {
+  return useQuery({
+    queryKey: ["invoice-stats"],
+    queryFn: getInvoiceStats,
   });
 }
 

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-import { getProducts, getCategories, deleteProduct } from "@/lib/inventory";
+import { getProducts, getCategories, deleteProduct, getProductStats } from "@/lib/inventory";
 import { ProductsTable } from "@/components/inventory/products-table";
 import { StockAdjustModal } from "@/components/inventory/stock-adjust-modal";
 import { BulkLinkSupplierModal } from "@/components/inventory/bulk-link-supplier-modal";
@@ -60,6 +60,11 @@ export default function ProductsPage() {
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: () => getCategories(),
+  });
+
+  const { data: stats } = useQuery({
+    queryKey: ["products-stats"],
+    queryFn: () => getProductStats(),
   });
 
   const deleteMutation = useMutation({
@@ -187,7 +192,7 @@ export default function ProductsPage() {
         <div className="premium-card p-6 flex items-center justify-between group hover:border-primary/30 transition-all cursor-default">
           <div className="space-y-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Total SKU Registry</p>
-            <h3 className="text-3xl font-semibold tabular-nums">{data?.total ?? 0}</h3>
+            <h3 className="text-3xl font-semibold tabular-nums">{stats?.total ?? 0}</h3>
             <div className="flex items-center gap-1 text-emerald-500 text-[10px] font-semibold bg-emerald-500/10 px-2 py-0.5 rounded-md w-fit uppercase tracking-tighter">
               <BarChart3 className="h-3 w-3" />
               <span>Full Spectrum</span>
@@ -202,7 +207,7 @@ export default function ProductsPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Low Stock Signals</p>
             <h3 className="text-3xl font-semibold tabular-nums text-amber-600">
-              {data?.data?.filter(p => p.stock_status === 'low' || p.stock_status === 'critical').length || 0}
+              {(stats?.low ?? 0) + (stats?.critical ?? 0)}
             </h3>
             <p className="text-[10px] text-muted-foreground font-semibold italic uppercase tracking-tighter">Requires Reorder</p>
           </div>
@@ -215,7 +220,7 @@ export default function ProductsPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Healthy Inventory</p>
             <h3 className="text-3xl font-semibold tabular-nums text-emerald-600">
-              {data?.data?.filter(p => p.stock_status === 'normal').length || 0}
+              {stats?.normal ?? 0}
             </h3>
             <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-tighter">Optimal Parity</p>
           </div>
@@ -228,7 +233,7 @@ export default function ProductsPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">Out of Stock</p>
             <h3 className="text-3xl font-semibold tabular-nums text-rose-600">
-              {data?.data?.filter(p => p.stock_status === 'critical').length || 0}
+              {stats?.critical ?? 0}
             </h3>
             <p className="text-[10px] text-rose-500 font-semibold uppercase tracking-tighter animate-pulse">Critical Shortage</p>
           </div>
@@ -373,7 +378,7 @@ export default function ProductsPage() {
         onOpenChange={(open) => !open && setDeletingId(null)}
         onConfirm={() => deletingId && deleteMutation.mutate(deletingId)}
         title="Asset Decommission"
-        description="Are you sure you want to decommission this asset? This will permanently purge the entry and all associated operational logs from the system registry."
+        description="Are you sure you want to decommission this asset? This will permanently delete the entry and all associated operational logs from the system registry."
         isLoading={deleteMutation.isPending}
         variant="destructive"
       />
@@ -383,7 +388,7 @@ export default function ProductsPage() {
         onOpenChange={setIsBulkDeleting}
         onConfirm={() => bulkDeleteMutation.mutate(selectedIds)}
         title="Batch Decommission"
-        description={`You are about to decommission ${selectedIds.length} assets. This procedure is permanent and will purge all selected entries from the system registry.`}
+        description={`You are about to decommission ${selectedIds.length} assets. This procedure is permanent and will delete all selected entries from the system registry.`}
         isLoading={bulkDeleteMutation.isPending}
         variant="destructive"
       />

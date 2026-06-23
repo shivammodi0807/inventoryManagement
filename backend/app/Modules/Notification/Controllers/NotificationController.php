@@ -52,4 +52,17 @@ class NotificationController extends Controller
 
         return response()->json(['message' => 'All marked as read']);
     }
+
+    public function destroy(Request $request, string $id): JsonResponse
+    {
+        $notification = $request->user()->notifications()->find($id);
+
+        if (! $notification) {
+            return response()->json(['message' => 'Notification not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $notification->delete();
+
+        return response()->json(['message' => 'Notification deleted']);
+    }
 }

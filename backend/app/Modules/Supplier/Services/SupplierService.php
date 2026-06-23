@@ -26,7 +26,7 @@ class SupplierService
         }
 
         if (isset($filters['is_active'])) {
-            (bool) $filters['is_active']
+            filter_var($filters['is_active'], FILTER_VALIDATE_BOOLEAN)
                 ? $query->active()
                 : $query->where('is_active', false);
         }

@@ -23,6 +23,11 @@ export const getLowStockProducts = async (params?: { page?: number; per_page?: n
   return res.data;
 };
 
+export const getProductStats = async (): Promise<{ total: number, critical: number, low: number, normal: number }> => {
+  const res = await axiosApi.get<{ total: number, critical: number, low: number, normal: number }>("/api/products/stats");
+  return res.data;
+};
+
 export const getProduct = async (id: number): Promise<Product> => {
   const res = await axiosApi.get<Product>(`/api/products/${id}`);
   return res.data;

@@ -87,6 +87,11 @@ export async function getInvoices(filters: InvoiceFilters = {}): Promise<Invoice
   return response.data;
 }
 
+export async function getInvoiceStats(): Promise<{total: number, unpaid: number, overdue: number, paid: number}> {
+  const response = await axiosApi.get("/api/sales/invoices/stats");
+  return response.data;
+}
+
 export function getInvoicePdfUrl(invoiceId: number): string {
   return `${process.env.NEXT_PUBLIC_API_URL}/api/sales/invoices/${invoiceId}/export`;
 }

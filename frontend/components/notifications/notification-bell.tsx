@@ -2,11 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Bell, CheckCheck, AlertTriangle, Package, ShoppingCart, Info, Loader2 } from "lucide-react";
+import { Bell, CheckCheck, AlertTriangle, Package, ShoppingCart, Info, Loader2, X } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { useUnreadCount, useNotifications, useMarkAsRead, useMarkAllAsRead } from "@/hooks/use-notifications";
+import { useUnreadCount, useNotifications, useMarkAsRead, useMarkAllAsRead, useDeleteNotification } from "@/hooks/use-notifications";
 import { useAuth } from "@/hooks/use-auth";
 import { getEcho } from "@/lib/echo";
 import { getCsrfCookie } from "@/lib/auth";
@@ -59,6 +59,7 @@ export function NotificationBell() {
   const { data: notificationsData } = useNotifications(1, 10);
   const markAsReadMutation = useMarkAsRead();
   const markAllMutation = useMarkAllAsRead();
+  const deleteMutation = useDeleteNotification();
 
   const notifications = notificationsData?.data ?? [];
 
@@ -73,10 +74,14 @@ export function NotificationBell() {
 
       const channel = echo.private(`App.Models.Auth.User.${user.id}`);
 
-      channel.notification((notification: AppNotification) => {
+      channel.notification((notification: AppNotification & { title?: string; message?: string }) => {
+        // Laravel Echo broadcasts the notification payload directly at the root, 
+        // while the API returns it inside a 'data' property.
+        const payload = notification.data || (notification as unknown as AppNotification["data"]);
+
         // Show real-time toast
-        toast.info(notification.data.title || "New Notification", {
-          description: notification.data.message,
+        toast.info(payload.title || "New Notification", {
+          description: payload.message,
           action: {
             label: "View",
             onClick: () => {
@@ -100,6 +105,11 @@ export function NotificationBell() {
   const handleMarkAsRead = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     markAsReadMutation.mutate(id);
+  };
+
+  const handleDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    deleteMutation.mutate(id);
   };
 
   const autoPoMutation = useMutation({
@@ -172,7 +182,7 @@ export function NotificationBell() {
         </div>
 
         {/* Notification list */}
-        <ScrollArea className="max-h-[420px]">
+        <div className="max-h-[380px] overflow-y-auto">
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
               <Bell className="h-8 w-8 text-muted-foreground/40" />
@@ -186,7 +196,7 @@ export function NotificationBell() {
                   <div
                     key={n.id}
                     className={cn(
-                      "flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50 cursor-pointer",
+                      "flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50 cursor-pointer group",
                       isUnread && "bg-muted/30",
                       getPriorityClass(n.data.priority, isUnread)
                     )}
@@ -226,19 +236,28 @@ export function NotificationBell() {
                         </div>
                       )}
                     </div>
-                    {isUnread && (
+                    <div className="flex flex-col items-center justify-start gap-2 shrink-0 ml-2">
+                      {isUnread && (
+                        <button
+                          className="h-2 w-2 rounded-full bg-primary"
+                          title="Mark as read"
+                          onClick={(e) => handleMarkAsRead(e, n.id)}
+                        />
+                      )}
                       <button
-                        className="shrink-0 mt-0.5 h-2 w-2 rounded-full bg-primary"
-                        title="Mark as read"
-                        onClick={(e) => handleMarkAsRead(e, n.id)}
-                      />
-                    )}
+                        className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Dismiss"
+                        onClick={(e) => handleDelete(e, n.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 );
               })}
             </div>
           )}
-        </ScrollArea>
+        </div>
 
         {/* Footer */}
         {notifications.length > 0 && (

@@ -20,7 +20,8 @@ class CustomerService
         }
 
         if (isset($filters['is_active'])) {
-            $query->where('is_active', $filters['is_active']);
+            $isActive = filter_var($filters['is_active'], FILTER_VALIDATE_BOOLEAN);
+            $query->where('is_active', $isActive);
         }
 
         return $query->latest()->paginate($perPage);

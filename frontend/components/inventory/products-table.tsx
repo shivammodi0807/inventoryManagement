@@ -24,7 +24,7 @@ import {
   Trash2,
   PackagePlus,
   ImageIcon,
-  ExternalLink
+  ExternalLink,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -137,7 +137,9 @@ export function ProductsTable({
                 )}
               </div>
               <div className="flex flex-col gap-0.5">
-                <span className="font-semiboldbold text-foreground text-base tracking-tight leading-none">{row.original.name}</span>
+                <span className="font-semiboldbold text-foreground text-base tracking-tight leading-none">
+                  {row.original.name}
+                </span>
                 <div className="flex items-center gap-1.5 mt-1">
                   <span className="text-[10px] font-semibold text-muted-foreground/50 uppercase tracking-widest bg-secondary/50 px-1.5 py-0.5 rounded">
                     {row.original.sku}
@@ -168,9 +170,12 @@ export function ProductsTable({
           return (
             <div className="flex flex-col items-end">
               <span className="font-semibold text-foreground tabular-nums text-base">
-                ${amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                $
+                {amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </span>
-              <span className="text-[10px] font-semibold text-muted-foreground/40 tracking-widest uppercase">Per Unit</span>
+              <span className="text-[10px] font-semibold text-muted-foreground/40 tracking-widest uppercase">
+                Per Unit
+              </span>
             </div>
           );
         },
@@ -179,23 +184,34 @@ export function ProductsTable({
         accessorKey: "total_stock",
         header: () => <div className="text-right">Liquidity</div>,
         cell: ({ row }) => {
-          const stock = row.getValue("total_stock") as number ?? 0;
+          const stock = (row.getValue("total_stock") as number) ?? 0;
           const reorderPoint = row.original.reorder_point || 0;
           return (
             <div className="flex flex-col items-end">
               <div className="flex items-center gap-1.5">
-                <span className={cn(
-                  "font-semibold tabular-nums text-lg leading-none",
-                  stock <= reorderPoint ? "text-destructive" : "text-foreground"
-                )}>
+                <span
+                  className={cn(
+                    "font-semibold tabular-nums text-lg leading-none",
+                    stock <= reorderPoint
+                      ? "text-destructive"
+                      : "text-foreground",
+                  )}
+                >
                   {stock.toLocaleString()}
                 </span>
-                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-tighter">Qty</span>
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-tighter">
+                  Qty
+                </span>
               </div>
               <div className="h-1 w-16 bg-secondary rounded-full mt-1.5 overflow-hidden">
                 <div
-                  className={cn("h-full rounded-full transition-all", stock <= reorderPoint ? "bg-destructive" : "bg-primary")}
-                  style={{ width: `${Math.min((stock / (reorderPoint * 2 || 1)) * 100, 100)}%` }}
+                  className={cn(
+                    "h-full rounded-full transition-all",
+                    stock <= reorderPoint ? "bg-destructive" : "bg-primary",
+                  )}
+                  style={{
+                    width: `${Math.min((stock / (reorderPoint * 2 || 1)) * 100, 100)}%`,
+                  }}
                 />
               </div>
             </div>
@@ -208,22 +224,49 @@ export function ProductsTable({
         cell: ({ row }) => {
           const status = row.original.stock_status || "normal";
 
-          const statusConfig: Record<string, { label: string; className: string }> = {
-            critical: { label: "Critical", className: "bg-destructive/10 text-destructive border-destructive/20" },
-            low: { label: "Low Supply", className: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
-            normal: { label: "Healthy", className: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
-            overstock: { label: "Overstocked", className: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
+          const statusConfig: Record<
+            string,
+            { label: string; className: string }
+          > = {
+            critical: {
+              label: "Critical",
+              className:
+                "bg-destructive/10 text-destructive border-destructive/20",
+            },
+            low: {
+              label: "Low Supply",
+              className: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+            },
+            normal: {
+              label: "Healthy",
+              className:
+                "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+            },
+            overstock: {
+              label: "Overstocked",
+              className: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+            },
           };
 
           const config = statusConfig[status] || statusConfig.normal;
 
           return (
-            <Badge className={cn("px-2 py-0.5 rounded-full font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1.5 border shadow-none", config.className)}>
-              <span className={cn("h-1.5 w-1.5 rounded-full",
-                status === 'critical' ? 'bg-destructive animate-pulse' :
-                  status === 'low' ? 'bg-amber-500' :
-                    'bg-emerald-500'
-              )} />
+            <Badge
+              className={cn(
+                "px-2 py-0.5 rounded-full font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1.5 border shadow-none",
+                config.className,
+              )}
+            >
+              <span
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  status === "critical"
+                    ? "bg-destructive animate-pulse"
+                    : status === "low"
+                      ? "bg-amber-500"
+                      : "bg-emerald-500",
+                )}
+              />
               {config.label}
             </Badge>
           );
@@ -239,28 +282,45 @@ export function ProductsTable({
             <div className="flex justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-9 w-9 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    className="h-9 w-9 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
                     <span className="sr-only">Open menu</span>
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-52 rounded-xl border-border/40 shadow-premium p-1">
-                  <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 px-2 py-1.5">Operations</DropdownMenuLabel>
-                  <DropdownMenuItem asChild className="rounded-lg font-semibold cursor-pointer">
-                    <Link href={`/dashboard/inventory/products/${product.id}`} className="flex items-center">
+                <DropdownMenuContent
+                  align="end"
+                  className="w-52 rounded-xl border-border/40 shadow-premium p-1"
+                >
+                  <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 px-2 py-1.5">
+                    Operations
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem
+                    asChild
+                    className="rounded-lg font-semibold cursor-pointer"
+                  >
+                    <Link
+                      href={`/dashboard/inventory/products/${product.id}`}
+                      className="flex items-center"
+                    >
                       <ExternalLink className="mr-2 h-4 w-4 text-primary/60" />
-                      Digital Identity
+                      Details
                     </Link>
                   </DropdownMenuItem>
                   {meta?.can?.("edit", "product") && (
                     <>
-                      <DropdownMenuItem asChild className="rounded-lg font-semibold cursor-pointer">
+                      <DropdownMenuItem
+                        asChild
+                        className="rounded-lg font-semibold cursor-pointer"
+                      >
                         <Link
                           href={`/dashboard/inventory/products/${product.id}/edit`}
                           className="flex items-center"
                         >
                           <Pencil className="mr-2 h-4 w-4 text-primary/60" />
-                          Modify Parameters
+                          Edit
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem
@@ -268,14 +328,14 @@ export function ProductsTable({
                         className="rounded-lg font-semibold cursor-pointer"
                       >
                         <PackagePlus className="mr-2 h-4 w-4 text-primary/60" />
-                        Reconcile Stock
+                        Adjust Stock
                       </DropdownMenuItem>
                     </>
                   )}
-                  <DropdownMenuItem className="rounded-lg font-semibold cursor-pointer">
+                  {/* <DropdownMenuItem className="rounded-lg font-semibold cursor-pointer">
                     <History className="mr-2 h-4 w-4 text-primary/60" />
                     Chain of Custody
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                   {meta?.can?.("delete", "product") && (
                     <>
                       <DropdownMenuSeparator className="bg-border/40" />
@@ -284,7 +344,7 @@ export function ProductsTable({
                         onClick={() => meta?.onDelete?.(product)}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Decommission
+                        Delete
                       </DropdownMenuItem>
                     </>
                   )}
@@ -295,7 +355,7 @@ export function ProductsTable({
         },
       },
     ],
-    []
+    [],
   );
 
   const tableMeta = React.useMemo(
@@ -334,16 +394,22 @@ export function ProductsTable({
         <Table>
           <TableHeader className="bg-secondary/30">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent border-b border-border/50">
+              <TableRow
+                key={headerGroup.id}
+                className="hover:bg-transparent border-b border-border/50"
+              >
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="h-12 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/80 py-3">
+                    <TableHead
+                      key={header.id}
+                      className="h-12 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/80 py-3"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   );
                 })}
@@ -360,14 +426,20 @@ export function ProductsTable({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="py-3 px-4">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-32 text-center text-muted-foreground"
+                >
                   <div className="flex flex-col items-center gap-2">
                     <ImageIcon className="h-8 w-8 opacity-20" />
                     <p className="font-medium">No products found</p>

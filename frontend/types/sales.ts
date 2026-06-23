@@ -54,8 +54,10 @@ export interface Invoice {
   status: 'unpaid' | 'partial' | 'paid' | 'overdue';
   due_date: string;
   total_amount: string | number;
-  paid_amount: string | number;
-  balance_due: string | number;
+  amount_paid?: string | number;
+  amount_due?: string | number;
+  paid_amount?: string | number;
+  balance_due?: string | number;
   sales_order?: SalesOrder;
   payments?: Payment[];
   created_at?: string;

@@ -12,4 +12,6 @@ Route::middleware(['auth:sanctum', 'verified', 'permission:view,notification'])-
         ->name('notifications.read-all');
     Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
         ->name('notifications.read');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])
+        ->name('notifications.destroy');
 });

@@ -190,7 +190,7 @@ export function SalesOrderTable({ data, onConfirm, onCancel, onGenerateInvoice }
               {order.invoice && (
                 <>
                   <DropdownMenuSeparator className="my-1" />
-                  <DropdownMenuItem onClick={() => exportInvoiceMutation.mutate(order.invoice.id)} className="rounded-lg gap-2 cursor-pointer text-primary focus:text-primary">
+                  <DropdownMenuItem onClick={() => exportInvoiceMutation.mutate(order.invoice!.id)} className="rounded-lg gap-2 cursor-pointer text-primary focus:text-primary">
                     <Download className="h-4 w-4 opacity-70" /> Download Invoice
                   </DropdownMenuItem>
                 </>

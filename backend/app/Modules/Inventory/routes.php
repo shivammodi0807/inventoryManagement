@@ -49,6 +49,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
      * PRODUCT ROUTES
      * Low-stock endpoint MUST be defined before /{product} to avoid collision.
      */
+    Route::get('/products/stats', [ProductController::class, 'stats'])
+        ->middleware('permission:view,product')->name('products.stats');
     Route::get('/products/low-stock', [ProductController::class, 'lowStock'])
         ->middleware('permission:view,product')->name('products.low-stock');
     Route::get('/products', [ProductController::class, 'index'])->middleware('permission:view,product');
