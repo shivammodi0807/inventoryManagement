@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDashboardStats } from "@/hooks/use-dashboard";
 import { StockMovementChart } from "@/components/dashboard/stock-movement-chart";
 import { CategoryValueChart } from "@/components/dashboard/category-value-chart";
@@ -30,6 +30,30 @@ import { cn } from "@/lib/utils";
 export default function DashboardPage() {
   const { data, isLoading, isError, refetch } = useDashboardStats();
   const [filter, setFilter] = useState<"all" | "category" | "value">("all");
+  const [connectionStatus, setConnectionStatus] = useState<"connected" | "disconnected" | "connecting">("connecting");
+
+  useEffect(() => {
+    import("@/lib/echo").then(({ getEcho }) => {
+      const echo = getEcho();
+      if (echo && echo.connector.pusher) {
+        // Initial state
+        const currentState = echo.connector.pusher.connection.state;
+        setConnectionStatus(currentState === "connected" ? "connected" : currentState === "connecting" ? "connecting" : "disconnected");
+
+        echo.connector.pusher.connection.bind("state_change", (states: { current: string }) => {
+          setConnectionStatus(
+            states.current === "connected" 
+              ? "connected" 
+              : states.current === "connecting" 
+                ? "connecting" 
+                : "disconnected"
+          );
+        });
+      } else {
+        setConnectionStatus("disconnected");
+      }
+    });
+  }, []);
 
   if (isError) return <ErrorState onRetry={() => refetch()} />;
 
@@ -74,19 +98,30 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest bg-emerald-500/10 text-emerald-600 px-4 py-2 rounded-xl border border-emerald-500/20 shadow-sm">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            Real-time Feed Active
-          </div>
-          <Button
-            variant="outline"
-            className="h-10 px-4 rounded-xl border-border/40 font-semibold gap-2 hover:bg-background transition-all"
-          >
-            Refresh Data
-          </Button>
+          {connectionStatus === "connected" ? (
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest bg-emerald-500/10 text-emerald-600 px-4 py-2 rounded-xl border border-emerald-500/20 shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              Real-time Feed Active
+            </div>
+          ) : connectionStatus === "connecting" ? (
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest bg-amber-500/10 text-amber-600 px-4 py-2 rounded-xl border border-amber-500/20 shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              </span>
+              Connecting...
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-widest bg-destructive/10 text-destructive px-4 py-2 rounded-xl border border-destructive/20 shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"></span>
+              </span>
+              Feed Disconnected
+            </div>
+          )}
         </div>
       </div>
 
